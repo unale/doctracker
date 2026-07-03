@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doçentlik Takip · ÜAK 2026</title>
+<style>
+  :root{
+    --ink:#16202b; --paper:#f3efe6; --line:#d8d0c0; --accent:#9a3b2e;
+    --accent2:#2f5d50; --muted:#6f6857; --gold:#b58a2e; --ok:#2f5d50; --warn:#9a3b2e;
+    --fikir:#8a8170; --veri:#b58a2e; --yazim:#3a7ca5; --submit:#5b7553;
+    --revizyon:#c77d3a; --red:#9a3b2e; --resubmit:#5b6e8c; --kabul:#2f5d50;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    background:var(--paper);color:var(--ink);line-height:1.5;
+    padding:clamp(12px,3vw,30px);max-width:1200px;margin:0 auto;-webkit-font-smoothing:antialiased}
+  header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;
+    gap:16px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+  .eyebrow{font:600 11px/1 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+  h1{font-size:clamp(22px,4vw,32px);font-weight:600;letter-spacing:-.01em;margin-top:6px}
+  .sub{color:var(--muted);font-size:13px;margin-top:2px;max-width:52ch}
+  .score{text-align:right;min-width:210px}
+  .score .num{font-size:clamp(32px,7vw,50px);font-weight:700;color:var(--accent);line-height:.9}
+  .score .num small{font-size:.4em;color:var(--muted);font-weight:600}
+  .score .lbl{font:600 10px/1.4 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .score .bar{height:7px;background:var(--line);border-radius:4px;margin-top:8px;overflow:hidden}
+  .score .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0;transition:.3s}
+
+  .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:16px 0 4px}
+  .gate{background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:9px 12px}
+  .gate.ok{border-left-color:var(--ok)} .gate.no{border-left-color:var(--warn)}
+  .gate .g-t{font:600 11px/1.3 ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .gate .g-v{font-size:14px;font-weight:600;margin-top:2px}
+  .gate .g-v b{color:var(--accent)}
+  .gate.ok .mark{color:var(--ok)} .gate.no .mark{color:var(--warn)}
+  .gbtn{cursor:pointer;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);border-radius:4px;background:#fff;font:600 13px ui-monospace,monospace;color:var(--muted);user-select:none}
+  .gbtn:hover{border-color:var(--ink);color:var(--ink)}
+
+  .ref{background:#fff;border:1px solid var(--line);border-radius:10px;margin:14px 0;overflow:hidden}
+  .ref summary{cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center}
+  .ref summary::-webkit-details-marker{display:none}
+  .ref summary::after{content:'+';font-size:18px;color:var(--muted)}
+  .ref[open] summary::after{content:'–'}
+  .ref .body{padding:4px 16px 16px;font-size:13px;line-height:1.6}
+  .ref h4{font-size:13px;margin:14px 0 5px;color:var(--accent2);font-variant:small-caps;letter-spacing:.04em}
+  .ref table{width:100%;border-collapse:collapse;margin:6px 0;font-size:12.5px}
+  .ref td{padding:3px 8px 3px 0;border-bottom:1px solid #efe9dc;vertical-align:top}
+  .ref td:last-child{text-align:right;font:600 12px ui-monospace,monospace;color:var(--accent);white-space:nowrap}
+  .ref .must{background:#faf3f0;border-left:3px solid var(--red);padding:7px 10px;border-radius:5px;margin:6px 0;font-size:12.5px}
+  .ref .abbr{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px}
+  .ref .abbr b{font:600 12px ui-monospace,monospace;color:var(--ink)}
+
+  /* sekmeler */
+  .tabs{display:flex;gap:4px;margin:18px 0 0;border-bottom:2px solid var(--ink)}
+  .tab{padding:10px 18px;cursor:pointer;font:600 13px/1 ui-monospace,monospace;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-bottom:none;
+    border-radius:8px 8px 0 0;background:#ece6da;margin-bottom:-2px}
+  .tab.on{background:var(--paper);color:var(--accent);border-bottom:2px solid var(--paper)}
+  .tab .cnt{font-size:11px;opacity:.7}
+  .pane{display:none;padding-top:14px} .pane.on{display:block}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 10px}
+  .toolbar .grow{flex:1}
+  button,select,input{font-family:inherit;font-size:13px}
+  .btn{background:var(--ink);color:var(--paper);border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600}
+  .btn:hover{background:#000}
+  .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .chip{border:1px solid var(--line);background:#fff;padding:6px 11px;border-radius:20px;cursor:pointer;font-size:12px;color:var(--muted)}
+  .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  .card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px}
+  .card .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .title{font-size:15px;font-weight:600;flex:1}
+  .title[contenteditable]:focus{outline:2px solid var(--gold);border-radius:4px;outline-offset:2px}
+  .pts{font:700 13px ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
+  .pts small{display:block;font-size:9px;color:var(--muted);font-weight:400}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+  .tag{font:600 10px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);background:#fafafa}
+  .tag.q{color:#fff;border:none;background:var(--accent2)}
+  .tag.author{background:#fff}
+  .venue{font-size:12.5px;color:var(--ink);font-style:italic;font-weight:600}
+  .redbtn{cursor:pointer;user-select:none;border:1px dashed var(--line);background:#fff;color:var(--muted)}
+  .redbtn:hover{border-style:solid;border-color:var(--ink)}
+  .redbtn.red{background:var(--red);color:#fff;border:1px solid var(--red)}
+  .redbtn.resubmit{background:var(--resubmit);color:#fff;border:1px solid var(--resubmit)}
+  .trackbtn{cursor:pointer;user-select:none;border:1px solid var(--resubmit);color:var(--resubmit);background:#fff;
+    font:600 10px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:5px;white-space:nowrap}
+  .trackbtn:hover{background:var(--resubmit);color:#fff}
+  .trackbtn.empty{border:none;background:transparent;color:var(--muted);padding:5px 4px;text-decoration:underline;text-decoration-style:dotted}
+  .trackbtn.empty:hover{color:var(--resubmit);background:transparent}
+
+  .funnel{display:flex;margin-top:8px;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+  .funnel .step{flex:1;text-align:center;padding:5px 2px;font:600 9px/1.2 ui-monospace,monospace;
+    letter-spacing:.02em;text-transform:uppercase;color:var(--muted);cursor:pointer;
+    border-right:1px solid var(--line);background:#fff;transition:.12s;user-select:none}
+  .funnel .step:last-child{border-right:none}
+  .funnel .step:hover{background:#f6f2e9}
+  .funnel .step.done{color:#fff} .funnel .step.cur{box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+
+  .rowbtns{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
+  .mini{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--muted)}
+  .mini:hover{border-color:var(--ink);color:var(--ink)}
+  .mini.del:hover{border-color:var(--accent);color:var(--accent)}
+
+  .edit{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+  .edit.show{display:grid}
+  .edit label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .edit input,.edit select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:100%}
+  .linkrow{display:flex;align-items:flex-end;gap:6px}
+  .linkrow .wos{font-size:11px;color:var(--resubmit);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:6px 8px;white-space:nowrap}
+  .linkrow .wos:hover{border-color:var(--resubmit)}
+  .note{grid-column:1/-1;font-size:11px;color:var(--muted);background:#faf7f0;border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+  .redlist{grid-column:1/-1;border:1px solid var(--line);border-radius:7px;padding:10px;background:#fdfbf7;display:none}
+  .redlist.show{display:block}
+  .redlist h5{font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+  .redrow{display:grid;grid-template-columns:1fr 1.4fr auto;gap:6px;margin-bottom:6px;align-items:center}
+  .redrow input{padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px}
+  .redrow .x{cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px}
+  .redrow .x:hover{color:var(--red);border-color:var(--red)}
+  .add{font-size:11px;border:1px dashed var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--muted)}
+  .add:hover{border-color:var(--ink);color:var(--ink)}
+
+  /* yayınlanmış sekmesi: madde grupları */
+  .doibox{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+  .doibox h3{font-size:13px;color:var(--accent2);margin-bottom:8px}
+  .doibox .info{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}
+  .doibox .info code{background:#f0ebe0;padding:1px 5px;border-radius:4px;font-size:11px}
+  .grp{margin-bottom:18px}
+  .grp h2{font:600 12px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+    padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:10px;display:flex;justify-content:space-between}
+  .grp h2 .gp{color:var(--muted)}
+  .pub{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:8px}
+  .pub .ptop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .pub .ptitle{font-size:14px;font-weight:600;flex:1}
+  .pub .pp{font:700 13px ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
+  .pub .pp small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+  .pub .pmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.4}
+  .pub .authors{font-size:11px;color:var(--ink);font-style:italic;line-height:1.5;margin-top:4px}
+  .pub .pctl{display:none;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
+  .pub .pctl.show{display:grid}
+  .pub .pctl label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .pub .pctl input,.pub .pctl select{padding:6px;border:1px solid var(--line);border-radius:6px;background:#fff}
+
+  .empty{text-align:center;color:var(--muted);padding:34px 10px;font-style:italic}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  footer a{color:var(--accent);cursor:pointer}
+  @media(max-width:560px){.funnel .step{font-size:7px}.score{text-align:left;min-width:0}.redrow{grid-template-columns:1fr 1fr auto}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="eyebrow">ÜAK · Tablo 10 · Mart 2026 · Sağlık Bilimleri</div>
+    <h1>Doçentlik Dosyası</h1>
+    <div class="sub">Süreçteki ve yayınlanmış makaleler tek panoda. Puan ikisinden toplanır. Veriler bu cihazda saklanır.</div>
+  </div>
+  <div class="score">
+    <div class="num" id="totalPts">0<small>/100</small></div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px" id="potentialNote"></div>
+    <div class="lbl">Toplam (kabul+yayın · uzm. sonrası)</div>
+    <div class="bar"><i id="bar"></i></div>
+  </div>
+</header>
+
+<div class="gates" id="gates"></div>
+
+<details class="ref" id="citBox">
+  <summary>📑 Atıf Defteri (M5) — <span id="citSummary"></span></summary>
+  <div class="body">
+    <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+      Her atıfı türüne göre ekle. <b>SCIE/Scopus = 3p</b>, <b>TR Dizin/kitap = 2p</b>, <b>diğer = 1p</b>.
+      Aynı yayında birden çok atıf <b>tek</b> sayılır · kendine atıf <b>sayılmaz</b> · tavan <b>10p</b> (M5 için ≥5p gerekir).
+    </div>
+    <div id="citList"></div>
+    <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="add" onclick="addCit('scie')">+ SCIE/Scopus (3p)</button>
+      <button class="add" onclick="addCit('trdizin')">+ TR Dizin/Kitap (2p)</button>
+      <button class="add" onclick="addCit('other')">+ Diğer (1p)</button>
+    </div>
+  </div>
+</details>
+
+<details class="ref" id="presBox">
+  <summary>🎤 Bildiri (M8) — <span id="presSummary"></span></summary>
+  <div class="body">
+    <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+      Her bildiriyi tek tek ekle. <b>Her bildiri = 3 puan</b> · toplam puan toplam yazar sayısına bölünür.
+      <b>M8 = Σ(3 / yazar sayısı)</b> (M8 için ≥5p gerekir).
+    </div>
+    <div id="presList"></div>
+    <button class="add" onclick="addPres()" style="margin-top:8px">+ Bildiri ekle</button>
+  </div>
+</details>
+
+<details class="ref" id="bookBox">
+  <summary>📖 Kitap Bölümü (M4) — <span id="bookSummary"></span></summary>
+  <div class="body">
+    <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+      Her kitap bölümünü tek tek ekle. <b>BKCI = 10p</b>, <b>Diğer = 3p</b> · puan yazar sayısına bölünür.
+      <b>M4 = Σ(puan / yazar sayısı)</b> · Max <b>20p</b> toplam · <b>Diğer max 5p</b> (M4 için min yok ama toplama girer).
+    </div>
+    <div id="bookList"></div>
+    <button class="add" onclick="addBook()" style="margin-top:8px">+ Kitap bölümü ekle</button>
+  </div>
+</details>
+
+<details class="ref" id="thesisBox">
+  <summary>🎓 Lisansüstü Tez Danışmanlığı (M6) — <span id="thesisSummary"></span></summary>
+  <div class="body">
+    <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
+      Her tezi tek tek ekle. <b>Başlıca danışman = 5p</b>, <b>İkinci danışman = 2.5p</b>.
+      <b>M6 = Σ(danışman türüne göre puan)</b> · Max <b>10p</b> (M6 için min yok ama toplama girer).
+    </div>
+    <div id="thesisList"></div>
+    <button class="add" onclick="addThesis()" style="margin-top:8px">+ Tez ekle</button>
+  </div>
+</details>
+
+<details class="ref">
+  <summary>Puanlama Kuralları & Kısaltmalar — ÜAK Tablo 10 (Mart 2026)</summary>
+  <div class="body">
+    <div class="must"><b>Geçme şartı:</b> Toplam ≥<b>100 puan</b>; ≥<b>90'ı</b> uzmanlık <i>sonrası</i>.</div>
+    <div class="must"><b>M1a:</b> Uzm. sonrası SCIE/SSCI'de ≥<b>3 makalede başlıca yazar</b> + ≥<b>40 puan</b>.</div>
+    <div class="must"><b>M2:</b> ≥<b>3 ulusal yayın</b> (2'si TR Dizin) + ≥<b>2'sinde başlıca yazar</b>.</div>
+    <div class="must"><b>M3</b> tez yayını ≥1 · <b>M5</b> atıf ≥5p · <b>M8</b> bildiri ≥5p · <b>M9</b> eğitim ≥2p.</div>
+    <h4>Yazar payı</h4>
+    <table>
+      <tr><td>Tek yazar</td><td>× 1.0</td></tr>
+      <tr><td>İki yazar — başlıca / ikinci</td><td>0.8 / 0.5</td></tr>
+      <tr><td>Üç+ — başlıca / diğer</td><td>0.5 · kalan ½÷(n−1)</td></tr>
+    </table>
+    <h4>1 · Uluslararası Makale</h4>
+    <table>
+      <tr><td>SCIE/SSCI Q1/Q2/Q3/Q4</td><td>30/20/15/10</td></tr>
+      <tr><td>AHCI · ESCI/Scopus · diğer</td><td>20 · 10 · 5</td></tr>
+      <tr><td>LTE/özet/not (a-d) · Vak'a (a bendi)</td><td>3 · 5</td></tr>
+    </table>
+    <div class="must" style="border-left-color:var(--gold);background:#faf7ee">⚠ Vak'a takdimi yalnız SCIE/SSCI (a bendi) dergide 5 puan.</div>
+    <h4>2 · Ulusal · 5 · Atıf · 8 · Bildiri</h4>
+    <table>
+      <tr><td>TR Dizin / diğer hakemli / ulusal LTE</td><td>10 / 4 / 2</td></tr>
+      <tr><td>Atıf SCIE-Scopus / TR Dizin / diğer</td><td>3 / 2 / 1</td></tr>
+      <tr><td>Bildiri uluslararası CPCI / diğer</td><td>5 / 3</td></tr>
+    </table>
+    <h4>Kısaltmalar</h4>
+    <div class="abbr">
+      <b>SCIE</b><span>Science Citation Index Expanded</span>
+      <b>ESCI</b><span>Emerging Sources Citation Index</span>
+      <b>BKCI</b><span>Book Citation Index</span>
+      <b>CPCI</b><span>Conference Proceedings Citation Index</span>
+      <b>TR Dizin</b><span>TÜBİTAK ULAKBİM ulusal dizin</span>
+      <b>JIF Q</b><span>WoS Journal Impact Factor Quartile</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:10px">Kaynak: ÜAK Tablo 10, Sağlık Bilimleri, Mart 2026.</div>
+  </div>
+</details>
+
+<div class="tabs">
+  <div class="tab on" data-t="surec" onclick="setTab(this)">Süreçte <span class="cnt" id="cntSurec"></span></div>
+  <div class="tab" data-t="yayin" onclick="setTab(this)">Yayınlanmış <span class="cnt" id="cntYayin"></span></div>
+</div>
+
+<!-- SÜREÇTE -->
+<div class="pane on" id="pane-surec">
+  <div class="toolbar">
+    <button class="btn" onclick="addItem()">+ Yeni makale</button>
+    <div class="grow"></div>
+    <span style="font-size:11px;color:var(--muted)">Süz:</span>
+    <span class="chip on" data-f="all" onclick="setFilter(this)">Tümü</span>
+    <span class="chip" data-f="aktif" onclick="setFilter(this)">Devam</span>
+    <span class="chip" data-f="submit" onclick="setFilter(this)">Submit</span>
+    <span class="chip" data-f="revizyon" onclick="setFilter(this)">Revizyon</span>
+    <span class="chip" data-f="kabul" onclick="setFilter(this)">Kabul</span>
+    <span class="chip" data-f="red" onclick="setFilter(this)">Red/Resubmit</span>
+  </div>
+  <div id="listSurec"></div>
+</div>
+
+<!-- YAYINLANMIŞ -->
+<div class="pane" id="pane-yayin">
+  <div class="doibox">
+    <h3>Yayınlanmış makale ekle</h3>
+    <div class="info">
+      DOI'yi yapıştır veya Claude'a sohbette ver. <code>10.1016/...</code> formatında. Claude başlık, dergi, yıl, yazarları çeker ve sana hazır JSON gönderir → "Geri yükle"den içe aktar. Quartili sen WoS'tan teyit edersin.
+    </div>
+    <div class="linkrow" style="margin-bottom:8px">
+      <input type="text" id="doiInput" placeholder="DOI yapıştır (otomatik çekmeyi dene)" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:#fff" onkeydown="if(event.key==='Enter')fetchDOI()">
+      <button class="btn" onclick="fetchDOI()">DOI çek</button>
+      <button class="btn ghost" onclick="addPub()">+ Elle ekle</button>
+    </div>
+    <div id="doiStatus" style="font-size:12px;min-height:16px;color:var(--muted)"></div>
+  </div>
+  <div id="listYayin"></div>
+</div>
+
+<footer>
+  <span>Süreçte: aşamaya tıkla · Yayınlanmış: madde gruplarına göre sıralı</span>
+  <span><a onclick="exportData()">Yedek al</a> · <a onclick="importData()">Geri yükle</a></span>
+</footer>
+
+<script>
+const WOS='https://www.webofscience.com/wos/alldb/smart-search';
+const STAGES=[
+  {k:'fikir',t:'Fikir',c:'var(--fikir)'},{k:'veri',t:'Veri',c:'var(--veri)'},
+  {k:'yazim',t:'Yazım',c:'var(--yazim)'},{k:'submit',t:'Submit',c:'var(--submit)'},
+  {k:'revizyon',t:'Revizyon',c:'var(--revizyon)'},{k:'red',t:'Red',c:'var(--red)'},
+  {k:'resubmit',t:'Resubmit',c:'var(--resubmit)'},{k:'kabul',t:'Kabul',c:'var(--kabul)'}
+];
+const KINDS={
+  q1:{t:'SCIE/SSCI Q1',base:30,intl_a:true,grp:'M1'},
+  q2:{t:'SCIE/SSCI Q2',base:20,intl_a:true,grp:'M1'},
+  q3:{t:'SCIE/SSCI Q3',base:15,intl_a:true,grp:'M1'},
+  q4:{t:'SCIE/SSCI Q4',base:10,intl_a:true,grp:'M1'},
+  ahci:{t:'AHCI',base:20,intl_a:false,grp:'M1'},
+  esci:{t:'ESCI/Scopus',base:10,intl_a:false,grp:'M1'},
+  other_intl:{t:'Diğer ulus.arası',base:5,intl_a:false,grp:'M1'},
+  lte:{t:'Uluslararası LTE/özet/not',base:3,intl_a:false,grp:'M1'},
+  case:{t:"Vak'a takdimi (a bendi)",base:5,intl_a:false,grp:'M1'},
+  trdizin:{t:'TR Dizin makale',base:10,intl_a:false,nat_a:true,nat:true,grp:'M2'},
+  nat_other:{t:'Diğer hakemli ulusal',base:4,intl_a:false,nat:true,grp:'M2'},
+  nat_lte:{t:'Ulusal LTE/özet',base:2,intl_a:false,nat:true,grp:'M2'}
+};
+const GROUPS={M1:'Madde 1 · Uluslararası Makale', M2:'Madde 2 · Ulusal Makale'};
+
+function shareMult(n,rank){n=+n||1;rank=+rank||1;
+  if(n<=1)return 1.0; if(n===2)return rank===1?0.8:0.5; return rank===1?0.5:0.5/(n-1);}
+function calcPts(it){const k=KINDS[it.kind];if(!k)return 0;
+  return Math.round(k.base*shareMult(it.authors,it.rank)*100)/100;}
+
+const SEED_SUREC=[];
+const SEED_YAYIN=[
+  {id:101,title:'Femoral nerve block vs IV fentanyl for hip fracture pain (RCT)',kind:'q2',venue:'Am J Emerg Med',year:2026,authors:11,authorNames:['Ünál Emir','Smith John','Johnson Mary'],rank:1,postUzm:true,doi:'10.1016/j.ajem.2025.10.044'}
+];
+
+let DB=load();
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(!d.citations)d.citations=defCitations();if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
+  return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
+function defManual(){return {tezYayin:0,egitim:0};}
+function defCitations(){return [];}
+function defPresentations(){return [];}
+function defBooks(){return [];}
+function defTheses(){return [];}
+const CIT_TYPES={scie:{t:'SCIE/SSCI/AHCI/ESCI/Scopus',p:3},trdizin:{t:'BKCI kitap / TR Dizin',p:2},other:{t:'Diğer',p:1}};
+function citTotal(){
+  let sum=0;(DB.citations||[]).forEach(c=>{sum+=(CIT_TYPES[c.type]||{p:0}).p;});
+  return Math.min(10,Math.round(sum*10)/10);
+}
+function save(){try{localStorage.setItem('docentlik_v4',JSON.stringify(DB));}catch(e){}}
+function bumpManual(key,d){DB.manual[key]=Math.max(0,Math.round((DB.manual[key]+d)*10)/10);save();render();}
+function setManual(key,val){const v=parseFloat(val);DB.manual[key]=isNaN(v)?0:Math.max(0,Math.round(v*10)/10);save();render();}
+function addCit(type){DB.citations=DB.citations||[];DB.citations.push({type,note:''});save();render();
+  const e=document.getElementById('citBox');if(e)e.open=true;}
+function patchCit(idx,key,val){if(!DB.citations[idx])return;DB.citations[idx][key]=val;save();
+  const e=document.getElementById('citBox');if(e)e.open=true;}
+function delCit(idx){DB.citations.splice(idx,1);save();render();const e=document.getElementById('citBox');if(e)e.open=true;}
+function renderCits(){
+  const list=document.getElementById('citList');if(!list)return;
+  const cits=DB.citations||[];
+  const sum=citTotal();const raw=cits.reduce((a,c)=>a+(CIT_TYPES[c.type]||{p:0}).p,0);
+  const sm=document.getElementById('citSummary');
+  if(sm)sm.innerHTML=`${cits.length} atıf · <b>${sum}/5 p</b>${raw>10?' (ham '+raw+', tavan 10)':''} ${sum>=5?'✓':'○'}`;
+  if(!cits.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz atıf yok. Aşağıdan tür seçerek ekle.</div>';return;}
+  list.innerHTML=cits.map((c,idx)=>`<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px">
+    <span class="tag" style="background:var(--accent2);color:#fff;border:none">${(CIT_TYPES[c.type]||{}).p}p · ${(CIT_TYPES[c.type]||{}).t}</span>
+    <input type="text" value="${esc(c.note||'')}" placeholder="atıf yapan yayın / not (opsiyonel)" onchange="patchCit(${idx},'note',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <span class="x" onclick="delCit(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+  </div>`).join('');
+}
+function presTotal(){
+  const pres=DB.presentations||[];let m8=0;
+  pres.forEach(p=>{const a=+p.authors||0;if(a>0)m8+=3/a;});
+  m8=Math.round(m8*100)/100; return {count:pres.length,m8};}
+function addPres(){DB.presentations=DB.presentations||[];DB.presentations.push({id:Date.now(),title:'Yeni bildiri',authors:0});save();render();
+  const e=document.getElementById('presBox');if(e)e.open=true;}
+function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='authors')val=+val;DB.presentations[idx][key]=val;save();render();
+  const e=document.getElementById('presBox');if(e)e.open=true;}
+function delPres(idx){DB.presentations.splice(idx,1);save();render();const e=document.getElementById('presBox');if(e)e.open=true;}
+function renderPresentations(){
+  const list=document.getElementById('presList');if(!list)return;
+  const pres=DB.presentations||[];const {count,m8}=presTotal();
+  const sm=document.getElementById('presSummary');
+  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b> ${m8>=5?'✓':'○'}`;
+  if(!pres.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz bildiri yok. Aşağıdan ekle.</div>';return;}
+  list.innerHTML=pres.map((p,idx)=>{
+    const a=+p.authors||0;const pts=a>0?Math.round(3/a*100)/100:0;
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    <input type="text" value="${esc(p.title||'')}" placeholder="bildiri başlığı" onchange="patchPres(${idx},'title',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <div style="display:flex;gap:4px;align-items:center">
+      <input type="number" min="0" value="${p.authors||''}" placeholder="yazar" onchange="patchPres(${idx},'authors',this.value)"
+        style="width:60px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    </div>
+    <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${a?pts+'p':'—'}</div>
+    <span class="x" onclick="delPres(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+  </div>`;
+  }).join('');
+}
+function bookTotal(){
+  const books=DB.books||[];let bkciPts=0,otherPts=0;
+  books.forEach(b=>{const a=+b.authors||0;const base=b.kind==='bkci'?10:3;const pts=a>0?base/a:0;
+    if(b.kind==='bkci')bkciPts+=pts;else otherPts+=pts;});
+  bkciPts=Math.round(bkciPts*100)/100;otherPts=Math.round(otherPts*100)/100;
+  const bkciCapped=Math.min(20,bkciPts);const otherCapped=Math.min(5,otherPts);const m4=bkciCapped+otherCapped;
+  return {count:books.length,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn:(bkciPts>20||otherPts>5)};
+}
+function addBook(){DB.books=DB.books||[];DB.books.push({id:Date.now(),chapter:'Yeni bölüm',book:'Kitap',kind:'bkci',authors:0});save();render();
+  const e=document.getElementById('bookBox');if(e)e.open=true;}
+function patchBook(idx,key,val){if(!DB.books[idx])return;if(key==='authors')val=+val;DB.books[idx][key]=val;save();render();
+  const e=document.getElementById('bookBox');if(e)e.open=true;}
+function delBook(idx){DB.books.splice(idx,1);save();render();const e=document.getElementById('bookBox');if(e)e.open=true;}
+function renderBooks(){
+  const list=document.getElementById('bookList');if(!list)return;
+  const books=DB.books||[];const {count,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn}=bookTotal();
+  const sm=document.getElementById('bookSummary');
+  if(sm)sm.innerHTML=`${count} bölüm · <b>${m4} p</b>${warn?` ⚠ (BKCI: ${bkciPts}→${bkciCapped}p, Diğer: ${otherPts}→${otherCapped}p)`:''} ✓`;
+  if(!books.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz kitap bölümü yok. Aşağıdan ekle.</div>';return;}
+  list.innerHTML=books.map((b,idx)=>{
+    const a=+b.authors||0;const base=b.kind==='bkci'?10:3;const pts=a>0?Math.round(base/a*100)/100:0;
+    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    <input type="text" value="${esc(b.chapter||'')}" placeholder="bölüm başlığı" onchange="patchBook(${idx},'chapter',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <input type="text" value="${esc(b.book||'')}" placeholder="kitap adı" onchange="patchBook(${idx},'book',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <select onchange="patchBook(${idx},'kind',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+      <option value="bkci" ${b.kind==='bkci'?'selected':''}>BKCI (10p)</option>
+      <option value="other" ${b.kind==='other'?'selected':''}>Diğer (3p)</option>
+    </select>
+    <div style="display:flex;gap:4px;align-items:center">
+      <input type="number" min="0" value="${a||''}" placeholder="yazar" onchange="patchBook(${idx},'authors',this.value)"
+        style="width:50px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;min-width:80px">
+      <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${a?pts+'p':'—'}</div>
+      <span class="x" onclick="delBook(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+    </div>
+  </div>`;
+  }).join('');
+}
+function thesisTotal(){
+  const theses=DB.theses||[];let m6=0;
+  theses.forEach(t=>{const base=t.role==='primary'?5:2.5;m6+=base;});
+  m6=Math.round(m6*100)/100;return {count:theses.length,m6:Math.min(10,m6),m6_raw:m6,warn:(m6>10)};
+}
+function addThesis(){DB.theses=DB.theses||[];DB.theses.push({id:Date.now(),student:'Öğrenci adı',topic:'Tez konusu',role:'primary'});save();render();
+  const e=document.getElementById('thesisBox');if(e)e.open=true;}
+function patchThesis(idx,key,val){if(!DB.theses[idx])return;DB.theses[idx][key]=val;save();render();
+  const e=document.getElementById('thesisBox');if(e)e.open=true;}
+function delThesis(idx){DB.theses.splice(idx,1);save();render();const e=document.getElementById('thesisBox');if(e)e.open=true;}
+function renderTheses(){
+  const list=document.getElementById('thesisList');if(!list)return;
+  const theses=DB.theses||[];const {count,m6,m6_raw,warn}=thesisTotal();
+  const sm=document.getElementById('thesisSummary');
+  if(sm)sm.innerHTML=`${count} tez · <b>${m6}/10 p</b>${warn?` ⚠ (ham ${m6_raw}p)`:''} ✓`;
+  if(!theses.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz tez yok. Aşağıdan ekle.</div>';return;}
+  list.innerHTML=theses.map((t,idx)=>{
+    const pts=t.role==='primary'?5:2.5;
+    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    <input type="text" value="${esc(t.student||'')}" placeholder="öğrenci adı" onchange="patchThesis(${idx},'student',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <input type="text" value="${esc(t.topic||'')}" placeholder="tez konusu" onchange="patchThesis(${idx},'topic',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <select onchange="patchThesis(${idx},'role',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+      <option value="primary" ${t.role==='primary'?'selected':''}>Başlıca (5p)</option>
+      <option value="secondary" ${t.role==='secondary'?'selected':''}>İkinci (2.5p)</option>
+    </select>
+    <div style="display:flex;gap:8px;align-items:center;min-width:80px">
+      <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${pts}p</div>
+      <span class="x" onclick="delThesis(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+    </div>
+  </div>`;
+  }).join('');
+}
+function stageIdx(k){return STAGES.findIndex(s=>s.k===k)}
+
+function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));el.classList.add('on');
+  DB.tab=el.dataset.t;save();
+  document.getElementById('pane-surec').classList.toggle('on',DB.tab==='surec');
+  document.getElementById('pane-yayin').classList.toggle('on',DB.tab==='yayin');}
+function setFilter(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');DB.filter=el.dataset.f;save();render();}
+
+/* ---- SÜREÇTE ---- */
+function addItem(){DB.items.unshift({id:Date.now(),title:'Yeni makale',kind:'q2',venue:'',authors:3,rank:1,stage:'fikir',postUzm:true,track:'',rejections:[]});save();render();}
+function setStage(id,k){const it=DB.items.find(x=>x.id===id);if(!it)return;
+  if(k==='red'&&it.venue){it.rejections=it.rejections||[];if(!it.rejections.some(r=>r.journal===it.venue))it.rejections.push({journal:it.venue,reason:''});}
+  it.stage=k;save();render();
+  if(k==='kabul'){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}}
+function patch(id,key,val,keepOpen){const it=DB.items.find(x=>x.id===id);if(!it)return;
+  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;save();render();
+  if(keepOpen){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}}
+function del(id){if(confirm('Sil?')){DB.items=DB.items.filter(x=>x.id!==id);save();render();}}
+function toggleEdit(id){const e=document.getElementById('edit-'+id);if(e)e.classList.toggle('show');}
+function openEdit(id){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+function addRej(id){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections=it.rejections||[];it.rejections.push({journal:'',reason:''});save();render();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+function patchRej(id,idx,key,val){const it=DB.items.find(x=>x.id===id);if(!it||!it.rejections[idx])return;it.rejections[idx][key]=val;save();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+function delRej(id,idx){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections.splice(idx,1);save();render();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+function track(id){const it=DB.items.find(x=>x.id===id);if(!it)return;
+  if(it.track){window.open(it.track,'_blank');return;}
+  const u=prompt('Dergi takip (track status) linkini yapıştır:');if(u){it.track=u.trim();save();render();}}
+
+function promote(id){
+  const it=DB.items.find(x=>x.id===id);if(!it)return;
+  const doiInp=document.getElementById('promoteDoi-'+id);
+  const doi=doiInp?doiInp.value.trim():'';
+  DB.pubs.unshift({
+    id:Date.now()+Math.floor(Math.random()*999),
+    title:it.title, kind:it.kind, venue:it.venue||'', year:(new Date().getFullYear()),
+    authors:it.authors||1, rank:it.rank||1, postUzm:it.postUzm!==false, doi:doi||'',
+    authorNames:it.authorNames||[]
+  });
+  DB.items=DB.items.filter(x=>x.id!==id);
+  DB.tab='yayin';
+  save();render();
+}
+
+/* ---- YAYINLANMIŞ ---- */
+function dstat(msg,col){const s=document.getElementById('doiStatus');if(s){s.textContent=msg;s.style.color=col||'var(--muted)';}}
+function norm(s){return (s||'').toLowerCase().replace(/ı/g,'i').replace(/İ/g,'i').replace(/ş/g,'s').replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ö/g,'o').replace(/ç/g,'c').normalize('NFD').replace(/[̀-ͯ]/g,'').trim();}
+
+function guessKind(type,title){
+  type=(type||'').toLowerCase(); title=(title||'').toLowerCase();
+  if(/letter|comment|editorial/.test(type)||/expanding perspectives|in reply|comment on|letter to|response to/.test(title)) return 'lte';
+  return 'q2';
+}
+function findRank(authors){
+  let rank=0;
+  authors.forEach((a,i)=>{
+    const fam=norm(a.family||a.last||''); const giv=norm(a.given||a.first||'');
+    if(fam==='unal' && giv.startsWith('emir')) rank=i+1;
+  });
+  return rank;
+}
+function pushPub(o){
+  const authNames=(o.authorNames||o.authors||[]).map(a=>{
+    if(typeof a==='string')return a;
+    const g=a.given||a.first||'';const f=a.family||a.last||'';
+    return g&&f ? g+' '+f : f||g||'';
+  }).filter(a=>a);
+  DB.pubs.unshift({
+    id:Date.now()+Math.floor(Math.random()*999),
+    title:o.title||o.doi||'(başlıksız)',
+    venue:o.venue||'', year:o.year||'',
+    authors:o.authors||authNames.length||1, rank:o.rank||1,
+    postUzm:true, kind:o.kind||'q2', doi:o.doi||'',
+    authorNames:authNames
+  });
+}
+
+async function fetchDOI(){
+  const inp=document.getElementById('doiInput');
+  const raw=(inp.value||'').trim();
+  if(!raw){dstat('DOI gir.','var(--warn)');return;}
+  const doi=raw.replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').replace(/^doi:/i,'').trim();
+
+  const dup = DB.pubs.find(p=>p.doi && p.doi.toLowerCase()===doi.toLowerCase());
+  if(dup){
+    dstat('⚠ Bu DOI zaten ekli: "'+(dup.title||doi).slice(0,50)+'…"','var(--warn)');
+    return;
+  }
+
+  dstat('CrossRef\'ten çekiliyor…','var(--resubmit)');
+  try{
+    const res=await fetch('https://api.crossref.org/works/'+encodeURIComponent(doi),{headers:{'Accept':'application/json'}});
+    if(res.ok){
+      const m=(await res.json()).message;
+      const authors=m.author||[];
+      pushPub({
+        title:(m.title&&m.title[0])||doi,
+        venue:(m['container-title']&&m['container-title'][0])||'',
+        year:(m.issued&&m.issued['date-parts']&&m.issued['date-parts'][0][0])||'',
+        authors:authors.length||1, rank:findRank(authors)||1,
+        kind:guessKind(m.type,(m.title&&m.title[0])||''), doi,
+        authorNames:authors
+      });
+      save();render();inp.value='';
+      dstat('CrossRef\'ten eklendi. Quartil + yazar/sıra WoS\'tan doğrula.','var(--ok)');
+      return;
+    }
+    throw new Error('crossref '+res.status);
+  }catch(e){
+    dstat('Çekilemedi. DOI\'yi Claude\'a sohbette ver (10.1016/... 11/3 formatında) — o tüm bilgiler + JSON göndersin.','var(--warn)');
+  }
+}
+function addPub(){DB.pubs.unshift({id:Date.now(),title:'Yeni yayın (elle)',kind:'q2',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});save();render();}
+function patchPub(id,key,val){const it=DB.pubs.find(x=>x.id===id);if(!it)return;
+  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;save();render();
+  const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
+function delPub(id){if(confirm('Bu yayını sil?')){DB.pubs=DB.pubs.filter(x=>x.id!==id);save();render();}}
+function togglePub(id){const e=document.getElementById('pctl-'+id);if(e)e.classList.toggle('show');}
+function openPub(id){const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
+
+function render(){
+  let total=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0;
+  function tally(it){
+    const k=KINDS[it.kind]; const p=calcPts(it);
+    if(it.postUzm) total+=p;
+    if(k.intl_a){intlA_pts+=p; if((+it.rank||1)===1)intlA_lead++;}
+    if(k.nat){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++;}
+  }
+  DB.items.forEach(it=>{ if(it.stage==='kabul') tally(it); });
+  DB.pubs.forEach(it=> tally(it));
+  total=Math.round(total*100)/100;
+
+  // potansiyel puan (Kabul olmayan makaleler)
+  let potentialAdd=0;
+  DB.items.forEach(it=>{ if(it.stage!=='kabul') potentialAdd+=calcPts(it); });
+  potentialAdd=Math.round(potentialAdd*100)/100;
+
+  const m=DB.manual;
+  const atifPts=citTotal();
+  const {m8}=presTotal();
+  const {m4}=bookTotal();
+  const {m6}=thesisTotal();
+  const manualTotal=(+m.tezYayin||0)+atifPts+m8+m4+m6+(+m.egitim||0);
+  const grand=Math.round((total+manualTotal)*100)/100;
+  const potentialGrand=Math.round((grand+potentialAdd)*100)/100;
+
+  document.getElementById('totalPts').innerHTML=`<span style="color:var(--accent)">${grand}</span> <span style="color:var(--warn)">(${potentialGrand})</span> 🚀<small>/100</small>`;
+  const potNote=document.getElementById('potentialNote');
+  if(potNote)potNote.innerHTML=potentialAdd>0?`Potansiyel: +${potentialAdd}p (süreçte kabul beklediğin makaleler)`:'';
+
+  const gates=[
+    {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true},
+    {t:'M1a · uluslararası puan', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true},
+    {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true},
+    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), auto:true},
+    {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true},
+    {t:'M3 · tez yayını', v:m.tezYayin+' p', ok:m.tezYayin>0, auto:false, key:'tezYayin'},
+    {t:'M5 · atıf', v:atifPts+' / 5 p', ok:atifPts>=5, auto:true, key:'atif'},
+    {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true},
+    {t:'M9 · eğitim', v:m.egitim+' / 2 p', ok:m.egitim>=2, auto:false, key:'egitim'}
+  ];
+  document.getElementById('gates').innerHTML=gates.map(g=>{
+    const ctrl=g.auto?'':`<span style="display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle;align-items:center">
+      <span class="gbtn" onclick="bumpManual('${g.key}',-0.5)">−</span>
+      <input type="number" step="0.1" min="0" value="${DB.manual[g.key]}" onchange="setManual('${g.key}',this.value)"
+        style="width:48px;padding:3px 5px;border:1px solid var(--line);border-radius:5px;font:600 12px ui-monospace,monospace;text-align:center">
+      <span class="gbtn" onclick="bumpManual('${g.key}',0.5)">+</span></span>`;
+    return `<div class="gate ${g.ok?'ok':'no'}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
+      <div class="g-v"><span class="mark">${g.ok?'✓':'○'}</span> <b>${g.v}</b>${ctrl}</div></div>`;
+  }).join('');
+
+  document.getElementById('cntSurec').textContent='('+DB.items.length+')';
+  document.getElementById('cntYayin').textContent='('+DB.pubs.length+')';
+  renderCits();
+  renderPresentations();
+  renderBooks();
+  renderTheses();
+
+  renderSurec(); renderYayin();
+}
+
+function renderSurec(){
+  let items=DB.items.slice();
+  if(DB.filter==='aktif')items=items.filter(i=>i.stage!=='kabul');
+  if(DB.filter==='submit')items=items.filter(i=>i.stage==='submit');
+  if(DB.filter==='revizyon')items=items.filter(i=>i.stage==='revizyon');
+  if(DB.filter==='kabul')items=items.filter(i=>i.stage==='kabul');
+  if(DB.filter==='red')items=items.filter(i=>['red','resubmit'].includes(i.stage)||(i.rejections&&i.rejections.length));
+  const list=document.getElementById('listSurec');
+  if(!items.length){list.innerHTML='<div class="empty">Bu süzgeçte makale yok.</div>';return;}
+
+  // Aşamaya göre grupla
+  const byStage={};
+  items.forEach(it=>{(byStage[it.stage]=byStage[it.stage]||[]).push(it);});
+
+  let html='';
+  STAGES.forEach(s=>{
+    const arr=byStage[s.k];if(!arr||!arr.length)return;
+    html+=`<details class="ref" style="margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:10px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:${s.c}15;border-radius:10px"><span style="color:var(--ink)">${s.t}</span> <span class="gp" style="color:var(--muted)">${arr.length} makale</span></summary><div style="padding:0">`;
+    html+=arr.map(it=>{
+    const k=KINDS[it.kind];const ci=stageIdx(it.stage);const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
+    const funnel=STAGES.map((s,i)=>{const done=i<=ci;const style=done?`background:${s.c};`:'';
+      return `<div class="step${done?' done':''}${i===ci?' cur':''}" style="${style}" onclick="setStage(${it.id},'${s.k}')">${s.t}</div>`;}).join('');
+    const rejs=it.rejections||[];const showRed=rejs.length>0;
+    const showTrack=['submit','revizyon','resubmit'].includes(it.stage);
+    const trackBtn=showTrack?`<span class="trackbtn ${it.track?'':'empty'}" onclick="track(${it.id})">${it.track?'Track ↗':'+ track'}</span>`:'';
+    return `<div class="card">
+      <div class="top">
+        <div class="title" contenteditable="true" onclick="openEdit(${it.id})" onblur="patch(${it.id},'title',this.textContent.trim()||'Adsız')">${esc(it.title)}</div>
+        <div class="pts">${it.stage==='kabul'?p+' p':'('+p+')'}<small>${k.base}p × ${mult}</small></div>
+      </div>
+      <div class="meta">
+        <span class="tag q">${k.t}</span>
+        <span class="tag author">${it.authors} yazar · ${it.rank}. sıra</span>
+        ${it.venue?`<span class="venue">${esc(it.venue)}</span>`:''}
+        ${trackBtn}
+        ${rejs.length?`<span class="tag" style="color:var(--red);border-color:var(--red)">${rejs.length} red</span>`:''}
+        ${!it.postUzm?'<span class="tag" style="color:var(--warn)">uzm. ÖNCESİ</span>':''}
+      </div>
+      <div class="funnel">${funnel}</div>
+      <div class="rowbtns">
+        <span class="mini" onclick="toggleEdit(${it.id})">✎ Detay</span>
+        <span class="mini del" onclick="del(${it.id})">Sil</span>
+      </div>
+      <div class="edit" id="edit-${it.id}">
+        <label>Tür / Quartil<select onchange="patch(${it.id},'kind',this.value,true)">
+          ${Object.keys(KINDS).map(kk=>`<option value="${kk}" ${kk===it.kind?'selected':''}>${KINDS[kk].t} (${KINDS[kk].base}p)</option>`).join('')}
+        </select></label>
+        <label>Dergi<input type="text" value="${esc(it.venue)}" onchange="patch(${it.id},'venue',this.value,true)"></label>
+        <label>Toplam yazar<input type="number" min="1" value="${it.authors}" onchange="patch(${it.id},'authors',this.value,true)"></label>
+        <label>Senin sıran<input type="number" min="1" value="${it.rank}" onchange="patch(${it.id},'rank',this.value,true)"></label>
+        <label>Uzm. sonrası?<select onchange="patch(${it.id},'postUzm',this.value==='1',true)">
+          <option value="1" ${it.postUzm?'selected':''}>Evet</option><option value="0" ${!it.postUzm?'selected':''}>Hayır</option></select></label>
+        <label>Track linki<input type="text" value="${esc(it.track||'')}" onchange="patch(${it.id},'track',this.value,true)"></label>
+        <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center">
+          <a class="wos" href="${WOS}" target="_blank" title="Web of Science">WoS ↗</a>
+        </div>
+        ${it.stage==='kabul'?`<div style="grid-column:1/-1;display:flex;gap:8px;align-items:flex-end;background:#eef3ee;border:1px solid var(--kabul);border-radius:7px;padding:10px">
+          <label style="flex:1;font-size:11px;color:var(--accent2)">✓ Kabul edildi — DOI gir, Yayınlanmışlar'a taşı
+            <input type="text" id="promoteDoi-${it.id}" placeholder="10.1016/... (opsiyonel)" style="margin-top:3px"></label>
+          <button class="btn" style="background:var(--kabul)" onclick="promote(${it.id})">Yayınlanmışlar'a taşı →</button>
+        </div>`:''}
+        <div class="redlist ${showRed?'show':''}"><h5>Reddeden dergiler</h5>
+          ${rejs.map((r,idx)=>`<div class="redrow">
+            <input type="text" value="${esc(r.journal)}" placeholder="dergi" onchange="patchRej(${it.id},${idx},'journal',this.value)">
+            <input type="text" value="${esc(r.reason)}" placeholder="gerekçe" onchange="patchRej(${it.id},${idx},'reason',this.value)">
+            <span class="x" onclick="delRej(${it.id},${idx})">sil</span></div>`).join('')}
+          <span class="add" onclick="addRej(${it.id})">+ red ekle</span></div>
+        <div style="grid-column:1/-1;display:flex;justify-content:space-between">
+          <span class="add" onclick="addRej(${it.id})">+ red ekle</span>
+          <button class="btn" onclick="toggleEdit(${it.id})">Kaydet & kapat</button></div>
+      </div>
+    </div>`;
+    }).join('');
+    html+='</div></details>';
+  });
+  list.innerHTML=html;
+}
+
+function renderYayin(){
+  const list=document.getElementById('listYayin');
+  if(!DB.pubs.length){list.innerHTML='<div class="empty">Henüz yayın yok. Claude\'a DOI ver ya da elle ekle.</div>';return;}
+  const byGrp={};
+  DB.pubs.forEach(it=>{const g=KINDS[it.kind].grp;(byGrp[g]=byGrp[g]||[]).push(it);});
+  let html='';
+  Object.keys(GROUPS).forEach(g=>{
+    const arr=byGrp[g]; if(!arr||!arr.length)return;
+    let gsum=0; arr.forEach(it=>{if(it.postUzm)gsum+=calcPts(it);});
+    const groupId='grp-'+g;
+    html+=`<details class="ref" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
+    html+=arr.map(it=>{
+      const k=KINDS[it.kind];const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
+      const noRank=(!it.rank||!it.authors);
+      const authorsStr=(it.authorNames||[]).join(', ');
+      return `<div class="pub">
+        <div class="ptop">
+          <div class="ptitle" contenteditable="true" onclick="openPub(${it.id})" onblur="patchPub(${it.id},'title',this.textContent.trim())">${esc(it.title)}</div>
+          <div class="pp">${p} p<small>${k.base} × ${mult}</small></div>
+        </div>
+        <div class="pmeta">
+          <span class="tag q">${k.t}</span>
+          <span class="venue">${esc(it.venue||'dergi?')}</span>
+          ${it.year?`<span>${it.year}</span>`:''}
+          <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
+          ${it.doi?`<span style="font-size:11px">${esc(it.doi)}</span>`:''}
+        </div>
+        ${authorsStr?`<div class="authors">Yazarlar: ${esc(authorsStr)}</div>`:''}
+        <div class="pmeta" style="margin-top:4px;font-size:11px">
+          <span class="mini" onclick="togglePub(${it.id})">✎</span>
+          <span class="mini del" onclick="delPub(${it.id})">Sil</span>
+        </div>
+        <div class="pctl" id="pctl-${it.id}">
+          <label>Tür / Quartil<select onchange="patchPub(${it.id},'kind',this.value)">
+            ${Object.keys(KINDS).map(kk=>`<option value="${kk}" ${kk===it.kind?'selected':''}>${KINDS[kk].t} (${KINDS[kk].base}p)</option>`).join('')}
+          </select></label>
+          <label>Dergi<input type="text" value="${esc(it.venue||'')}" onchange="patchPub(${it.id},'venue',this.value)"></label>
+          <label>Yıl<input type="text" value="${esc(String(it.year||''))}" onchange="patchPub(${it.id},'year',this.value)"></label>
+          <label>Toplam yazar<input type="number" min="1" value="${it.authors||''}" onchange="patchPub(${it.id},'authors',this.value)"></label>
+          <label>Senin sıran<input type="number" min="1" value="${it.rank||''}" onchange="patchPub(${it.id},'rank',this.value)"></label>
+          <label>Uzm. sonrası?<select onchange="patchPub(${it.id},'postUzm',this.value==='1')">
+            <option value="1" ${it.postUzm?'selected':''}>Evet</option><option value="0" ${!it.postUzm?'selected':''}>Hayır</option></select></label>
+          <label>DOI<input type="text" value="${esc(it.doi||'')}" onchange="patchPub(${it.id},'doi',this.value)"></label>
+          <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
+            <span style="display:flex;gap:8px">
+              <a class="wos" href="${WOS}" target="_blank" title="Web of Science">WoS ↗</a>
+            </span>
+            <span style="display:flex;gap:6px">
+              <span class="mini del" onclick="delPub(${it.id})">Sil</span>
+              <button class="btn" onclick="togglePub(${it.id})">Kapat</button>
+            </span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    html+='</div></details>';
+  });
+  list.innerHTML=html;
+}
+
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function exportData(){const b=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='docentlik_yedek_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function importData(){const i=document.createElement('input');i.type='file';i.accept='.json';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{DB=JSON.parse(r.result);if(!DB.manual)DB.manual=defManual();if(DB.manual.atif!==undefined)delete DB.manual.atif;if(DB.manual.bildiri!==undefined)delete DB.manual.bildiri;if(!DB.pubs)DB.pubs=[];if(!DB.citations)DB.citations=defCitations();if(!DB.presentations)DB.presentations=defPresentations();if(!DB.books)DB.books=defBooks();if(!DB.theses)DB.theses=defTheses();save();render();}catch(x){alert('Okunamadı');}};r.readAsText(f);};i.click();}
+
+if(DB.tab==='yayin'){document.querySelector('.tab[data-t=yayin]').classList.add('on');document.querySelector('.tab[data-t=surec]').classList.remove('on');
+  document.getElementById('pane-yayin').classList.add('on');document.getElementById('pane-surec').classList.remove('on');}
+render();
+</script>
+</body>
+</html>
