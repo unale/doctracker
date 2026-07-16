@@ -29,7 +29,8 @@
 
   .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:16px 0 4px}
   .gate{background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:9px 12px}
-  .gate.ok{border-left-color:var(--ok)} .gate.no{border-left-color:var(--warn)}
+  .gate.ok{border-left-color:var(--ok);background:#f5faf7} .gate.no{border-left-color:var(--warn)}
+  .gate.mandatory.no{background:#fff5f0;border-left-color:#ff9966} .gate.mandatory.ok{background:#f0faf5;border-left-color:var(--ok)}
   .gate .g-t{font:600 11px/1.3 ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
   .gate .g-v{font-size:14px;font-weight:600;margin-top:2px}
   .gate .g-v b{color:var(--accent)}
@@ -156,6 +157,18 @@
     <div class="eyebrow">ÜAK · Tablo 10 · Mart 2026 · Sağlık Bilimleri</div>
     <h1>Doçentlik Dosyası</h1>
     <div class="sub">Süreçteki ve yayınlanmış makaleler tek panoda. Puan ikisinden toplanır. Veriler bu cihazda saklanır.</div>
+    <div style="margin-top:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+      <div style="display:flex;gap:8px">
+        <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px">
+          <span style="font-weight:600">İsim</span>
+          <input type="text" id="userName" placeholder="Adınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:120px;font-size:12px" onchange="saveUserName()">
+        </label>
+        <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px">
+          <span style="font-weight:600">Soyadı</span>
+          <input type="text" id="userSurname" placeholder="Soyadınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:120px;font-size:12px" onchange="saveUserName()">
+        </label>
+      </div>
+    </div>
   </div>
   <div class="score">
     <div class="num" id="totalPts">0<small>/100</small></div>
@@ -189,6 +202,7 @@
     <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
       Her bildiriyi tek tek ekle. <b>Her bildiri = 3 puan</b> · toplam puan toplam yazar sayısına bölünür.
       <b>M8 = Σ(3 / yazar sayısı)</b> (M8 için ≥5p gerekir).
+      <b>Uzm. ÖNCESİ</b> işaretlediklerin M8'e değil, "uzm. öncesi havuzuna" gider (makalelerle birlikte max 10p toplama sayılır).
     </div>
     <div id="presList"></div>
     <button class="add" onclick="addPres()" style="margin-top:8px">+ Bildiri ekle</button>
@@ -222,7 +236,7 @@
 <details class="ref">
   <summary>Puanlama Kuralları & Kısaltmalar — ÜAK Tablo 10 (Mart 2026)</summary>
   <div class="body">
-    <div class="must"><b>Geçme şartı:</b> Toplam ≥<b>100 puan</b>; ≥<b>90'ı</b> uzmanlık <i>sonrası</i>.</div>
+    <div class="must"><b>Geçme şartı:</b> Toplam ≥<b>100 puan</b>; ≥<b>90'ı</b> uzmanlık <i>sonrası</i>. Uzm. <i>öncesi</i> puanlar (makale "Uzm. sonrası? Hayır" + bildiri "Uzm. ÖNCESİ") havuzda birikir, en fazla <b>10p</b> toplama sayılır.</div>
     <div class="must"><b>M1a:</b> Uzm. sonrası SCIE/SSCI'de ≥<b>3 makalede başlıca yazar</b> + ≥<b>40 puan</b>.</div>
     <div class="must"><b>M2:</b> ≥<b>3 ulusal yayın</b> (2'si TR Dizin) + ≥<b>2'sinde başlıca yazar</b>.</div>
     <div class="must"><b>M3</b> tez yayını ≥1 · <b>M5</b> atıf ≥5p · <b>M8</b> bildiri ≥5p · <b>M9</b> eğitim ≥2p.</div>
@@ -303,6 +317,10 @@
 
 <script>
 const WOS='https://www.webofscience.com/wos/alldb/smart-search';
+// Açık panel/grup durumları — render sonrası korunur
+const UI={edits:new Set(),pctls:new Set(),stages:new Set(),grps:new Set()};
+function trackStage(el){if(el.open)UI.stages.add(el.dataset.stage);else UI.stages.delete(el.dataset.stage);}
+function trackGrp(el){if(el.open)UI.grps.add(el.dataset.grp);else UI.grps.delete(el.dataset.grp);}
 const STAGES=[
   {k:'fikir',t:'Fikir',c:'var(--fikir)'},{k:'veri',t:'Veri',c:'var(--veri)'},
   {k:'yazim',t:'Yazım',c:'var(--yazim)'},{k:'submit',t:'Submit',c:'var(--submit)'},
@@ -336,8 +354,11 @@ const SEED_YAYIN=[
 ];
 
 let DB=load();
+let USER_NAME='',USER_SURNAME='';
 function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(!d.citations)d.citations=defCitations();if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
+function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';USER_NAME=u;USER_SURNAME=s;document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;}
+function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);}
 function defManual(){return {tezYayin:0,egitim:0};}
 function defCitations(){return [];}
 function defPresentations(){return [];}
@@ -352,10 +373,10 @@ function save(){try{localStorage.setItem('docentlik_v4',JSON.stringify(DB));}cat
 function bumpManual(key,d){DB.manual[key]=Math.max(0,Math.round((DB.manual[key]+d)*10)/10);save();render();}
 function setManual(key,val){const v=parseFloat(val);DB.manual[key]=isNaN(v)?0:Math.max(0,Math.round(v*10)/10);save();render();}
 function addCit(type){DB.citations=DB.citations||[];DB.citations.push({type,note:''});save();render();
-  const e=document.getElementById('citBox');if(e)e.open=true;}
-function patchCit(idx,key,val){if(!DB.citations[idx])return;DB.citations[idx][key]=val;save();
-  const e=document.getElementById('citBox');if(e)e.open=true;}
-function delCit(idx){DB.citations.splice(idx,1);save();render();const e=document.getElementById('citBox');if(e)e.open=true;}
+  const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
+function patchCit(idx,key,val){if(!DB.citations[idx])return;DB.citations[idx][key]=val;save();render();
+  const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
+function delCit(idx){DB.citations.splice(idx,1);save();render();const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderCits(){
   const list=document.getElementById('citList');if(!list)return;
   const cits=DB.citations||[];
@@ -371,29 +392,34 @@ function renderCits(){
   </div>`).join('');
 }
 function presTotal(){
-  const pres=DB.presentations||[];let m8=0;
-  pres.forEach(p=>{const a=+p.authors||0;if(a>0)m8+=3/a;});
-  m8=Math.round(m8*100)/100; return {count:pres.length,m8};}
+  const pres=DB.presentations||[];let m8=0,m8pre=0;
+  pres.forEach(p=>{const a=+p.authors||0;if(a>0){const v=3/a;if(p.pre)m8pre+=v;else m8+=v;}});
+  m8=Math.round(m8*100)/100;m8pre=Math.round(m8pre*100)/100;
+  return {count:pres.length,m8,m8pre};}
 function addPres(){DB.presentations=DB.presentations||[];DB.presentations.push({id:Date.now(),title:'Yeni bildiri',authors:0});save();render();
-  const e=document.getElementById('presBox');if(e)e.open=true;}
+  const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='authors')val=+val;DB.presentations[idx][key]=val;save();render();
-  const e=document.getElementById('presBox');if(e)e.open=true;}
-function delPres(idx){DB.presentations.splice(idx,1);save();render();const e=document.getElementById('presBox');if(e)e.open=true;}
+  const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
+function delPres(idx){DB.presentations.splice(idx,1);save();render();const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderPresentations(){
   const list=document.getElementById('presList');if(!list)return;
-  const pres=DB.presentations||[];const {count,m8}=presTotal();
+  const pres=DB.presentations||[];const {count,m8,m8pre}=presTotal();
   const sm=document.getElementById('presSummary');
-  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b> ${m8>=5?'✓':'○'}`;
+  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b>${m8pre>0?` + ${m8pre}p öncesi`:''} ${m8>=5?'✓':'○'}`;
   if(!pres.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz bildiri yok. Aşağıdan ekle.</div>';return;}
   list.innerHTML=pres.map((p,idx)=>{
     const a=+p.authors||0;const pts=a>0?Math.round(3/a*100)/100:0;
-    return `<div style="display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
     <input type="text" value="${esc(p.title||'')}" placeholder="bildiri başlığı" onchange="patchPres(${idx},'title',this.value)"
       style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
     <div style="display:flex;gap:4px;align-items:center">
       <input type="number" min="0" value="${p.authors||''}" placeholder="yazar" onchange="patchPres(${idx},'authors',this.value)"
         style="width:60px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
     </div>
+    <select onchange="patchPres(${idx},'pre',this.value==='1')" style="padding:5px 7px;border:1px solid ${p.pre?'var(--gold)':'var(--line)'};border-radius:5px;background:#fff;font-size:11px;${p.pre?'color:var(--gold);font-weight:600':''}">
+      <option value="0" ${!p.pre?'selected':''}>Uzm. sonrası</option>
+      <option value="1" ${p.pre?'selected':''}>Uzm. ÖNCESİ</option>
+    </select>
     <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${a?pts+'p':'—'}</div>
     <span class="x" onclick="delPres(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
   </div>`;
@@ -408,10 +434,10 @@ function bookTotal(){
   return {count:books.length,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn:(bkciPts>20||otherPts>5)};
 }
 function addBook(){DB.books=DB.books||[];DB.books.push({id:Date.now(),chapter:'Yeni bölüm',book:'Kitap',kind:'bkci',authors:0});save();render();
-  const e=document.getElementById('bookBox');if(e)e.open=true;}
+  const e=document.getElementById('bookBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchBook(idx,key,val){if(!DB.books[idx])return;if(key==='authors')val=+val;DB.books[idx][key]=val;save();render();
-  const e=document.getElementById('bookBox');if(e)e.open=true;}
-function delBook(idx){DB.books.splice(idx,1);save();render();const e=document.getElementById('bookBox');if(e)e.open=true;}
+  const e=document.getElementById('bookBox');if(e)setTimeout(()=>{e.open=true;},250);}
+function delBook(idx){DB.books.splice(idx,1);save();render();const e=document.getElementById('bookBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderBooks(){
   const list=document.getElementById('bookList');if(!list)return;
   const books=DB.books||[];const {count,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn}=bookTotal();
@@ -446,10 +472,10 @@ function thesisTotal(){
   m6=Math.round(m6*100)/100;return {count:theses.length,m6:Math.min(10,m6),m6_raw:m6,warn:(m6>10)};
 }
 function addThesis(){DB.theses=DB.theses||[];DB.theses.push({id:Date.now(),student:'Öğrenci adı',topic:'Tez konusu',role:'primary'});save();render();
-  const e=document.getElementById('thesisBox');if(e)e.open=true;}
+  const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchThesis(idx,key,val){if(!DB.theses[idx])return;DB.theses[idx][key]=val;save();render();
-  const e=document.getElementById('thesisBox');if(e)e.open=true;}
-function delThesis(idx){DB.theses.splice(idx,1);save();render();const e=document.getElementById('thesisBox');if(e)e.open=true;}
+  const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
+function delThesis(idx){DB.theses.splice(idx,1);save();render();const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderTheses(){
   const list=document.getElementById('thesisList');if(!list)return;
   const theses=DB.theses||[];const {count,m6,m6_raw,warn}=thesisTotal();
@@ -483,20 +509,20 @@ function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.rem
 function setFilter(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');DB.filter=el.dataset.f;save();render();}
 
 /* ---- SÜREÇTE ---- */
-function addItem(){DB.items.unshift({id:Date.now(),title:'Yeni makale',kind:'q2',venue:'',authors:3,rank:1,stage:'fikir',postUzm:true,track:'',rejections:[]});save();render();}
+function addItem(){const id=Date.now();DB.items.unshift({id,title:'Yeni makale',kind:'q2',venue:'',authors:3,rank:1,stage:'fikir',postUzm:true,track:'',rejections:[]});UI.edits.add(id);UI.stages.add('fikir');save();render();}
 function setStage(id,k){const it=DB.items.find(x=>x.id===id);if(!it)return;
   if(k==='red'&&it.venue){it.rejections=it.rejections||[];if(!it.rejections.some(r=>r.journal===it.venue))it.rejections.push({journal:it.venue,reason:''});}
-  it.stage=k;save();render();
-  if(k==='kabul'){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}}
+  it.stage=k;UI.edits.add(id);UI.stages.add(k);save();render();}
 function patch(id,key,val,keepOpen){const it=DB.items.find(x=>x.id===id);if(!it)return;
-  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;save();render();
-  if(keepOpen){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}}
-function del(id){if(confirm('Sil?')){DB.items=DB.items.filter(x=>x.id!==id);save();render();}}
-function toggleEdit(id){const e=document.getElementById('edit-'+id);if(e)e.classList.toggle('show');}
-function openEdit(id){const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
-function addRej(id){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections=it.rejections||[];it.rejections.push({journal:'',reason:''});save();render();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
-function patchRej(id,idx,key,val){const it=DB.items.find(x=>x.id===id);if(!it||!it.rejections[idx])return;it.rejections[idx][key]=val;save();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
-function delRej(id,idx){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections.splice(idx,1);save();render();const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;
+  if(keepOpen)UI.edits.add(id);save();render();}
+function del(id){if(confirm('Sil?')){DB.items=DB.items.filter(x=>x.id!==id);UI.edits.delete(id);save();render();}}
+function toggleEdit(id){if(UI.edits.has(id))UI.edits.delete(id);else UI.edits.add(id);
+  const e=document.getElementById('edit-'+id);if(e)e.classList.toggle('show',UI.edits.has(id));}
+function openEdit(id){UI.edits.add(id);const e=document.getElementById('edit-'+id);if(e)e.classList.add('show');}
+function addRej(id){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections=it.rejections||[];it.rejections.push({journal:'',reason:''});UI.edits.add(id);save();render();}
+function patchRej(id,idx,key,val){const it=DB.items.find(x=>x.id===id);if(!it||!it.rejections[idx])return;it.rejections[idx][key]=val;UI.edits.add(id);save();}
+function delRej(id,idx){const it=DB.items.find(x=>x.id===id);if(!it)return;it.rejections.splice(idx,1);UI.edits.add(id);save();render();}
 function track(id){const it=DB.items.find(x=>x.id===id);if(!it)return;
   if(it.track){window.open(it.track,'_blank');return;}
   const u=prompt('Dergi takip (track status) linkini yapıştır:');if(u){it.track=u.trim();save();render();}}
@@ -527,9 +553,11 @@ function guessKind(type,title){
 }
 function findRank(authors){
   let rank=0;
+  if(!USER_NAME||!USER_SURNAME)return rank;
+  const targetFam=norm(USER_SURNAME);const targetGiv=norm(USER_NAME);
   authors.forEach((a,i)=>{
     const fam=norm(a.family||a.last||''); const giv=norm(a.given||a.first||'');
-    if(fam==='unal' && giv.startsWith('emir')) rank=i+1;
+    if(fam===targetFam && giv.startsWith(targetGiv.charAt(0))) rank=i+1;
   });
   return rank;
 }
@@ -584,54 +612,63 @@ async function fetchDOI(){
     dstat('Çekilemedi. DOI\'yi Claude\'a sohbette ver (10.1016/... 11/3 formatında) — o tüm bilgiler + JSON göndersin.','var(--warn)');
   }
 }
-function addPub(){DB.pubs.unshift({id:Date.now(),title:'Yeni yayın (elle)',kind:'q2',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});save();render();}
+function addPub(){const id=Date.now();DB.pubs.unshift({id,title:'Yeni yayın (elle)',kind:'q2',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});UI.pctls.add(id);save();render();}
 function patchPub(id,key,val){const it=DB.pubs.find(x=>x.id===id);if(!it)return;
-  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;save();render();
-  const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
-function delPub(id){if(confirm('Bu yayını sil?')){DB.pubs=DB.pubs.filter(x=>x.id!==id);save();render();}}
-function togglePub(id){const e=document.getElementById('pctl-'+id);if(e)e.classList.toggle('show');}
-function openPub(id){const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
+  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;UI.pctls.add(id);save();render();}
+function delPub(id){if(confirm('Bu yayını sil?')){DB.pubs=DB.pubs.filter(x=>x.id!==id);UI.pctls.delete(id);save();render();}}
+function togglePub(id){if(UI.pctls.has(id))UI.pctls.delete(id);else UI.pctls.add(id);
+  const e=document.getElementById('pctl-'+id);if(e)e.classList.toggle('show',UI.pctls.has(id));}
+function openPub(id){UI.pctls.add(id);const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
 
 function render(){
-  let total=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0;
+  let total=0, prePts=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0;
   function tally(it){
     const k=KINDS[it.kind]; const p=calcPts(it);
-    if(it.postUzm) total+=p;
-    if(k.intl_a){intlA_pts+=p; if((+it.rank||1)===1)intlA_lead++;}
+    if(it.postUzm) total+=p; else prePts+=p; // uzm. öncesi ayrı havuzda birikir
+    // M1a yalnız uzmanlık SONRASI SCIE/SSCI makaleleri sayar (ÜAK şartı)
+    if(k.intl_a && it.postUzm){intlA_pts+=p; if((+it.rank||1)===1)intlA_lead++;}
     if(k.nat){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++;}
   }
   DB.items.forEach(it=>{ if(it.stage==='kabul') tally(it); });
   DB.pubs.forEach(it=> tally(it));
   total=Math.round(total*100)/100;
 
-  // potansiyel puan (Kabul olmayan makaleler)
+  // potansiyel puan (Kabul olmayan makaleler; RED aşamasındakiler sayılmaz)
   let potentialAdd=0;
-  DB.items.forEach(it=>{ if(it.stage!=='kabul') potentialAdd+=calcPts(it); });
+  DB.items.forEach(it=>{ if(it.stage!=='kabul' && it.stage!=='red') potentialAdd+=calcPts(it); });
   potentialAdd=Math.round(potentialAdd*100)/100;
 
   const m=DB.manual;
   const atifPts=citTotal();
-  const {m8}=presTotal();
+  const {m8,m8pre}=presTotal();
   const {m4}=bookTotal();
   const {m6}=thesisTotal();
   const manualTotal=(+m.tezYayin||0)+atifPts+m8+m4+m6+(+m.egitim||0);
-  const grand=Math.round((total+manualTotal)*100)/100;
+  // Uzm. ÖNCESİ havuzu (makale + bildiri): ÜAK kuralı gereği max 10p sayılır
+  const preRaw=Math.round((prePts+m8pre)*100)/100;
+  const preAllow=Math.min(10,preRaw);
+  const grand=Math.round((total+manualTotal+preAllow)*100)/100;
   const potentialGrand=Math.round((grand+potentialAdd)*100)/100;
 
   document.getElementById('totalPts').innerHTML=`<span style="color:var(--accent)">${grand}</span> <span style="color:var(--warn)">(${potentialGrand})</span> 🚀<small>/100</small>`;
   const potNote=document.getElementById('potentialNote');
-  if(potNote)potNote.innerHTML=potentialAdd>0?`Potansiyel: +${potentialAdd}p (süreçte kabul beklediğin makaleler)`:'';
+  if(potNote){
+    let notes=[];
+    if(potentialAdd>0)notes.push(`Potansiyel: +${potentialAdd}p (süreçte kabul beklediğin makaleler)`);
+    if(preRaw>0)notes.push(`Uzm. öncesi: ${preRaw}p → sayılan ${preAllow}p${preRaw>10?' (tavan 10)':''}`);
+    potNote.innerHTML=notes.join(' · ');
+  }
 
   const gates=[
-    {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true},
-    {t:'M1a · uluslararası puan', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true},
-    {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true},
-    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), auto:true},
-    {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true},
-    {t:'M3 · tez yayını', v:m.tezYayin+' p', ok:m.tezYayin>0, auto:false, key:'tezYayin'},
-    {t:'M5 · atıf', v:atifPts+' / 5 p', ok:atifPts>=5, auto:true, key:'atif'},
-    {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true},
-    {t:'M9 · eğitim', v:m.egitim+' / 2 p', ok:m.egitim>=2, auto:false, key:'egitim'}
+    {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true, mandatory:true},
+    {t:'M1a · uluslararası puan', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true, mandatory:true},
+    {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true, mandatory:true},
+    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), auto:true, mandatory:true},
+    {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true, mandatory:true},
+    {t:'M3 · tez yayını', v:m.tezYayin+' p', ok:m.tezYayin>0, auto:false, key:'tezYayin', mandatory:true},
+    {t:'M5 · atıf', v:atifPts+' / 5 p', ok:atifPts>=5, auto:true, key:'atif', mandatory:true},
+    {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true, mandatory:true},
+    {t:'M9 · eğitim', v:m.egitim+' / 2 p', ok:m.egitim>=2, auto:false, key:'egitim', mandatory:true}
   ];
   document.getElementById('gates').innerHTML=gates.map(g=>{
     const ctrl=g.auto?'':`<span style="display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle;align-items:center">
@@ -639,7 +676,8 @@ function render(){
       <input type="number" step="0.1" min="0" value="${DB.manual[g.key]}" onchange="setManual('${g.key}',this.value)"
         style="width:48px;padding:3px 5px;border:1px solid var(--line);border-radius:5px;font:600 12px ui-monospace,monospace;text-align:center">
       <span class="gbtn" onclick="bumpManual('${g.key}',0.5)">+</span></span>`;
-    return `<div class="gate ${g.ok?'ok':'no'}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
+    const mandClass=g.mandatory?'mandatory':'';
+    return `<div class="gate ${g.ok?'ok':'no'} ${mandClass}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
       <div class="g-v"><span class="mark">${g.ok?'✓':'○'}</span> <b>${g.v}</b>${ctrl}</div></div>`;
   }).join('');
 
@@ -670,7 +708,8 @@ function renderSurec(){
   let html='';
   STAGES.forEach(s=>{
     const arr=byStage[s.k];if(!arr||!arr.length)return;
-    html+=`<details class="ref" style="margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:10px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:${s.c}15;border-radius:10px"><span style="color:var(--ink)">${s.t}</span> <span class="gp" style="color:var(--muted)">${arr.length} makale</span></summary><div style="padding:0">`;
+    const isOpen=UI.stages.has(s.k)||arr.some(it=>UI.edits.has(it.id));
+    html+=`<details class="ref" data-stage="${s.k}" ${isOpen?'open':''} ontoggle="trackStage(this)" style="margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:10px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:${s.c}15;border-radius:10px"><span style="color:var(--ink)">${s.t}</span> <span class="gp" style="color:var(--muted)">${arr.length} makale</span></summary><div style="padding:0">`;
     html+=arr.map(it=>{
     const k=KINDS[it.kind];const ci=stageIdx(it.stage);const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
     const funnel=STAGES.map((s,i)=>{const done=i<=ci;const style=done?`background:${s.c};`:'';
@@ -696,7 +735,7 @@ function renderSurec(){
         <span class="mini" onclick="toggleEdit(${it.id})">✎ Detay</span>
         <span class="mini del" onclick="del(${it.id})">Sil</span>
       </div>
-      <div class="edit" id="edit-${it.id}">
+      <div class="edit ${UI.edits.has(it.id)?'show':''}" id="edit-${it.id}">
         <label>Tür / Quartil<select onchange="patch(${it.id},'kind',this.value,true)">
           ${Object.keys(KINDS).map(kk=>`<option value="${kk}" ${kk===it.kind?'selected':''}>${KINDS[kk].t} (${KINDS[kk].base}p)</option>`).join('')}
         </select></label>
@@ -740,8 +779,8 @@ function renderYayin(){
   Object.keys(GROUPS).forEach(g=>{
     const arr=byGrp[g]; if(!arr||!arr.length)return;
     let gsum=0; arr.forEach(it=>{if(it.postUzm)gsum+=calcPts(it);});
-    const groupId='grp-'+g;
-    html+=`<details class="ref" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
+    const isOpen=UI.grps.has(g)||arr.some(it=>UI.pctls.has(it.id));
+    html+=`<details class="ref" data-grp="${g}" ${isOpen?'open':''} ontoggle="trackGrp(this)" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
     html+=arr.map(it=>{
       const k=KINDS[it.kind];const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
       const noRank=(!it.rank||!it.authors);
@@ -763,7 +802,7 @@ function renderYayin(){
           <span class="mini" onclick="togglePub(${it.id})">✎</span>
           <span class="mini del" onclick="delPub(${it.id})">Sil</span>
         </div>
-        <div class="pctl" id="pctl-${it.id}">
+        <div class="pctl ${UI.pctls.has(it.id)?'show':''}" id="pctl-${it.id}">
           <label>Tür / Quartil<select onchange="patchPub(${it.id},'kind',this.value)">
             ${Object.keys(KINDS).map(kk=>`<option value="${kk}" ${kk===it.kind?'selected':''}>${KINDS[kk].t} (${KINDS[kk].base}p)</option>`).join('')}
           </select></label>
@@ -800,6 +839,7 @@ function importData(){const i=document.createElement('input');i.type='file';i.ac
 
 if(DB.tab==='yayin'){document.querySelector('.tab[data-t=yayin]').classList.add('on');document.querySelector('.tab[data-t=surec]').classList.remove('on');
   document.getElementById('pane-yayin').classList.add('on');document.getElementById('pane-surec').classList.remove('on');}
+loadUserName();
 render();
 </script>
 </body>
