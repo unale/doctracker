@@ -180,6 +180,19 @@
 
 <div class="gates" id="gates"></div>
 
+<details class="ref" id="dbsBox">
+  <summary>📋 DBS Başvuru Yol Haritası — <span id="dbsSummary"></span></summary>
+  <div class="body">
+    <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5">
+      2026 Mart: başvuru <b>20–31 Mart</b> (17.30) · ücret <b>7.910,86 TL</b> (yalnız DBS'den kartla) · geri çekme 1–10 Nisan.
+      Adımları tamamladıkça işaretle; linkler resmi kaynaklara gider.
+    </div>
+    <div style="height:8px;background:var(--line);border-radius:4px;margin-bottom:12px;overflow:hidden"><i id="dbsBar" style="display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0;transition:.3s"></i></div>
+    <div id="dbsList"></div>
+    <div class="must" style="margin-top:12px"><b>⚠ Kritik uyarılar:</b> "Başvuruyu Sonlandır" sonrası hiçbir düzeltme yapılamaz · Ödeme ≠ bitiş — "Başvuru sonlandı" ibaresini görmelisin · DOI daima <code>10.</code> ile başlar · Temel Alan sonraki aşamada değiştirilemez · ÖSYM dil sonucu 72 saat sonra DBS'ye düşer.</div>
+  </div>
+</details>
+
 <details class="ref" id="citBox">
   <summary>📑 Atıf Defteri (M5) — <span id="citSummary"></span></summary>
   <div class="body">
@@ -364,6 +377,69 @@ function defCitations(){return [];}
 function defPresentations(){return [];}
 function defBooks(){return [];}
 function defTheses(){return [];}
+// ============ DBS BAŞVURU YOL HARİTASI ============
+const DBS_STEPS=[
+ {ph:'🔔 Kişisel Yapılacaklar',items:[
+  {id:'p_atac',t:'YÖKSİS\'te ataç (🖇) menüsünü incele: Dosyalar / İlişkili Eser / Atıflar / Telif Hakkı',l:[['YÖKSİS','https://ozgecmis.yok.gov.tr']]},
+  {id:'p_trohca',t:'TROHCA mükerrer kayıtlarını kontrol et (7 kayıt var; mavi=senin, turuncu=ortak yazar; TR Dizin mi ESCI mi karar ver)',l:[['YÖKSİS','https://ozgecmis.yok.gov.tr']]}
+ ]},
+ {ph:'Aşama 0 · Hazırlık (haftalar önce)',items:[
+  {id:'s1',t:'YÖKSİS özgeçmişini güncelle — tüm makale/bildiri/kitap/tez kayıtları eksiksiz',l:[['YÖKSİS','https://ozgecmis.yok.gov.tr']]},
+  {id:'s2',t:'Başvuru şartlarını ve Tablo 10\'u kontrol et (bu uygulamadaki gate\'ler yeşil mi?)',l:[['Şartlar','https://www.uak.gov.tr/page/docentlik-basvuru-sartlari-kLPHX']]},
+  {id:'s3',t:'Bilim alanını belirle (Sağlık Bilimlerinde anahtar kelime YOK)',l:[['Bilim Alanları','https://www.uak.gov.tr/documents/documents/69b0017962c56.pdf']]},
+  {id:'s4',t:'Dil belgesi hazır: YDS/YÖKDİL ≥65 (ÖSYM süresiz; TOEFL 2 yıl). Başvuru dilini onayla',l:[['Kabul edilen diller','https://www.uak.gov.tr/documents/documents/69b009180eea4.pdf']]}
+ ]},
+ {ph:'Aşama 1 · YÖKSİS veri girişi',items:[
+  {id:'s5',t:'Öğrenim bilgisi: "YÖK Öğrenim Bilgisi Getir" + "TUS Bilgi Getir" (elle EKLE formu kullanma!)'},
+  {id:'s6',t:'Tez: Öğrenim formunda TEZ ARA ile Ulusal Tez Merkezi\'nden çek (tez no + adı dolu olmalı)',l:[['Tez Merkezi','https://tez.yok.gov.tr/']]},
+  {id:'s7',t:'Kişisel Bilgiler → YÖK Akademik: Researcher ID gir → WoS H-endeksi hesaplansın'},
+  {id:'s8',t:'Dersler: ders dokümanlarını yükle (beyannamede tek seferde tam 4 farklı yarıyıl seçilir)'}
+ ]},
+ {ph:'Aşama 2 · Eser dosyaları (ataç 🖇 menüsü → Dosyalar)',items:[
+  {id:'s9',t:'Her MAKALE: tam metin 1 PDF + (kapak+editör listesi+endeks çıktısı) 1 PDF — endekste taranmayanlara 2. PDF gerekmez'},
+  {id:'s10',t:'M3: tezden üretilen makaleyi "İlişkili Eser"den tezine BAĞLA (kritik!)'},
+  {id:'s11',t:'KİTAP bölümü: tam metin + yayınevi/BKCI belgesi birleşik TEK PDF; editörler "ÖĞRETİM ÜYESİ" unvanlı olmalı'},
+  {id:'s12',t:'ATIF: her atıf için künye+başlık+atıf sayfası+kaynakça tek PDF; şablonu kullan',l:[['Atıf Şablonu','https://www.uak.gov.tr/documents/documents/68d3c4a8bb659.pdf']]},
+  {id:'s13',t:'BİLDİRİ: kitapçık özet/tam metin + katılım belgesi + düzenleme komitesi = 3 PDF (15.12.2016 öncesi katılım belgesi gerekmez)'},
+  {id:'s14',t:'M9: derslerin verildiğine dair üniversiteden ONAYLI yazı'},
+  {id:'s15',t:'Anasayfa → Dosyalar: boş dosya işareti kalmadığını kontrol et'}
+ ]},
+ {ph:'Aşama 3 · DBS başvurusu (20–31 Mart)',items:[
+  {id:'s16',t:'e-Devlet ile DBS\'ye gir, kontrol ekranındaki hataları YÖKSİS formlarında düzelt',l:[['DBS','https://dbs.yok.gov.tr/'],['Yardım Dosyası','https://www.uak.gov.tr/documents/documents/69b0089d9d801.pdf']]},
+  {id:'s17',t:'Temel Alanı DİKKATLE seç (sonra değiştirilemez) + Taahhütname onayla'},
+  {id:'s18',t:'Beyanname: her koşula + Ekle ile eser bağla; Dr. öncesi/sonrası işaretle; puanları kontrol et'},
+  {id:'s19',t:'Ödeme: 7.910,86 TL kartla (banka/ATM olmaz) — sonrasında değişiklik YAPILAMAZ'},
+  {id:'s20',t:'"Sonraki" ile ilerle → "BAŞVURU SONLANDI" ibaresini gör + 3 çıktıyı indir (Dilekçe, Özgeçmiş-Eserler, Beyanname)'}
+ ]},
+ {ph:'Aşama 4 · Sonrası',items:[
+  {id:'s21',t:'Fiziki gönderim gerekiyorsa: asıl/onaylı suret 31 Mart 17.30\'a kadar kargoda',l:[['Başvuru İşlemleri','https://www.uak.gov.tr/page/docentlik-basvuru-islemleri-IAKds']]},
+  {id:'s22',t:'Takip: DBS\'den izle · Destek: 0850 470 0 965 · dbsdestek@yok.gov.tr'}
+ ]}
+];
+function toggleDbs(id){DB.dbs=DB.dbs||{};DB.dbs[id]=!DB.dbs[id];save();renderDbs();}
+function renderDbs(){
+  const list=document.getElementById('dbsList');if(!list)return;
+  DB.dbs=DB.dbs||{};
+  let total=0,done=0,html='';
+  DBS_STEPS.forEach(g=>{
+    html+=`<div style="font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);margin:12px 0 6px">${g.ph}</div>`;
+    g.items.forEach(it=>{
+      total++;const ok=!!DB.dbs[it.id];if(ok)done++;
+      const links=(it.l||[]).map(x=>` <a href="${x[1]}" target="_blank" style="font-size:11px;color:var(--resubmit);text-decoration:underline;text-decoration-style:dotted">${x[0]} ↗</a>`).join('');
+      html+=`<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:6px;margin-bottom:3px;background:${ok?'#f0faf5':'#fff8f2'};border-left:3px solid ${ok?'var(--ok)':'#ff9966'}">
+        <input type="checkbox" ${ok?'checked':''} onchange="toggleDbs('${it.id}')" style="margin-top:3px;cursor:pointer;accent-color:var(--accent2)">
+        <div style="font-size:12.5px;line-height:1.45;${ok?'color:var(--muted);text-decoration:line-through':''}">${it.t}${links}</div>
+      </div>`;
+    });
+  });
+  list.innerHTML=html;
+  const sm=document.getElementById('dbsSummary');
+  if(sm)sm.innerHTML=`<b>${done}/${total}</b> adım ${done===total?'✓ HAZIR':''}`;
+  const bar=document.getElementById('dbsBar');
+  if(bar)bar.style.width=(total?Math.round(done/total*100):0)+'%';
+}
+// ============ /DBS ============
+
 const CIT_TYPES={scie:{t:'SCIE/SSCI/AHCI/ESCI/Scopus',p:3},trdizin:{t:'BKCI kitap / TR Dizin',p:2},other:{t:'Diğer',p:1}};
 function citTotal(){
   let sum=0;(DB.citations||[]).forEach(c=>{sum+=(CIT_TYPES[c.type]||{p:0}).p;});
@@ -683,6 +759,7 @@ function render(){
 
   document.getElementById('cntSurec').textContent='('+DB.items.length+')';
   document.getElementById('cntYayin').textContent='('+DB.pubs.length+')';
+  renderDbs();
   renderCits();
   renderPresentations();
   renderBooks();
@@ -835,7 +912,7 @@ function exportData(){const b=new Blob([JSON.stringify(DB,null,2)],{type:'applic
   const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='docentlik_yedek_'+new Date().toISOString().slice(0,10)+'.json';a.click();}
 function importData(){const i=document.createElement('input');i.type='file';i.accept='.json';
   i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{DB=JSON.parse(r.result);if(!DB.manual)DB.manual=defManual();if(DB.manual.atif!==undefined)delete DB.manual.atif;if(DB.manual.bildiri!==undefined)delete DB.manual.bildiri;if(!DB.pubs)DB.pubs=[];if(!DB.citations)DB.citations=defCitations();if(!DB.presentations)DB.presentations=defPresentations();if(!DB.books)DB.books=defBooks();if(!DB.theses)DB.theses=defTheses();save();render();}catch(x){alert('Okunamadı');}};r.readAsText(f);};i.click();}
+  r.onload=()=>{try{DB=JSON.parse(r.result);if(!DB.manual)DB.manual=defManual();if(DB.manual.atif!==undefined)delete DB.manual.atif;if(DB.manual.bildiri!==undefined)delete DB.manual.bildiri;if(!DB.pubs)DB.pubs=[];if(!DB.citations)DB.citations=defCitations();if(!DB.presentations)DB.presentations=defPresentations();if(!DB.books)DB.books=defBooks();if(!DB.theses)DB.theses=defTheses();if(!DB.dbs)DB.dbs={};save();render();}catch(x){alert('Okunamadı');}};r.readAsText(f);};i.click();}
 
 if(DB.tab==='yayin'){document.querySelector('.tab[data-t=yayin]').classList.add('on');document.querySelector('.tab[data-t=surec]').classList.remove('on');
   document.getElementById('pane-yayin').classList.add('on');document.getElementById('pane-surec').classList.remove('on');}
