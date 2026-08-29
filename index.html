@@ -333,6 +333,68 @@
 
 <script>
 const WOS='https://www.webofscience.com/wos/alldb/smart-search';
+/* ---- Akamedika JournalFinder: ÖN TARAMA kaynağı. Resmî kaynak WoS/JCR'dir. ---- */
+const AKA='https://akamedika.com/wp-json/akamedika-jcr/v1/journals';
+const AKA_UI='https://akamedika.com/journal-finder/';
+async function akaFetch(q,year){
+  if(!q)return null;
+  const go=async(y)=>{
+    const u=new URL(AKA);u.searchParams.set('search',q);u.searchParams.set('per_page','3');
+    if(y)u.searchParams.set('year',y);
+    const r=await fetch(u.toString());if(!r.ok)throw new Error('akamedika '+r.status);
+    const d=await r.json();return (d.items&&d.items[0])||null;
+  };
+  let it=year?await go(year):null;
+  if(!it||!it.jcr_year)it=(await go(''))||it;   // o yıl kaydı yoksa en güncel kayda düş
+  return it;
+}
+/* ÜAK eşlemesi. Bir dergi birden fazla maddeye uyabilir (ör. hem Scopus hem
+   TR Dizin). "Her çalışma Tablo 10'da sadece bir bölümde puanlandırılır" —
+   bu seçim adaya aittir, kod tek başına karar VERMEZ.
+   DİKKAT: quartil puanları (30/20/15/10) yalnız md.1a (SCIE/SSCI) içindir;
+   ESCI'de Q1 görünse bile puan sabit 10'dur. */
+function akaKinds(it){
+  if(!it)return [];
+  const ed=(it.wos_editions||'').toUpperCase(), out=[];
+  if(/SCIE|SSCI/.test(ed)){
+    const q=(it.jcr_q||'').toLowerCase();
+    if(['q1','q2','q3','q4'].indexOf(q)>=0)out.push({k:q,why:'md.1a · SCIE/SSCI '+q.toUpperCase()});
+  }
+  if(/AHCI/.test(ed))out.push({k:'ahci',why:'md.1b · AHCI'});
+  if(!out.length){
+    if(/ESCI/.test(ed))out.push({k:'esci',why:'md.1c · ESCI'});
+    else if(it.cs_value)out.push({k:'esci',why:'md.1c · Scopus (CiteScore '+it.cs_value+')'});
+  }
+  if(it.trdizin)out.push({k:'trdizin',why:'md.2a · TR Dizin '+it.trdizin});
+  return out;
+}
+async function akaLookup(id){
+  const it=(DB.pubs||[]).find(x=>x.id===id), box=document.getElementById('aka-'+id);
+  if(!it||!box)return;
+  box.innerHTML='<span style="color:var(--muted)">Akamedika\'da aranıyor…</span>';
+  try{
+    const j=await akaFetch(it.issn||it.venue||'', it.year||'');
+    if(!j){box.innerHTML='<span style="color:var(--warn)">Kayıt bulunamadı — ISSN/dergi adını düzelt ya da <a href="'+AKA_UI+'" target="_blank">siteden ara ↗</a>. Kayıt yoksa tür ELLE ve WoS\'tan doğrulanarak girilmeli.</span>';return;}
+    const ops=akaKinds(j), ed=j.wos_editions||'—';
+    const esciTuzak=!/SCIE|SSCI/.test(ed.toUpperCase()) && /Q[1-4]/i.test(j.jcr_q||'');
+    box.innerHTML=`<div style="border:1px solid var(--line);border-radius:6px;padding:8px;background:#fff;font-size:11px;line-height:1.7">
+      <b>${esc(j.name||'')}</b> · ISSN ${esc(j.issn||'—')}<br>
+      WoS ${esc(String(j.jcr_year||'—'))}: <b>${esc(j.jcr_q||'—')}</b> · JIF ${esc(String(j.jcr_value||'—'))} · indeks <b>${esc(ed)}</b>${j.trdizin?' · TR Dizin '+esc(j.trdizin):''}${j.cs_value?' · Scopus CiteScore '+esc(String(j.cs_value)):''}<br>
+      ${ops.length?ops.map(o=>`<button class="add" style="margin:2px 4px 2px 0" onclick="akaApply(${id},'${o.k}')">${esc(KINDS[o.k].t)} (${KINDS[o.k].base}p) — ${esc(o.why)}</button>`).join('')
+        :'<span style="color:var(--warn)">Otomatik eşleme yapılamadı — türü elle seç.</span>'}
+      ${ops.length>1?'<br><span style="color:var(--warn)">⚠ Bu dergi birden fazla maddeye uyuyor. ÜAK: <b>her çalışma yalnız BİR bölümde puanlanır.</b> Taban puan aynı olsa bile seçim farklı zorunlu şartı besler — md.1 uluslararası 40 puana, md.2 ise "3 ulusal yayın / 2 TR Dizin" şartına sayılır.</span>':''}
+      ${esciTuzak?'<br><span style="color:var(--warn)">⚠ Bu dergi SCIE/SSCI değil; görünen Q değeri ÜAK\'ta puan getirmez.</span>':''}
+      <br><span style="color:var(--muted)">Ön tarama · resmî kaynak WoS/JCR — <a href="${WOS}" target="_blank">WoS\'ta doğrula ↗</a></span>
+    </div>`;
+  }catch(e){box.innerHTML='<span style="color:var(--warn)">Erişilemedi ('+esc(e.message)+'). <a href="'+AKA_UI+'" target="_blank">Siteden ara ↗</a></span>';}
+}
+function akaApply(id,kind){
+  const it=(DB.pubs||[]).find(x=>x.id===id);if(!it)return;
+  if(it.kind==='lte'||it.kind==='case'){
+    if(!confirm('Bu kayıt "'+KINDS[it.kind].t+'" olarak işaretli. ÜAK\'ta yayın TÜRÜ dergi quartilinden önce gelir (editöre mektup 3p, vak\'a takdimi 5p). Yine de değiştirilsin mi?'))return;
+  }
+  it.kind=kind;it.kindSrc='aka';UI.pctls.add(id);save();render();
+}
 // Açık panel/grup durumları — render sonrası korunur
 const UI={edits:new Set(),pctls:new Set(),stages:new Set(),grps:new Set()};
 function trackStage(el){if(el.open)UI.stages.add(el.dataset.stage);else UI.stages.delete(el.dataset.stage);}
@@ -371,7 +433,7 @@ const SEED_YAYIN=[
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
 function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';USER_NAME=u;USER_SURNAME=s;document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;}
 function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);}
@@ -674,7 +736,7 @@ function pushPub(o){
     title:o.title||o.doi||'(başlıksız)',
     venue:o.venue||'', year:o.year||'',
     authors:o.authors||authNames.length||1, rank:o.rank||1,
-    postUzm:true, kind:o.kind||'q2', doi:o.doi||'',
+    postUzm:true, kind:o.kind||'q2', doi:o.doi||'', issn:o.issn||'',
     authorNames:authNames
   });
 }
@@ -703,6 +765,7 @@ async function fetchDOI(){
         year:(m.issued&&m.issued['date-parts']&&m.issued['date-parts'][0][0])||'',
         authors:authors.length||1, rank:findRank(authors)||1,
         kind:guessKind(m.type,(m.title&&m.title[0])||''), doi,
+        issn:(m.ISSN&&m.ISSN[0])||'',
         authorNames:authors
       });
       save();render();inp.value='';
@@ -716,7 +779,10 @@ async function fetchDOI(){
 }
 function addPub(){const id=Date.now();DB.pubs.unshift({id,title:'Yeni yayın (elle)',kind:'q2',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});UI.pctls.add(id);save();render();}
 function patchPub(id,key,val){const it=DB.pubs.find(x=>x.id===id);if(!it)return;
-  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val; it[key]=val;UI.pctls.add(id);save();render();}
+  if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val;
+  if(key==='doi')val=String(val||'').replace(/^\s*doi:?\s*/i,'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').trim();
+  if(key==='kind')it.kindSrc='manual';
+  it[key]=val;UI.pctls.add(id);save();render();}
 function delPub(id){if(confirm('Bu yayını sil?')){DB.pubs=DB.pubs.filter(x=>x.id!==id);UI.pctls.delete(id);save();render();}}
 function togglePub(id){if(UI.pctls.has(id))UI.pctls.delete(id);else UI.pctls.add(id);
   const e=document.getElementById('pctl-'+id);if(e)e.classList.toggle('show',UI.pctls.has(id));}
@@ -902,6 +968,7 @@ function renderYayin(){
         </div>
         <div class="pmeta">
           <span class="tag q">${k.t}</span>
+          ${it.kindSrc==='aka'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="Tür Akamedika ön taramasından geldi; WoS ile doğrula">⚠ WoS doğrulanmadı</span>`:''}
           <span class="venue">${esc(it.venue||'dergi?')}</span>
           ${it.year?`<span>${it.year}</span>`:''}
           <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
@@ -923,6 +990,11 @@ function renderYayin(){
           <label>Uzm. sonrası?<select onchange="patchPub(${it.id},'postUzm',this.value==='1')">
             <option value="1" ${it.postUzm?'selected':''}>Evet</option><option value="0" ${!it.postUzm?'selected':''}>Hayır</option></select></label>
           <label>DOI<input type="text" value="${esc(it.doi||'')}" onchange="patchPub(${it.id},'doi',this.value)"></label>
+          <label>ISSN<input type="text" value="${esc(it.issn||'')}" placeholder="0735-6757" onchange="patchPub(${it.id},'issn',this.value)"></label>
+          <div style="grid-column:1/-1">
+            <button class="add" onclick="akaLookup(${it.id})">🔎 Quartil bul (Akamedika)</button>
+            <div id="aka-${it.id}" style="margin-top:6px"></div>
+          </div>
           <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between">
             <span style="display:flex;gap:8px">
               <a class="wos" href="${WOS}" target="_blank" title="Web of Science">WoS ↗</a>
