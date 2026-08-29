@@ -621,7 +621,7 @@ function renderCits(){
 }
 /* ================= WoS "Printable HTML" atif listesi okuyucu =================
    Dosya tarayicida islenir, hicbir yere gonderilmez. */
-let WOS_RECS=[];
+let WOS_RECS=[],WOS_SON_DOSYA='',WOS_SON_BEYAN='',WOS_SON_HAM=0;
 function wosPick(){const f=document.getElementById('wosFile');if(f){f.value='';f.click();}}
 function wosLoad(inp){
   const f=inp.files&&inp.files[0];if(!f)return;
@@ -683,6 +683,7 @@ function wosParse(txt,dosyaAdi){
       kunye:`${kisaAu}${cokYazar?', et al.':''}, "${wosField(b,'Title:')}", ${src}, ${wosField(b,'Volume:')||''} ${yil}${wosField(b,'Pages:')?', '+wosField(b,'Pages:'):''}`.replace(/\s+/g,' ').trim()
     });
   });
+  WOS_SON_DOSYA=dosyaAdi;WOS_SON_BEYAN=beyan;WOS_SON_HAM=bloklar.length;
   wosRender(dosyaAdi,beyan,bloklar.length);
 }
 function wosRender(dosyaAdi,beyan,hamSayi){
@@ -703,6 +704,7 @@ function wosRender(dosyaAdi,beyan,hamSayi){
         <div style="color:var(--muted);font-size:11px">${esc(r.dergi)} · ${esc(r.yil)}${r.issn?' · ISSN '+esc(r.issn):''}${r.doi?' · '+esc(r.doi):''}</div>
         ${r.kendi?'<div style="color:var(--warn);font-size:11px">⚠ Kendi atıfın — ÜAK md.5: değerlendirmeye alınmaz</div>':''}
         ${oncesiMi(r.yil)===true?'<div style="color:var(--gold);font-size:11px">uzmanlık ÖNCESİ (zorunlu 5 puana sayılmaz)</div>':''}
+        ${r.dogrulama?`<div style="font-size:11px;color:${/kayıt yok|erişilemedi/.test(r.dogrulama)?'var(--warn)':'var(--ok)'}">indeks: ${esc(r.dogrulama)}</div>`:''}
       </div>
       <select onchange="WOS_RECS[${i}].tur=this.value;wosOzet()" style="padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:11px">
         ${Object.keys(CIT_TYPES).map(k=>`<option value="${k}" ${k===r.tur?'selected':''}>${CIT_TYPES[k].p}p ${CIT_TYPES[k].t.slice(0,18)}</option>`).join('')}
@@ -710,12 +712,41 @@ function wosRender(dosyaAdi,beyan,hamSayi){
     </div>
     <div id="wosOzet" style="margin-top:8px"></div>
     <div style="margin-top:8px;display:flex;gap:6px">
+      <button class="add" id="wosDogrulaBtn" onclick="wosDogrula()">🔎 İndeksleri doğrula</button>
       <button class="add" onclick="wosEkle()">Seçilenleri atıf defterine ekle</button>
       <button class="add" onclick="document.getElementById('wosBox').innerHTML='';WOS_RECS=[]">Vazgeç</button>
     </div>
-    <div style="margin-top:6px;color:var(--muted);font-size:11px">Tür varsayılanı <b>3p (a bendi)</b> — WoS Core Collection çıktısı olduğu için. ESCI dergiler de (a) bendindedir, ancak SSS md.8 dar okunursa tartışılabilir.</div>
+    <div style="margin-top:6px;color:var(--muted);font-size:11px">Tür <b>varsayılan olarak 3p (a bendi)</b> atanır — dosya WoS Core Collection çıktısı olduğu için. <b>Bu bir tahmindir, indeks kontrolü yapılmaz.</b> Kitap (BKCI, 2p) veya bildiri kitabı atıfları yanlış puanlanabilir; <b>🔎 İndeksleri doğrula</b> ile ISSN üzerinden kontrol ettir. Resmî kaynak WoS/JCR'dir.</div>
   </div>`;
   wosOzet();
+}
+/* Atif YAPAN derginin indeksini ISSN ile dogrular ve md.5 bendini belirler.
+   On tarama kaynagi Akamedika; resmi kaynak WoS. */
+function akaCitType(it){
+  if(!it)return null;
+  const ed=(it.wos_editions||'').toUpperCase();
+  if(/SCIE|SSCI|AHCI|ESCI/.test(ed))return {t:'scie',why:'md.5a · '+ed};
+  if(it.cs_value)return {t:'scie',why:'md.5a · Scopus'};
+  if(it.trdizin)return {t:'trdizin',why:'md.5c · TR Dizin'};
+  return {t:'other',why:'md.5d · dizin bulunamadı'};
+}
+async function wosDogrula(){
+  const d=document.getElementById('wosDogrulaBtn');
+  if(d){d.disabled=true;d.textContent='Doğrulanıyor…';}
+  let degisen=0, bulunamadi=0;
+  for(let i=0;i<WOS_RECS.length;i++){
+    const r=WOS_RECS[i];
+    try{
+      const j=await akaFetch(r.issn||r.dergi||'', r.yil||'');
+      if(!j){r.dogrulama='kayıt yok';bulunamadi++;continue;}
+      const m=akaCitType(j);
+      r.dogrulama=(j.wos_editions||(j.cs_value?'Scopus':'')||j.trdizin||'—')+' → '+m.why;
+      if(m.t!==r.tur){r.tur=m.t;degisen++;}
+    }catch(e){r.dogrulama='erişilemedi';bulunamadi++;}
+  }
+  wosRender(WOS_SON_DOSYA,WOS_SON_BEYAN,WOS_SON_HAM);
+  const o=document.getElementById('wosOzet');
+  if(o)o.innerHTML+=`<br><span style="color:var(--muted)">İndeks doğrulaması bitti · ${degisen} kaydın türü değişti${bulunamadi?` · ${bulunamadi} kayıt doğrulanamadı (elle kontrol et)`:''}</span>`;
 }
 function wosOzet(){
   const e=document.getElementById('wosOzet');if(!e)return;
