@@ -630,9 +630,21 @@ function wosLoad(inp){
     document.getElementById('wosBox').innerHTML='<span style="color:var(--warn)">Dosya okunamadı: '+esc(err.message)+'</span>';}};
   r.readAsText(f,'utf-8');
 }
+/* WoS ciktisinda alan etiketleri bazen ayni satirda devam ediyor; yakalanan
+   metni bir sonraki bilinen etikette kesiyoruz. */
+const WOS_ETIKET=['Title','Author\\(s\\)','Source','Volume','Issue','Pages','Article Number',
+  'DOI','Early Access Date','Published Date','Abstract','Accession Number','ISSN','eISSN',
+  'Document Type','Language','Addresses','Author Keywords','Keywords Plus',
+  'Web of Science Categories','Research Areas','IDS Number','Publisher','Conference'];
 function wosField(block,key){
-  const re=new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*\\n([\\s\\S]*?)(?=\\n[A-ZİÖÜÇŞĞ][A-Za-zİıÖöÜüÇçŞşĞğ() ]{2,24}:\\s*\\n|$)');
-  const m=block.match(re);return m?m[1].replace(/\s+/g,' ').trim():'';
+  const esc=k=>k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const m=block.match(new RegExp(esc(key)+'\\s*\\n?([\\s\\S]*?)$'));
+  if(!m)return '';
+  let v=m[1];
+  const kes=new RegExp('(?:^|\\s)(?:'+WOS_ETIKET.join('|')+'):');
+  const k=v.search(kes);
+  if(k>=0)v=v.slice(0,k);
+  return v.replace(/\s+/g,' ').trim();
 }
 /* WoS yazar bicimi: "Isik, GÇ (Isik, Gulsah Cikrikci); Sahin, S (...)" */
 function wosKendiMi(authors){
