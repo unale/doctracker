@@ -417,9 +417,12 @@ const KINDS={
   case:{t:"Vak'a takdimi (a bendi)",base:5,intl_a:false,grp:'M1'},
   trdizin:{t:'TR Dizin makale',base:10,intl_a:false,nat_a:true,nat:true,grp:'M2'},
   nat_other:{t:'Diğer hakemli ulusal',base:4,intl_a:false,nat:true,grp:'M2'},
-  nat_lte:{t:'Ulusal LTE/özet',base:2,intl_a:false,nat:true,grp:'M2'}
+  nat_lte:{t:'Ulusal LTE/özet',base:2,intl_a:false,nat:true,grp:'M2'},
+  // ÜAK Tablo 10'da karşılığı olmayan yayınlar (ör. TR Dizin dergide vak'a takdimi
+  // veya derleme). Kayıt listede kalır, puana ve zorunlu şartlara sayılmaz.
+  nopts:{t:'Puan karşılığı yok (listede kalsın)',base:0,intl_a:false,grp:'X'}
 };
-const GROUPS={M1:'Madde 1 · Uluslararası Makale', M2:'Madde 2 · Ulusal Makale'};
+const GROUPS={M1:'Madde 1 · Uluslararası Makale', M2:'Madde 2 · Ulusal Makale', X:'Puan karşılığı olmayan (kayıt için)'};
 
 function shareMult(n,rank){n=+n||1;rank=+rank||1;
   if(n<=1)return 1.0; if(n===2)return rank===1?0.8:0.5; return rank===1?0.5:0.5/(n-1);}
@@ -969,6 +972,7 @@ function renderYayin(){
         <div class="pmeta">
           <span class="tag q">${k.t}</span>
           ${it.kindSrc==='aka'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="Tür Akamedika ön taramasından geldi; WoS ile doğrula">⚠ WoS doğrulanmadı</span>`:''}
+          ${it.kind==='case'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="ÜAK md.1f: vak'a takdimi YALNIZ a bendi (SCIE/SSCI) dergilerde 5p alır. ESCI, Scopus veya TR Dizin dergide karşılığı yoktur.">⚠ dergi SCIE/SSCI mi?</span>`:''}
           <span class="venue">${esc(it.venue||'dergi?')}</span>
           ${it.year?`<span>${it.year}</span>`:''}
           <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
