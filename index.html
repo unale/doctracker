@@ -196,11 +196,61 @@
 <details class="ref" id="citBox">
   <summary>📑 Atıf Defteri (M5) — <span id="citSummary"></span></summary>
   <div class="body">
+    <details style="margin-bottom:12px;border:1px solid var(--line);border-radius:7px;background:#fff">
+      <summary style="cursor:pointer;padding:9px 11px;font-size:12px;font-weight:600">📐 Atıf puanı nasıl hesaplanır — kurallar ve örnek</summary>
+      <div style="padding:4px 13px 13px;font-size:12px;line-height:1.75;color:var(--ink)">
+
+        <p style="margin:8px 0 4px"><b>Puanı, atıf YAPAN yayının indeksi belirler.</b> Senin eserinin hangi dergide çıktığı puanı değiştirmez.</p>
+        <table style="border-collapse:collapse;margin:6px 0 12px;font-size:12px">
+          <tr><th style="text-align:left;padding:3px 12px 3px 0">Atıf yapan yayın</th><th style="text-align:left;padding:3px 10px 3px 0">Bent</th><th style="text-align:left;padding:3px 0">Puan</th></tr>
+          <tr><td style="padding:2px 12px 2px 0">SCIE, SSCI, AHCI, ESCI veya Scopus</td><td>a</td><td><b>3</b></td></tr>
+          <tr><td style="padding:2px 12px 2px 0">BKCI kapsamındaki kitap</td><td>b</td><td>2</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">TR Dizin dergi</td><td>c</td><td>2</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">Diğer kitap/dergi</td><td>d</td><td>1</td></tr>
+        </table>
+        <p style="color:var(--warn);margin:0 0 12px">⚠ Tablo 10 ESCI ve Scopus'u (a) bendine dahil ediyor; SSS'nin 8. cevabı ise yalnız SCI/SSCI/SCIE sayıyor. Seçme şansın varsa SCIE atıfını tercih et.</p>
+
+        <p style="margin:12px 0 4px"><b>Örnek.</b> Dr. Ayşe'nin iki makalesi var: <b>A</b> ve <b>B</b>. Beş yayın atıf yapmış:</p>
+        <table style="border-collapse:collapse;margin:6px 0;font-size:12px">
+          <tr><th style="text-align:left;padding:3px 12px 3px 0">Atıf yapan yayın</th><th style="text-align:left;padding:3px 12px 3px 0">Ne yapmış</th><th style="text-align:left;padding:3px 12px 3px 0">Atıf</th><th style="text-align:left;padding:3px 0">Puan</th></tr>
+          <tr><td style="padding:2px 12px 2px 0">Nature (SCIE)</td><td>A'yı 1 kez anmış</td><td>1</td><td>3</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">Lancet (SCIE)</td><td>A'yı <b>5 kez</b> anmış</td><td><b>1</b></td><td>3</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">AJEM (SCIE)</td><td><b>hem A'yı hem B'yi</b> anmış</td><td><b>2</b></td><td>6</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">Ayşe'nin <b>kendi</b> makalesi</td><td>A'yı anmış</td><td><b>0</b></td><td>0</td></tr>
+          <tr><td style="padding:2px 12px 2px 0">Yerel dergi (TR Dizin)</td><td>B'yi anmış</td><td>1</td><td>2</td></tr>
+          <tr style="border-top:1px solid var(--line)"><td style="padding:4px 12px 2px 0"></td><td style="padding-top:4px"></td><td style="padding-top:4px"><b>5 atıf</b></td><td style="padding-top:4px"><b>14 ham</b></td></tr>
+        </table>
+
+        <p style="margin:14px 0 4px"><b>Kurallar</b></p>
+        <ol style="margin:0;padding-left:20px">
+          <li><b>Kendi atıfın sayılmaz.</b> Yukarıda 4 numara elendi. Ama yalnız <b>senin adının geçtiği</b> yayınlar elenir — ekip arkadaşının, sen olmadan yazdığı makale geçerlidir.</li>
+          <li><b>Bir makale seni 5 kez övse de 1 kez sayılır.</b> Lancet örneği.</li>
+          <li><b>Yazar sayısı hiç önemli değil.</b> Ne senin eserindeki, ne atıf yapan eserdeki. Atıfın makale puanından ayrıldığı tek nokta budur. <i>(SSS md.7: "Atıf puanı yazar sayısına bölünmemektedir.")</i></li>
+          <li><b>Tavan 10 puan.</b> 10 puanlık bir bardak düşün. Ayşe 14 topladı, <b>10'u sayılır</b>, 4'ü dökülür.</li>
+          <li><b>Bardağın en az 5 puanı uzmanlık SONRASI atıflardan gelmeli.</b> Ayrı bir kontrol: hepsi uzmanlıktan önceyse bardak dolu görünür ama şart karşılanmaz.</li>
+        </ol>
+
+        <p style="margin:14px 0 4px"><b>Nasıl sayılır</b> — şu soruyu sor: <i>"Hangi makalem, hangi yayın tarafından anıldı?"</i> Her farklı ikili = 1 atıf.</p>
+        <pre style="margin:4px 0;padding:9px 11px;background:#fafafa;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto">A × Nature   → 1 atıf
+A × Lancet   → 1 atıf   (5 kez anmış, yine 1)
+A × AJEM     → 1 atıf
+B × AJEM     → 1 atıf   ← aynı AJEM makalesi, farklı eser
+B × Yerel    → 1 atıf</pre>
+        <p style="margin:4px 0 12px">Püf noktası: <b>aynı eseri</b> tekrar tekrar anmak çoğaltmaz; <b>farklı eserleri</b> anmak çoğaltır.</p>
+
+        <p style="margin:12px 0 4px"><b>Tavanı doldurmak için kaç atıf gerekir</b></p>
+        <table style="border-collapse:collapse;margin:6px 0 8px;font-size:12px">
+          <tr><td style="padding:2px 14px 2px 0">SCIE / ESCI / Scopus (3'er puan)</td><td><b>4</b></td></tr>
+          <tr><td style="padding:2px 14px 2px 0">BKCI kitap veya TR Dizin (2'şer)</td><td>5</td></tr>
+          <tr><td style="padding:2px 14px 2px 0">Diğer (1'er)</td><td>10</td></tr>
+        </table>
+        <p style="margin:0 0 6px">Her atıf için ayrı PDF hazırlanıyor. 4 atıfta durursan <b>4 PDF</b>; 14 atıf beyan edersen <b>14 PDF</b> ve puan yine 10.</p>
+
+        <p style="margin:14px 0 2px;color:var(--muted);font-size:11px">Kaynak: ÜAK Tablo 10 (Sağlık Bilimleri) md.5 · 2026 Mart SSS md.5, 6, 7, 8, 9.</p>
+      </div>
+    </details>
     <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
-      Her atıf için: <b>atıf alan eserin</b> + <b>atıf yapan yayının künyesi</b> + <b>uzmanlık öncesi/sonrası</b>. Bu alanlar YÖKSİS'e girerken aynen kullanılır.<br>
-      SCIE/Scopus <b>3p</b> · BKCI kitap <b>2p</b> · TR Dizin <b>2p</b> · diğer <b>1p</b> · tavan <b>10p</b>.
-      Zorunlu <b>5 puan yalnız uzmanlık sonrası</b> atıflardan sayılır.
-      Aynı yayında birden çok atıf <b>tek</b> sayılır · kendine atıf <b>sayılmaz</b>.
+      Her atıf için: <b>atıf alan eserin</b> + <b>atıf yapan yayının künyesi</b> + <b>uzmanlık öncesi/sonrası</b>. Bu alanlar YÖKSİS'e girerken aynen kullanılır.
     </div>
     <div id="citList"></div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
