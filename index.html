@@ -167,6 +167,10 @@
           <span style="font-weight:600">Soyadı</span>
           <input type="text" id="userSurname" placeholder="Soyadınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:120px;font-size:12px" onchange="saveUserName()">
         </label>
+        <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px" title="Uzmanlık/doktora ünvanını aldığın tarih. Atıfların 'uzmanlık öncesi/sonrası' ayrımı buna göre yapılır.">
+          <span style="font-weight:600">Uzmanlık tarihi</span>
+          <input type="text" id="userUzmYil" placeholder="YYYY veya YYYY-AA" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:130px;font-size:12px" onchange="saveUserName()">
+        </label>
       </div>
     </div>
   </div>
@@ -252,8 +256,11 @@ B × Yerel    → 1 atıf</pre>
     <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
       Her atıf için: <b>atıf alan eserin</b> + <b>atıf yapan yayının künyesi</b> + <b>uzmanlık öncesi/sonrası</b>. Bu alanlar YÖKSİS'e girerken aynen kullanılır.
     </div>
+    <div id="wosBox" style="margin-bottom:10px"></div>
     <div id="citList"></div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
+      <button class="add" onclick="wosPick()" style="background:var(--accent2);color:#fff;border-color:var(--accent2)">📄 WoS atıf listesi yükle</button>
+      <input type="file" id="wosFile" accept=".html,.htm" style="display:none" onchange="wosLoad(this)">
       <button class="add" onclick="addCit('scie')">+ SCIE/Scopus (3p)</button>
       <button class="add" onclick="addCit('bkci')">+ BKCI kitap (2p)</button>
       <button class="add" onclick="addCit('trdizin')">+ TR Dizin (2p)</button>
@@ -485,11 +492,23 @@ const SEED_YAYIN=[
 ];
 
 let DB=load();
-let USER_NAME='',USER_SURNAME='';
+let USER_NAME='',USER_SURNAME='',USER_UZM='';
 function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
-function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';USER_NAME=u;USER_SURNAME=s;document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;}
-function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);}
+function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';const z=localStorage.getItem('docentlik_uzm_tarih')||'';
+  USER_NAME=u;USER_SURNAME=s;USER_UZM=z;
+  document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;
+  const e=document.getElementById('userUzmYil');if(e)e.value=z;}
+function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();
+  const e=document.getElementById('userUzmYil');USER_UZM=e?(e.value||'').trim():'';
+  localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);
+  localStorage.setItem('docentlik_uzm_tarih',USER_UZM);}
+// Yayin yili uzmanlik tarihinden ONCE mi? (yil bazli; belirsizse null)
+function oncesiMi(yil){
+  const u=parseInt((USER_UZM||'').slice(0,4),10), y=parseInt(String(yil||'').slice(0,4),10);
+  if(!u||!y)return null;
+  return y<u;
+}
 function defManual(){return {tezYayin:0,egitim:0};}
 function defCitations(){return [];}
 function defPresentations(){return [];}
@@ -599,6 +618,125 @@ function renderCits(){
       <input type="checkbox" ${c.belgeHazir?'checked':''} onchange="patchCit(${idx},'belgeHazir',this.checked)">belge</label>
     <span class="x" onclick="delCit(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
   </div>`).join('');
+}
+/* ================= WoS "Printable HTML" atif listesi okuyucu =================
+   Dosya tarayicida islenir, hicbir yere gonderilmez. */
+let WOS_RECS=[];
+function wosPick(){const f=document.getElementById('wosFile');if(f){f.value='';f.click();}}
+function wosLoad(inp){
+  const f=inp.files&&inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{try{wosParse(String(e.target.result),f.name);}catch(err){
+    document.getElementById('wosBox').innerHTML='<span style="color:var(--warn)">Dosya okunamadı: '+esc(err.message)+'</span>';}};
+  r.readAsText(f,'utf-8');
+}
+function wosField(block,key){
+  const re=new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*\\n([\\s\\S]*?)(?=\\n[A-ZİÖÜÇŞĞ][A-Za-zİıÖöÜüÇçŞşĞğ() ]{2,24}:\\s*\\n|$)');
+  const m=block.match(re);return m?m[1].replace(/\s+/g,' ').trim():'';
+}
+/* WoS yazar bicimi: "Isik, GÇ (Isik, Gulsah Cikrikci); Sahin, S (...)" */
+function wosKendiMi(authors){
+  if(!USER_SURNAME)return false;
+  const hedefSoy=norm(USER_SURNAME), hedefAd=norm(USER_NAME).charAt(0);
+  return authors.split(';').some(a=>{
+    const kisa=a.split('(')[0].trim();           // "Unal, E"
+    const p=kisa.split(',');
+    if(p.length<2)return false;
+    const soy=norm(p[0]), bas=norm(p[1]).replace(/[^a-z]/g,'');
+    return soy===hedefSoy && (!hedefAd || bas.charAt(0)===hedefAd);
+  });
+}
+function wosParse(txt,dosyaAdi){
+  const doc=new DOMParser().parseFromString(txt,'text/html');
+  let plain=(doc.body?doc.body.innerText||doc.body.textContent:txt)||txt;
+  plain=plain.split('\n').map(l=>l.trim()).filter(Boolean).join('\n');
+  const bloklar=plain.split(/Record \d+ of \d+/).slice(1);
+  const beyan=(plain.match(/(\d+)\s+record\(s\)/i)||[])[1];
+  const gorulen=new Set(); WOS_RECS=[];
+  bloklar.forEach(b=>{
+    const doi=wosField(b,'DOI:').replace(/Early Access Date.*$/i,'').trim();
+    const anahtar=(doi||wosField(b,'Title:')).toLowerCase();
+    if(gorulen.has(anahtar))return;                 // ayni dosyada mukerrer
+    gorulen.add(anahtar);
+    const au=wosField(b,'Author(s):'), src=wosField(b,'Source:');
+    const yilHam=wosField(b,'Published Date:');
+    const yil=(yilHam.match(/(19|20)\d{2}/)||[])[0]||'';
+    const kisaAu=au.split(';')[0].split('(')[0].trim();
+    const cokYazar=au.split(';').length>1;
+    WOS_RECS.push({
+      baslik:wosField(b,'Title:'), yazarlar:au, dergi:src, doi:doi, yil:yil,
+      issn:(wosField(b,'ISSN:').match(/[\dX-]{8,9}/)||[])[0]||'',
+      cilt:wosField(b,'Volume:'), sayfa:wosField(b,'Pages:'),
+      kendi:wosKendiMi(au), sec:!wosKendiMi(au), tur:'scie',
+      kunye:`${kisaAu}${cokYazar?', et al.':''}, "${wosField(b,'Title:')}", ${src}, ${wosField(b,'Volume:')||''} ${yil}${wosField(b,'Pages:')?', '+wosField(b,'Pages:'):''}`.replace(/\s+/g,' ').trim()
+    });
+  });
+  wosRender(dosyaAdi,beyan,bloklar.length);
+}
+function wosRender(dosyaAdi,beyan,hamSayi){
+  const box=document.getElementById('wosBox');if(!box)return;
+  if(!WOS_RECS.length){box.innerHTML='<span style="color:var(--warn)">Kayıt bulunamadı. Dosyanın WoS <b>Printable HTML File</b> çıktısı olduğundan emin ol.</span>';return;}
+  const kendi=WOS_RECS.filter(r=>r.kendi).length, muk=hamSayi-WOS_RECS.length;
+  const opts=(DB.pubs||[]).map(pb=>`<option value="${pb.id}">${esc((pb.title||'').slice(0,58))}</option>`).join('');
+  box.innerHTML=`<div style="border:1px solid var(--accent2);border-radius:7px;padding:10px;background:#fff;font-size:12px;line-height:1.6">
+    <b>${esc(dosyaAdi)}</b> — dosyada <b>${hamSayi}</b> kayıt${beyan?` (başlıkta ${esc(beyan)} yazıyor)`:''}${muk>0?` · ${muk} mükerrer elendi`:''}${kendi>0?` · <span style="color:var(--warn)">${kendi} kendi atıfın işaretlendi</span>`:''}
+    <div style="margin:8px 0"><label>Bu atıflar hangi eserine ait?
+      <select id="wosPub" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;font-size:12px;max-width:100%">
+        <option value="">— eser seç —</option>${opts}</select></label></div>
+    <div style="max-height:290px;overflow:auto;border-top:1px solid var(--line);padding-top:6px">
+    ${WOS_RECS.map((r,i)=>`<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #f0ece6">
+      <input type="checkbox" ${r.sec?'checked':''} onchange="WOS_RECS[${i}].sec=this.checked;wosOzet()" style="margin-top:3px">
+      <div>
+        <div style="font-weight:600">${esc(r.baslik.slice(0,84))}</div>
+        <div style="color:var(--muted);font-size:11px">${esc(r.dergi)} · ${esc(r.yil)}${r.issn?' · ISSN '+esc(r.issn):''}${r.doi?' · '+esc(r.doi):''}</div>
+        ${r.kendi?'<div style="color:var(--warn);font-size:11px">⚠ Kendi atıfın — ÜAK md.5: değerlendirmeye alınmaz</div>':''}
+        ${oncesiMi(r.yil)===true?'<div style="color:var(--gold);font-size:11px">uzmanlık ÖNCESİ (zorunlu 5 puana sayılmaz)</div>':''}
+      </div>
+      <select onchange="WOS_RECS[${i}].tur=this.value;wosOzet()" style="padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:11px">
+        ${Object.keys(CIT_TYPES).map(k=>`<option value="${k}" ${k===r.tur?'selected':''}>${CIT_TYPES[k].p}p ${CIT_TYPES[k].t.slice(0,18)}</option>`).join('')}
+      </select></div>`).join('')}
+    </div>
+    <div id="wosOzet" style="margin-top:8px"></div>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <button class="add" onclick="wosEkle()">Seçilenleri atıf defterine ekle</button>
+      <button class="add" onclick="document.getElementById('wosBox').innerHTML='';WOS_RECS=[]">Vazgeç</button>
+    </div>
+    <div style="margin-top:6px;color:var(--muted);font-size:11px">Tür varsayılanı <b>3p (a bendi)</b> — WoS Core Collection çıktısı olduğu için. ESCI dergiler de (a) bendindedir, ancak SSS md.8 dar okunursa tartışılabilir.</div>
+  </div>`;
+  wosOzet();
+}
+function wosOzet(){
+  const e=document.getElementById('wosOzet');if(!e)return;
+  const sec=WOS_RECS.filter(r=>r.sec);
+  const ham=sec.reduce((a,r)=>a+(CIT_TYPES[r.tur]||{p:0}).p,0);
+  const sonrasi=sec.filter(r=>oncesiMi(r.yil)!==true).reduce((a,r)=>a+(CIT_TYPES[r.tur]||{p:0}).p,0);
+  const mevcut=citRaw();
+  const yeniHam=mevcut.all+ham, yeniPost=mevcut.post+sonrasi;
+  e.innerHTML=`<b>${sec.length}</b> atıf seçili · ham <b>${ham}p</b>
+    ${sec.some(r=>r.kendi)?'<span style="color:var(--warn)"> · ⚠ seçilenler arasında kendi atıfın var</span>':''}
+    <br><span style="color:var(--muted)">Eklenirse defter: ham ${yeniHam}p → sayılan <b>${Math.min(10,yeniHam)}/10</b> · uzm. sonrası ${Math.min(10,yeniPost)} ${yeniPost>=5?'✓':'○ (5 gerekli)'}</span>`;
+}
+function wosEkle(){
+  const pubId=(document.getElementById('wosPub')||{}).value||'';
+  if(!pubId){alert('Önce bu atıfların hangi eserine ait olduğunu seç.');return;}
+  const sec=WOS_RECS.filter(r=>r.sec);
+  if(!sec.length){alert('Hiç atıf seçilmedi.');return;}
+  const kendi=sec.filter(r=>r.kendi).length;
+  if(kendi&&!confirm(kendi+' adet KENDİ ATIFIN seçili. ÜAK md.5 bunları değerlendirmeye almıyor. Yine de eklensin mi?'))return;
+  DB.citations=DB.citations||[];
+  let eklendi=0;
+  sec.forEach(r=>{
+    const varMi=DB.citations.some(c=>c.citedWorkId===pubId && (c.citingRef||'').indexOf(r.doi&&r.doi.length>6?r.doi:r.baslik.slice(0,40))>=0);
+    if(varMi)return;
+    DB.citations.push({type:r.tur, citedWorkId:pubId,
+      citingRef:r.kunye+(r.doi?' doi:'+r.doi:''),
+      preUzm:oncesiMi(r.yil)===true, belgeHazir:false});
+    eklendi++;
+  });
+  document.getElementById('wosBox').innerHTML='';WOS_RECS=[];
+  save();render();
+  const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},200);
+  alert(eklendi+' atıf eklendi. Defterdeki toplam: '+citTotal()+'/10 puan.');
 }
 function presTotal(){
   // ÜAK md.8: a) CPCI'da yayımlanan uluslararası bildiri 5p · b) diğer toplantı 3p
