@@ -436,7 +436,7 @@ const SEED_YAYIN=[
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
 function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';USER_NAME=u;USER_SURNAME=s;document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;}
 function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);}
@@ -973,6 +973,8 @@ function renderYayin(){
           <span class="tag q">${k.t}</span>
           ${it.kindSrc==='aka'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="Tür Akamedika ön taramasından geldi; WoS ile doğrula">⚠ WoS doğrulanmadı</span>`:''}
           ${it.kind==='case'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="ÜAK md.1f: vak'a takdimi YALNIZ a bendi (SCIE/SSCI) dergilerde 5p alır. ESCI, Scopus veya TR Dizin dergide karşılığı yoktur.">⚠ dergi SCIE/SSCI mi?</span>`:''}
+          ${it.kind==='lte'?`<span class="tag" style="color:var(--muted)" title="ÜAK md.1e: editöre mektup/araştırma notu/özet/kitap kritiği, YALNIZ a-d bentleri kapsamındaki (SCIE/SSCI, AHCI, ESCI/Scopus, diğer uluslararası indeks) dergilerde 3p alır. Yalnız TR Dizin ise md.2c (2p).">md.1e · dergi a-d bendinde mi?</span>`:''}
+          ${it.sor?`<span class="tag" style="color:#fff;background:var(--warn);border-color:var(--warn)" title="${esc(it.sorNot||'Doğrulanacak — yazara sorulacak')}">❗ ${esc(it.sorNot||'yazara sorulacak')}</span>`:''}
           <span class="venue">${esc(it.venue||'dergi?')}</span>
           ${it.year?`<span>${it.year}</span>`:''}
           <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
@@ -995,6 +997,9 @@ function renderYayin(){
             <option value="1" ${it.postUzm?'selected':''}>Evet</option><option value="0" ${!it.postUzm?'selected':''}>Hayır</option></select></label>
           <label>DOI<input type="text" value="${esc(it.doi||'')}" onchange="patchPub(${it.id},'doi',this.value)"></label>
           <label>ISSN<input type="text" value="${esc(it.issn||'')}" placeholder="0735-6757" onchange="patchPub(${it.id},'issn',this.value)"></label>
+          <label>❗ Doğrulanacak<select onchange="patchPub(${it.id},'sor',this.value==='1')">
+            <option value="0" ${!it.sor?'selected':''}>Hayır</option><option value="1" ${it.sor?'selected':''}>Evet</option></select></label>
+          <label>Doğrulama notu<input type="text" value="${esc(it.sorNot||'')}" placeholder="ör. yazara sorulacak / endeks bekliyor" onchange="patchPub(${it.id},'sorNot',this.value)"></label>
           <div style="grid-column:1/-1">
             <button class="add" onclick="akaLookup(${it.id})">🔎 Quartil bul (Akamedika)</button>
             <div id="aka-${it.id}" style="margin-top:6px"></div>
