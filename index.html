@@ -730,9 +730,10 @@ function wosOzet(){
 }
 function wosEkle(){
   const pubId=(document.getElementById('wosPub')||{}).value||'';
-  if(!pubId){alert('Önce bu atıfların hangi eserine ait olduğunu seç.');return;}
+  const not=(m,c)=>{const e=document.getElementById('wosOzet');if(e)e.innerHTML='<span style="color:'+(c||'var(--warn)')+'">'+m+'</span>';};
+  if(!pubId){not('Önce bu atıfların hangi eserine ait olduğunu seç.');return;}
   const sec=WOS_RECS.filter(r=>r.sec);
-  if(!sec.length){alert('Hiç atıf seçilmedi.');return;}
+  if(!sec.length){not('Hiç atıf seçilmedi.');return;}
   const kendi=sec.filter(r=>r.kendi).length;
   if(kendi&&!confirm(kendi+' adet KENDİ ATIFIN seçili. ÜAK md.5 bunları değerlendirmeye almıyor. Yine de eklensin mi?'))return;
   DB.citations=DB.citations||[];
@@ -745,10 +746,13 @@ function wosEkle(){
       preUzm:oncesiMi(r.yil)===true, belgeHazir:false});
     eklendi++;
   });
-  document.getElementById('wosBox').innerHTML='';WOS_RECS=[];
+  WOS_RECS=[];
   save();render();
+  const box=document.getElementById('wosBox');
+  if(box)box.innerHTML='<div style="border:1px solid var(--ok);border-radius:7px;padding:9px 11px;background:#fff;font-size:12px">'
+    +'<b>'+eklendi+' atıf eklendi.</b> Defter: ham '+citRaw().all+'p → sayılan <b>'+citTotal()+'/10</b> · uzm. sonrası '+citPost()
+    +' '+(citPost()>=5?'✓':'○ (5 gerekli)')+'<br><span style="color:var(--muted)">Aşağıdaki listeden künyeleri kontrol edip belge kutularını işaretle.</span></div>';
   const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},200);
-  alert(eklendi+' atıf eklendi. Defterdeki toplam: '+citTotal()+'/10 puan.');
 }
 function presTotal(){
   // ÜAK md.8: a) CPCI'da yayımlanan uluslararası bildiri 5p · b) diğer toplantı 3p
