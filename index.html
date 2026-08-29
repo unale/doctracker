@@ -699,7 +699,7 @@ function openPub(id){UI.pctls.add(id);const e=document.getElementById('pctl-'+id
 function render(){
   let total=0, prePts=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0;
   function tally(it){
-    const k=KINDS[it.kind]; const p=calcPts(it);
+    const k=KINDS[it.kind]; if(!k)return; const p=calcPts(it);
     if(it.postUzm) total+=p; else prePts+=p; // uzm. öncesi ayrı havuzda birikir
     // M1a yalnız uzmanlık SONRASI SCIE/SSCI makaleleri sayar (ÜAK şartı)
     if(k.intl_a && it.postUzm){intlA_pts+=p; if((+it.rank||1)===1)intlA_lead++;}
@@ -710,9 +710,11 @@ function render(){
   total=Math.round(total*100)/100;
 
   // potansiyel puan (Kabul olmayan makaleler; RED aşamasındakiler sayılmaz)
-  let potentialAdd=0;
-  DB.items.forEach(it=>{ if(it.stage!=='kabul' && it.stage!=='red') potentialAdd+=calcPts(it); });
-  potentialAdd=Math.round(potentialAdd*100)/100;
+  // uzm. sonrası ve öncesi ayrı toplanır: öncesi, ana havuzla birlikte 10p tavanına tabidir
+  let potPost=0, potPre=0;
+  DB.items.forEach(it=>{ if(it.stage!=='kabul' && it.stage!=='red'){
+    if(it.postUzm) potPost+=calcPts(it); else potPre+=calcPts(it);
+  }});
 
   const m=DB.manual;
   const atifPts=citTotal();
@@ -724,7 +726,8 @@ function render(){
   const preRaw=Math.round((prePts+m8pre)*100)/100;
   const preAllow=Math.min(10,preRaw);
   const grand=Math.round((total+manualTotal+preAllow)*100)/100;
-  const potentialGrand=Math.round((grand+potentialAdd)*100)/100;
+  const potentialGrand=Math.round((total+manualTotal+Math.min(10,preRaw+potPre)+potPost)*100)/100;
+  const potentialAdd=Math.round((potentialGrand-grand)*100)/100;
 
   document.getElementById('totalPts').innerHTML=`<span style="color:var(--accent)">${grand}</span> <span style="color:var(--warn)">(${potentialGrand})</span> 🚀<small>/100</small>`;
   const potNote=document.getElementById('potentialNote');
