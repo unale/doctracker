@@ -197,13 +197,16 @@
   <summary>📑 Atıf Defteri (M5) — <span id="citSummary"></span></summary>
   <div class="body">
     <div class="info" style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">
-      Her atıfı türüne göre ekle. <b>SCIE/Scopus = 3p</b>, <b>TR Dizin/kitap = 2p</b>, <b>diğer = 1p</b>.
-      Aynı yayında birden çok atıf <b>tek</b> sayılır · kendine atıf <b>sayılmaz</b> · tavan <b>10p</b> (M5 için ≥5p gerekir).
+      Her atıf için: <b>atıf alan eserin</b> + <b>atıf yapan yayının künyesi</b> + <b>uzmanlık öncesi/sonrası</b>. Bu alanlar YÖKSİS'e girerken aynen kullanılır.<br>
+      SCIE/Scopus <b>3p</b> · BKCI kitap <b>2p</b> · TR Dizin <b>2p</b> · diğer <b>1p</b> · tavan <b>10p</b>.
+      Zorunlu <b>5 puan yalnız uzmanlık sonrası</b> atıflardan sayılır.
+      Aynı yayında birden çok atıf <b>tek</b> sayılır · kendine atıf <b>sayılmaz</b>.
     </div>
     <div id="citList"></div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
       <button class="add" onclick="addCit('scie')">+ SCIE/Scopus (3p)</button>
-      <button class="add" onclick="addCit('trdizin')">+ TR Dizin/Kitap (2p)</button>
+      <button class="add" onclick="addCit('bkci')">+ BKCI kitap (2p)</button>
+      <button class="add" onclick="addCit('trdizin')">+ TR Dizin (2p)</button>
       <button class="add" onclick="addCit('other')">+ Diğer (1p)</button>
     </div>
   </div>
@@ -368,7 +371,7 @@ const SEED_YAYIN=[
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(!d.citations)d.citations=defCitations();if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
 function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';USER_NAME=u;USER_SURNAME=s;document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;}
 function saveUserName(){USER_NAME=(document.getElementById('userName').value||'').trim();USER_SURNAME=(document.getElementById('userSurname').value||'').trim();localStorage.setItem('docentlik_user_name',USER_NAME);localStorage.setItem('docentlik_user_surname',USER_SURNAME);}
@@ -440,38 +443,57 @@ function renderDbs(){
 }
 // ============ /DBS ============
 
-const CIT_TYPES={scie:{t:'SCIE/SSCI/AHCI/ESCI/Scopus',p:3},trdizin:{t:'BKCI kitap / TR Dizin',p:2},other:{t:'Diğer',p:1}};
-function citTotal(){
-  let sum=0;(DB.citations||[]).forEach(c=>{sum+=(CIT_TYPES[c.type]||{p:0}).p;});
-  return Math.min(10,Math.round(sum*10)/10);
+// ÜAK md.5 bentleri: a) SCIE/SSCI/AHCI/ESCI/Scopus 3p · b) BKCI kitap 2p · c) TR Dizin 2p · d) diğer 1p
+const CIT_TYPES={scie:{t:'SCIE/SSCI/AHCI/ESCI/Scopus',p:3},bkci:{t:'BKCI kitap',p:2},trdizin:{t:'TR Dizin dergi',p:2},other:{t:'Diğer kitap/dergi',p:1}};
+function citRaw(){
+  let post=0,pre=0;
+  (DB.citations||[]).forEach(c=>{const p=(CIT_TYPES[c.type]||{p:0}).p;if(c.preUzm)pre+=p;else post+=p;});
+  return {post:Math.round(post*10)/10,pre:Math.round(pre*10)/10,all:Math.round((post+pre)*10)/10};
 }
+// Tavan 10p (ÜAK md.5)
+function citTotal(){return Math.min(10,citRaw().all);}
+// Zorunlu 5 puanlık alt sınır YALNIZ uzmanlık sonrası atıflardan sayılır (ÜAK md.5)
+function citPost(){return Math.min(10,citRaw().post);}
 function save(){try{localStorage.setItem('docentlik_v4',JSON.stringify(DB));}catch(e){}}
 function bumpManual(key,d){DB.manual[key]=Math.max(0,Math.round((DB.manual[key]+d)*10)/10);save();render();}
 function setManual(key,val){const v=parseFloat(val);DB.manual[key]=isNaN(v)?0:Math.max(0,Math.round(v*10)/10);save();render();}
-function addCit(type){DB.citations=DB.citations||[];DB.citations.push({type,note:''});save();render();
+function addCit(type){DB.citations=DB.citations||[];DB.citations.push({type,citedWorkId:'',citingRef:'',preUzm:false,belgeHazir:false});save();render();
   const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchCit(idx,key,val){if(!DB.citations[idx])return;DB.citations[idx][key]=val;save();render();
   const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function delCit(idx){DB.citations.splice(idx,1);save();render();const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderCits(){
   const list=document.getElementById('citList');if(!list)return;
-  const cits=DB.citations||[];
-  const sum=citTotal();const raw=cits.reduce((a,c)=>a+(CIT_TYPES[c.type]||{p:0}).p,0);
+  const cits=DB.citations||[];const r=citRaw();
   const sm=document.getElementById('citSummary');
-  if(sm)sm.innerHTML=`${cits.length} atıf · <b>${sum}/5 p</b>${raw>10?' (ham '+raw+', tavan 10)':''} ${sum>=5?'✓':'○'}`;
-  if(!cits.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz atıf yok. Aşağıdan tür seçerek ekle.</div>';return;}
-  list.innerHTML=cits.map((c,idx)=>`<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:center;margin-bottom:6px">
-    <span class="tag" style="background:var(--accent2);color:#fff;border:none">${(CIT_TYPES[c.type]||{}).p}p · ${(CIT_TYPES[c.type]||{}).t}</span>
-    <input type="text" value="${esc(c.note||'')}" placeholder="atıf yapan yayın / not (opsiyonel)" onchange="patchCit(${idx},'note',this.value)"
+  if(sm)sm.innerHTML=`${cits.length} at\u0131f \u00b7 <b>${citTotal()}/5 p</b>${r.all>10?' (ham '+r.all+', tavan 10)':''}${r.pre>0?' \u00b7 uzm.sonras\u0131 '+citPost():''} ${citPost()>=5?'\u2713':'\u25cb'}`;
+  if(!cits.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Hen\u00fcz at\u0131f yok. A\u015fa\u011f\u0131dan t\u00fcr se\u00e7erek ekle.</div>';return;}
+  const opts=(DB.pubs||[]).map(pb=>`<option value="${pb.id}">${esc((pb.title||'').slice(0,60))}</option>`).join('');
+  list.innerHTML=cits.map((c,idx)=>`<div style="display:grid;grid-template-columns:auto 1.1fr 1.4fr auto auto auto;gap:6px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    <span class="tag" style="background:var(--accent2);color:#fff;border:none">${(CIT_TYPES[c.type]||{}).p}p</span>
+    <select onchange="patchCit(${idx},'citedWorkId',this.value)" title="At\u0131f alan eserin" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:11px">
+      <option value="">— at\u0131f alan eserim —</option>${opts.replace('value="'+c.citedWorkId+'"','value="'+c.citedWorkId+'" selected')}
+    </select>
+    <input type="text" value="${esc(c.citingRef||'')}" placeholder="at\u0131f yapan yay\u0131n\u0131n k\u00fcnyesi" onchange="patchCit(${idx},'citingRef',this.value)"
       style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+    <select onchange="patchCit(${idx},'preUzm',this.value==='1')" style="padding:5px 7px;border:1px solid ${c.preUzm?'var(--gold)':'var(--line)'};border-radius:5px;background:#fff;font-size:11px;${c.preUzm?'color:var(--gold);font-weight:600':''}">
+      <option value="0" ${!c.preUzm?'selected':''}>Uzm. sonras\u0131</option>
+      <option value="1" ${c.preUzm?'selected':''}>Uzm. \u00d6NCES\u0130</option>
+    </select>
+    <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px;white-space:nowrap" title="PDF haz\u0131rland\u0131 m\u0131">
+      <input type="checkbox" ${c.belgeHazir?'checked':''} onchange="patchCit(${idx},'belgeHazir',this.checked)">belge</label>
     <span class="x" onclick="delCit(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
   </div>`).join('');
 }
 function presTotal(){
-  const pres=DB.presentations||[];let m8=0,m8pre=0;
-  pres.forEach(p=>{const a=+p.authors||0;if(a>0){const v=3/a;if(p.pre)m8pre+=v;else m8+=v;}});
-  m8=Math.round(m8*100)/100;m8pre=Math.round(m8pre*100)/100;
-  return {count:pres.length,m8,m8pre};}
+  // ÜAK md.8: a) CPCI'da yayımlanan uluslararası bildiri 5p · b) diğer toplantı 3p
+  // Tavan 10p (madde toplamı). Uzm. sonrası öncelikli tahsis edilir.
+  const pres=DB.presentations||[];let post=0,pre=0;
+  pres.forEach(p=>{const a=+p.authors||0;if(a>0){const v=(p.cpci?5:3)/a;if(p.pre)pre+=v;else post+=v;}});
+  post=Math.round(post*100)/100;pre=Math.round(pre*100)/100;
+  const m8=Math.min(10,post);
+  const m8pre=Math.min(Math.max(0,10-m8),pre);
+  return {count:pres.length,m8,m8pre,raw:Math.round((post+pre)*100)/100,warn:(post+pre)>10};}
 function addPres(){DB.presentations=DB.presentations||[];DB.presentations.push({id:Date.now(),title:'Yeni bildiri',authors:0});save();render();
   const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='authors')val=+val;DB.presentations[idx][key]=val;save();render();
@@ -479,19 +501,23 @@ function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='autho
 function delPres(idx){DB.presentations.splice(idx,1);save();render();const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderPresentations(){
   const list=document.getElementById('presList');if(!list)return;
-  const pres=DB.presentations||[];const {count,m8,m8pre}=presTotal();
+  const pres=DB.presentations||[];const {count,m8,m8pre,raw,warn}=presTotal();
   const sm=document.getElementById('presSummary');
-  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b>${m8pre>0?` + ${m8pre}p öncesi`:''} ${m8>=5?'✓':'○'}`;
+  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b>${m8pre>0?` + ${m8pre}p öncesi`:''}${warn?` ⚠ (ham ${raw}, tavan 10)`:''} ${m8>=5?'✓':'○'}`;
   if(!pres.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz bildiri yok. Aşağıdan ekle.</div>';return;}
   list.innerHTML=pres.map((p,idx)=>{
-    const a=+p.authors||0;const pts=a>0?Math.round(3/a*100)/100:0;
-    return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    const a=+p.authors||0;const pts=a>0?Math.round((p.cpci?5:3)/a*100)/100:0;
+    return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
     <input type="text" value="${esc(p.title||'')}" placeholder="bildiri başlığı" onchange="patchPres(${idx},'title',this.value)"
       style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
     <div style="display:flex;gap:4px;align-items:center">
       <input type="number" min="0" value="${p.authors||''}" placeholder="yazar" onchange="patchPres(${idx},'authors',this.value)"
         style="width:60px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
     </div>
+    <select onchange="patchPres(${idx},'cpci',this.value==='1')" title="ÜAK md.8 a bendi: CPCI'da yayımlanmış uluslararası bildiri 5p" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:11px">
+      <option value="0" ${!p.cpci?'selected':''}>Diğer toplantı (3p)</option>
+      <option value="1" ${p.cpci?'selected':''}>CPCI uluslararası (5p)</option>
+    </select>
     <select onchange="patchPres(${idx},'pre',this.value==='1')" style="padding:5px 7px;border:1px solid ${p.pre?'var(--gold)':'var(--line)'};border-radius:5px;background:#fff;font-size:11px;${p.pre?'color:var(--gold);font-weight:600':''}">
       <option value="0" ${!p.pre?'selected':''}>Uzm. sonrası</option>
       <option value="1" ${p.pre?'selected':''}>Uzm. ÖNCESİ</option>
@@ -701,9 +727,12 @@ function render(){
   function tally(it){
     const k=KINDS[it.kind]; if(!k)return; const p=calcPts(it);
     if(it.postUzm) total+=p; else prePts+=p; // uzm. öncesi ayrı havuzda birikir
-    // M1a yalnız uzmanlık SONRASI SCIE/SSCI makaleleri sayar (ÜAK şartı)
-    if(k.intl_a && it.postUzm){intlA_pts+=p; if((+it.rank||1)===1)intlA_lead++;}
-    if(k.nat){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++;}
+    // ÜAK md.1: 40 puan madde 1'in TAMAMINDAN sayılır (a-f: SCIE, AHCI, ESCI/Scopus,
+    // diğer indeks, editöre mektup, vak'a takdimi). "3 makalede başlıca yazar" şartı
+    // ise yalnız a bendinden (SCIE/SSCI = intl_a). İkisi de uzmanlık SONRASI olmalı.
+    if(k.grp==='M1' && it.postUzm){intlA_pts+=p; if(k.intl_a && (+it.rank||1)===1)intlA_lead++;}
+    // ÜAK md.2 de uzmanlık sonrasını şart koşar
+    if(k.nat && it.postUzm){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++;}
   }
   DB.items.forEach(it=>{ if(it.stage==='kabul') tally(it); });
   DB.pubs.forEach(it=> tally(it));
@@ -721,7 +750,8 @@ function render(){
   const {m8,m8pre}=presTotal();
   const {m4}=bookTotal();
   const {m6}=thesisTotal();
-  const manualTotal=(+m.tezYayin||0)+atifPts+m8+m4+m6+(+m.egitim||0);
+  // ÜAK tavanları: md.3 en fazla 20p · md.9 en fazla 6p
+  const manualTotal=Math.min(20,+m.tezYayin||0)+atifPts+m8+m4+m6+Math.min(6,+m.egitim||0);
   // Uzm. ÖNCESİ havuzu (makale + bildiri): ÜAK kuralı gereği max 10p sayılır
   const preRaw=Math.round((prePts+m8pre)*100)/100;
   const preAllow=Math.min(10,preRaw);
@@ -740,12 +770,12 @@ function render(){
 
   const gates=[
     {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true, mandatory:true},
-    {t:'M1a · uluslararası puan', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true, mandatory:true},
+    {t:'M1 · uluslararası puan (a-f)', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true, mandatory:true},
     {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true, mandatory:true},
     {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), auto:true, mandatory:true},
     {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true, mandatory:true},
     {t:'M3 · tez yayını', v:m.tezYayin+' p', ok:m.tezYayin>0, auto:false, key:'tezYayin', mandatory:true},
-    {t:'M5 · atıf', v:atifPts+' / 5 p', ok:atifPts>=5, auto:true, key:'atif', mandatory:true},
+    {t:'M5 · atıf', v:atifPts+' / 5 p'+(citRaw().pre>0?' (uzm.sonrası '+citPost()+')':''), ok:citPost()>=5, auto:true, key:'atif', mandatory:true},
     {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true, mandatory:true},
     {t:'M9 · eğitim', v:m.egitim+' / 2 p', ok:m.egitim>=2, auto:false, key:'egitim', mandatory:true}
   ];
