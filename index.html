@@ -3,44 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doçentlik Takip · ÜAK 2026</title>
+<title>Doçentlik Puan Hesaplayıcı · ÜAK 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap">
 <style>
   :root{
-    --ink:#16202b; --paper:#f3efe6; --line:#d8d0c0; --accent:#9a3b2e;
-    --accent2:#2f5d50; --muted:#6f6857; --gold:#b58a2e; --ok:#2f5d50; --warn:#9a3b2e;
-    --fikir:#8a8170; --veri:#b58a2e; --yazim:#3a7ca5; --submit:#5b7553;
-    --revizyon:#c77d3a; --red:#9a3b2e; --resubmit:#5b6e8c; --kabul:#2f5d50;
+    /* ---------- KLASİK (varsayılan) — özgün krem/kiremit palet ---------- */
+    --paper:#f3efe6; --card:#fffdf8; --surface:#ece6da; --surface2:#e2dacb;
+    --line:#d8d0c0; --line-strong:#bfb49e;
+    --ink:#16202b; --muted:#6f6857; --faint:#726b5d;
+    --accent:#9a3b2e; --accent-soft:#faf3f0; --accent-line:#e0c4bc; --accent2:#2f5d50;
+    --ok:#2f5d50;   --ok-soft:#eff5f2;   --ok-line:#b9d3c9;
+    --warn:#985f2b; --warn-soft:#fdf6ee; --warn-line:#e8cfae;
+    --red:#9a3b2e;  --red-soft:#fbf1ee;  --red-line:#e5c3ba;
+    --gold:#866622; --gold-soft:#fbf7ea; --beige:#e8e6df;
+    --chip-ink:#ffffff;
+    --radius:12px; --shadow:0 1px 2px rgba(22,32,43,.05), 0 1px 3px rgba(22,32,43,.08);
+    --fikir:#726b5d; --etik:#8a3a52; --veri:#866622; --analiz:#576224;
+    --yazim:#357298; --submit:#597251; --revizyon:#985f2b;
+    --resubmit:#5b6e8c; --kabul:#2f5d50;
+    --govde-font:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    color-scheme:light;
   }
+  :root[data-theme="klasik"]{
+
+    /* ---------- KLASİK (varsayılan) — özgün krem/kiremit palet ---------- */
+    --paper:#f3efe6; --card:#fffdf8; --surface:#ece6da; --surface2:#e2dacb;
+    --line:#d8d0c0; --line-strong:#bfb49e;
+    --ink:#16202b; --muted:#6f6857; --faint:#726b5d;
+    --accent:#9a3b2e; --accent-soft:#faf3f0; --accent-line:#e0c4bc; --accent2:#2f5d50;
+    --ok:#2f5d50;   --ok-soft:#eff5f2;   --ok-line:#b9d3c9;
+    --warn:#985f2b; --warn-soft:#fdf6ee; --warn-line:#e8cfae;
+    --red:#9a3b2e;  --red-soft:#fbf1ee;  --red-line:#e5c3ba;
+    --gold:#866622; --gold-soft:#fbf7ea; --beige:#e8e6df;
+    --chip-ink:#ffffff;
+    --radius:12px; --shadow:0 1px 2px rgba(22,32,43,.05), 0 1px 3px rgba(22,32,43,.08);
+    --fikir:#726b5d; --etik:#8a3a52; --veri:#866622; --analiz:#576224;
+    --yazim:#357298; --submit:#597251; --revizyon:#985f2b;
+    --resubmit:#5b6e8c; --kabul:#2f5d50;
+    --govde-font:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    color-scheme:light;
+  
+  }
+  :root[data-theme="akamedika"]{
+    /* ---------- AKAMEDİKA — sitenin beyaz/mavi sistemi ---------- */
+    --paper:#ffffff; --card:#ffffff; --surface:#f6f8fb; --surface2:#eef2f7;
+    --line:#e2e8f0; --line-strong:#cbd5e1;
+    --ink:#0f172a; --muted:#475569; --faint:#64748b;
+    --accent:#1d4ed8; --accent-soft:#eff6ff; --accent-line:#bfdbfe; --accent2:#0e7490;
+    --ok:#15803d;   --ok-soft:#dcfce7;   --ok-line:#86efac;
+    --warn:#c2410c; --warn-soft:#fff7ed; --warn-line:#fdba74;
+    --red:#dc2626;  --red-soft:#fef2f2;  --red-line:#fca5a5;
+    --gold:#a16207; --gold-soft:#fefce8; --beige:#e8e6df;
+    --chip-ink:#ffffff;
+    --shadow:0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.10);
+    --fikir:#64748b; --etik:#be185d; --veri:#a16207; --analiz:#4d7c0f;
+    --yazim:#0e7490; --submit:#1d4ed8; --revizyon:#c2410c;
+    --resubmit:#6d28d9; --kabul:#15803d;
+    --govde-font:Jost,-apple-system,"Segoe UI",Roboto,sans-serif;
+    color-scheme:light;
+  }
+  :root[data-theme="koyu"]{
+    /* ---------- KOYU — nötr kömür zemin, Klasik'in sıcak vurguları ---------- */
+    --paper:#26262a; --card:#303035; --surface:#3a3a40; --surface2:#45454c;
+    --line:#4d4d54; --line-strong:#6a6a73;
+    --ink:#f2f1ee; --muted:#cfcdc8; --faint:#b0aea9;
+    --accent:#f0a094; --accent-soft:#423739; --accent-line:#6b4f4e; --accent2:#69c7ab;
+    --ok:#69c7ab;   --ok-soft:#2f3b3b;   --ok-line:#3b5a53;
+    --warn:#e9a86e; --warn-soft:#3f3733; --warn-line:#645040;
+    --red:#f79a92;  --red-soft:#413538;  --red-line:#694b4b;
+    --gold:#e9ad2f; --gold-soft:#3f382b; --beige:#55555d;
+    --chip-ink:#26262a;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 1px 3px rgba(0,0,0,.3);
+    --fikir:#bdb6a8; --etik:#e4a8ba; --veri:#e5ae37; --analiz:#a9c434;
+    --yazim:#84bee3; --submit:#a4bf9b; --revizyon:#e8aa72;
+    --resubmit:#aab9cf; --kabul:#71c6ae;
+    --govde-font:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
+    color-scheme:dark;
+  }
+  #temaSecici button{border:0;background:transparent;color:var(--faint);cursor:pointer;
+    padding:6px 11px;font:600 11.5px/1.4 inherit;white-space:nowrap;
+    transition:background .15s,color .15s}
+  #temaSecici button:hover{background:var(--surface);color:var(--muted)}
+  #temaSecici button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+  #temaSecici button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif;
-    background:var(--paper);color:var(--ink);line-height:1.5;
-    padding:clamp(12px,3vw,30px);max-width:1200px;margin:0 auto;-webkit-font-smoothing:antialiased}
+  body{font-family:var(--govde-font);
+    background:var(--paper);color:var(--ink);line-height:1.55;
+    padding:clamp(12px,1.5rem,32px);max-width:1290px;margin:0 auto;-webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums}
   header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;
-    gap:16px;border-bottom:2px solid var(--ink);padding-bottom:14px}
-  .eyebrow{font:600 11px/1 ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
+    gap:16px;border-bottom:1px solid var(--line);padding-bottom:18px}
+  .eyebrow{font:600 11px/1 Jost,ui-monospace,monospace;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)}
   h1{font-size:clamp(22px,4vw,32px);font-weight:600;letter-spacing:-.01em;margin-top:6px}
   .sub{color:var(--muted);font-size:13px;margin-top:2px;max-width:52ch}
   .score{text-align:right;min-width:210px}
   .score .num{font-size:clamp(32px,7vw,50px);font-weight:700;color:var(--accent);line-height:.9}
   .score .num small{font-size:.4em;color:var(--muted);font-weight:600}
-  .score .lbl{font:600 10px/1.4 ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-  .score .bar{height:7px;background:var(--line);border-radius:4px;margin-top:8px;overflow:hidden}
+  .score .lbl{font:600 10px/1.4 Jost,ui-monospace,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .score .bar{height:7px;background:var(--line);border-radius:6px;margin-top:8px;overflow:hidden}
   .score .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0;transition:.3s}
 
   .gates{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin:16px 0 4px}
-  .gate{background:#fff;border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:9px 12px}
-  .gate.ok{border-left-color:var(--ok);background:#f5faf7} .gate.no{border-left-color:var(--warn)}
-  .gate.mandatory.no{background:#fff5f0;border-left-color:#ff9966} .gate.mandatory.ok{background:#f0faf5;border-left-color:var(--ok)}
-  .gate .g-t{font:600 11px/1.3 ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  .gate{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--line);border-radius:8px;padding:9px 12px}
+  .gate.ok{border-left-color:var(--ok);background:var(--ok-soft)} .gate.no{border-left-color:var(--warn)}
+  .gate.mandatory.no{background:var(--red-soft);border-left-color:var(--red)} .gate.mandatory.ok{background:var(--ok-soft);border-left-color:var(--ok)}
+  .gate .g-t{font:600 11px/1.3 Jost,ui-monospace,monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
   .gate .g-v{font-size:14px;font-weight:600;margin-top:2px}
   .gate .g-v b{color:var(--accent)}
   .gate.ok .mark{color:var(--ok)} .gate.no .mark{color:var(--warn)}
   .gbtn{cursor:pointer;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
-    border:1px solid var(--line);border-radius:4px;background:#fff;font:600 13px ui-monospace,monospace;color:var(--muted);user-select:none}
+    border:1px solid var(--line);border-radius:6px;background:var(--card);font:600 13px Jost,ui-monospace,monospace;color:var(--muted);user-select:none}
   .gbtn:hover{border-color:var(--ink);color:var(--ink)}
 
-  .ref{background:#fff;border:1px solid var(--line);border-radius:10px;margin:14px 0;overflow:hidden}
-  .ref summary{cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;
+  .ref{background:var(--card);box-shadow:var(--shadow);border-color:var(--line);background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin:14px 0;overflow:hidden}
+  .ref summary{cursor:pointer;padding:11px 15px;font:600 12px/1 Jost,ui-monospace,monospace;
     letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center}
   .ref summary::-webkit-details-marker{display:none}
   .ref summary::after{content:'+';font-size:18px;color:var(--muted)}
@@ -48,17 +126,17 @@
   .ref .body{padding:4px 16px 16px;font-size:13px;line-height:1.6}
   .ref h4{font-size:13px;margin:14px 0 5px;color:var(--accent2);font-variant:small-caps;letter-spacing:.04em}
   .ref table{width:100%;border-collapse:collapse;margin:6px 0;font-size:12.5px}
-  .ref td{padding:3px 8px 3px 0;border-bottom:1px solid #efe9dc;vertical-align:top}
-  .ref td:last-child{text-align:right;font:600 12px ui-monospace,monospace;color:var(--accent);white-space:nowrap}
-  .ref .must{background:#faf3f0;border-left:3px solid var(--red);padding:7px 10px;border-radius:5px;margin:6px 0;font-size:12.5px}
+  .ref td{padding:3px 8px 3px 0;border-bottom:1px solid var(--line);vertical-align:top}
+  .ref td:last-child{text-align:right;font:600 12px Jost,ui-monospace,monospace;color:var(--accent);white-space:nowrap}
+  .ref .must{background:var(--gold-soft);border-left:3px solid var(--red);padding:7px 10px;border-radius:8px;margin:6px 0;font-size:12.5px}
   .ref .abbr{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:12.5px}
-  .ref .abbr b{font:600 12px ui-monospace,monospace;color:var(--ink)}
+  .ref .abbr b{font:600 12px Jost,ui-monospace,monospace;color:var(--ink)}
 
   /* sekmeler */
   .tabs{display:flex;gap:4px;margin:18px 0 0;border-bottom:2px solid var(--ink)}
-  .tab{padding:10px 18px;cursor:pointer;font:600 13px/1 ui-monospace,monospace;letter-spacing:.04em;
+  .tab{padding:10px 18px;cursor:pointer;font:600 13px/1 Jost,ui-monospace,monospace;letter-spacing:.04em;
     text-transform:uppercase;color:var(--muted);border:1px solid var(--line);border-bottom:none;
-    border-radius:8px 8px 0 0;background:#ece6da;margin-bottom:-2px}
+    border-radius:8px 8px 0 0;background:var(--surface2);margin-bottom:-2px}
   .tab.on{background:var(--paper);color:var(--accent);border-bottom:2px solid var(--paper)}
   .tab .cnt{font-size:11px;opacity:.7}
   .pane{display:none;padding-top:14px} .pane.on{display:block}
@@ -66,84 +144,84 @@
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 10px}
   .toolbar .grow{flex:1}
   button,select,input{font-family:inherit;font-size:13px}
-  .btn{background:var(--ink);color:var(--paper);border:none;padding:9px 14px;border-radius:7px;cursor:pointer;font-weight:600}
-  .btn:hover{background:#000}
+  .btn{background:var(--ink);color:var(--paper);border:none;padding:9px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+  .btn:hover{background:var(--ink)}
   .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-  .chip{border:1px solid var(--line);background:#fff;padding:6px 11px;border-radius:20px;cursor:pointer;font-size:12px;color:var(--muted)}
+  .chip{border:1px solid var(--line);background:var(--card);padding:6px 11px;border-radius:20px;cursor:pointer;font-size:12px;color:var(--muted)}
   .chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 
-  .card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;margin-bottom:8px}
   .card .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
   .title{font-size:15px;font-weight:600;flex:1}
-  .title[contenteditable]:focus{outline:2px solid var(--gold);border-radius:4px;outline-offset:2px}
-  .pts{font:700 13px ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
+  .title[contenteditable]:focus{outline:2px solid var(--gold);border-radius:6px;outline-offset:2px}
+  .pts{font:700 13px Jost,ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
   .pts small{display:block;font-size:9px;color:var(--muted);font-weight:400}
   .meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-  .tag{font:600 10px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);background:#fafafa}
-  .tag.q{color:#fff;border:none;background:var(--accent2)}
-  .tag.author{background:#fff}
+  .tag{border-radius:999px;font:600 10px/1 Jost,ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border-radius:8px;border:1px solid var(--line);color:var(--muted);background:var(--surface)}
+  .tag.q{color:var(--chip-ink);border:none;background:var(--accent2)}
+  .tag.author{background:var(--card)}
   .venue{font-size:12.5px;color:var(--ink);font-style:italic;font-weight:600}
-  .redbtn{cursor:pointer;user-select:none;border:1px dashed var(--line);background:#fff;color:var(--muted)}
+  .redbtn{cursor:pointer;user-select:none;border:1px dashed var(--line);background:var(--card);color:var(--muted)}
   .redbtn:hover{border-style:solid;border-color:var(--ink)}
-  .redbtn.red{background:var(--red);color:#fff;border:1px solid var(--red)}
-  .redbtn.resubmit{background:var(--resubmit);color:#fff;border:1px solid var(--resubmit)}
-  .trackbtn{cursor:pointer;user-select:none;border:1px solid var(--resubmit);color:var(--resubmit);background:#fff;
-    font:600 10px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:5px;white-space:nowrap}
-  .trackbtn:hover{background:var(--resubmit);color:#fff}
+  .redbtn.red{background:var(--red);color:var(--chip-ink);border:1px solid var(--red)}
+  .redbtn.resubmit{background:var(--resubmit);color:var(--chip-ink);border:1px solid var(--resubmit)}
+  .trackbtn{cursor:pointer;user-select:none;border:1px solid var(--resubmit);color:var(--resubmit);background:var(--card);
+    font:600 10px/1 Jost,ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;padding:5px 8px;border-radius:8px;white-space:nowrap}
+  .trackbtn:hover{background:var(--resubmit);color:var(--chip-ink)}
   .trackbtn.empty{border:none;background:transparent;color:var(--muted);padding:5px 4px;text-decoration:underline;text-decoration-style:dotted}
   .trackbtn.empty:hover{color:var(--resubmit);background:transparent}
 
-  .funnel{display:flex;margin-top:8px;border:1px solid var(--line);border-radius:7px;overflow:hidden}
-  .funnel .step{flex:1;text-align:center;padding:5px 2px;font:600 9px/1.2 ui-monospace,monospace;
+  .funnel{display:flex;margin-top:8px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .funnel .step{flex:1;text-align:center;padding:5px 2px;font:600 9px/1.2 Jost,ui-monospace,monospace;
     letter-spacing:.02em;text-transform:uppercase;color:var(--muted);cursor:pointer;
-    border-right:1px solid var(--line);background:#fff;transition:.12s;user-select:none}
+    border-right:1px solid var(--line);background:var(--card);transition:.12s;user-select:none}
   .funnel .step:last-child{border-right:none}
-  .funnel .step:hover{background:#f6f2e9}
-  .funnel .step.done{color:#fff} .funnel .step.cur{box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
+  .funnel .step:hover{background:var(--surface)}
+  .funnel .step.done{color:var(--chip-ink)} .funnel .step.cur{box-shadow:inset 0 -3px 0 rgba(0,0,0,.25)}
 
   .rowbtns{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap}
-  .mini{font-size:11px;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--muted)}
+  .mini{font-size:11px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:5px 9px;cursor:pointer;color:var(--muted)}
   .mini:hover{border-color:var(--ink);color:var(--ink)}
   .mini.del:hover{border-color:var(--accent);color:var(--accent)}
 
   .edit{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);display:none;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
   .edit.show{display:grid}
   .edit label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-  .edit input,.edit select{padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:100%}
+  .edit input,.edit select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);width:100%}
   .linkrow{display:flex;align-items:flex-end;gap:6px}
-  .linkrow .wos{font-size:11px;color:var(--resubmit);text-decoration:none;border:1px solid var(--line);border-radius:6px;padding:6px 8px;white-space:nowrap}
+  .linkrow .wos{font-size:11px;color:var(--resubmit);text-decoration:none;border:1px solid var(--line);border-radius:8px;padding:6px 8px;white-space:nowrap}
   .linkrow .wos:hover{border-color:var(--resubmit)}
-  .note{grid-column:1/-1;font-size:11px;color:var(--muted);background:#faf7f0;border:1px solid var(--line);border-radius:6px;padding:7px 9px}
-  .redlist{grid-column:1/-1;border:1px solid var(--line);border-radius:7px;padding:10px;background:#fdfbf7;display:none}
+  .note{grid-column:1/-1;font-size:11px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+  .redlist{grid-column:1/-1;border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);display:none}
   .redlist.show{display:block}
-  .redlist h5{font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
+  .redlist h5{font:600 11px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--red);margin-bottom:8px}
   .redrow{display:grid;grid-template-columns:1fr 1.4fr auto;gap:6px;margin-bottom:6px;align-items:center}
-  .redrow input{padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px}
-  .redrow .x{cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px}
+  .redrow input{padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px}
+  .redrow .x{cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px}
   .redrow .x:hover{color:var(--red);border-color:var(--red)}
-  .add{font-size:11px;border:1px dashed var(--line);background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;color:var(--muted)}
+  .add{font-size:11px;border:1px dashed var(--line);background:var(--card);border-radius:8px;padding:5px 9px;cursor:pointer;color:var(--muted)}
   .add:hover{border-color:var(--ink);color:var(--ink)}
 
   /* yayınlanmış sekmesi: madde grupları */
-  .doibox{background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+  .doibox{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
   .doibox h3{font-size:13px;color:var(--accent2);margin-bottom:8px}
   .doibox .info{font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.5}
-  .doibox .info code{background:#f0ebe0;padding:1px 5px;border-radius:4px;font-size:11px}
+  .doibox .info code{background:var(--surface2);padding:1px 5px;border-radius:6px;font-size:11px}
   .grp{margin-bottom:18px}
-  .grp h2{font:600 12px/1 ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
+  .grp h2{font:600 12px/1 Jost,ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);
     padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:10px;display:flex;justify-content:space-between}
   .grp h2 .gp{color:var(--muted)}
-  .pub{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:8px}
+  .pub{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:11px 13px;margin-bottom:8px}
   .pub .ptop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
   .pub .ptitle{font-size:14px;font-weight:600;flex:1}
-  .pub .pp{font:700 13px ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
+  .pub .pp{font:700 13px Jost,ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
   .pub .pp small{display:block;font-size:10px;color:var(--muted);font-weight:400}
   .pub .pmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:var(--muted);line-height:1.4}
   .pub .authors{font-size:11px;color:var(--ink);font-style:italic;line-height:1.5;margin-top:4px}
   .pub .pctl{display:none;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:9px;padding-top:9px;border-top:1px dashed var(--line)}
   .pub .pctl.show{display:grid}
   .pub .pctl label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-  .pub .pctl input,.pub .pctl select{padding:6px;border:1px solid var(--line);border-radius:6px;background:#fff}
+  .pub .pctl input,.pub .pctl select{padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
 
   .empty{text-align:center;color:var(--muted);padding:34px 10px;font-style:italic}
   footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
@@ -154,22 +232,36 @@
 <body>
 <header>
   <div>
-    <div class="eyebrow">ÜAK · Tablo 10 · Mart 2026 · Sağlık Bilimleri</div>
+    <div class="eyebrow">ÜAK · Tablo 10 · Mart 2026 · Sağlık Bilimleri Temel Alanı</div>
     <h1>Doçentlik Dosyası</h1>
     <div class="sub">Süreçteki ve yayınlanmış makaleler tek panoda. Puan ikisinden toplanır. Veriler bu cihazda saklanır.</div>
     <div style="margin-top:12px;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
       <div style="display:flex;gap:8px">
         <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px">
           <span style="font-weight:600">İsim</span>
-          <input type="text" id="userName" placeholder="Adınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:120px;font-size:12px" onchange="saveUserName()">
+          <input type="text" id="userName" placeholder="Adınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);width:120px;font-size:12px" onchange="saveUserName()">
         </label>
         <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px">
           <span style="font-weight:600">Soyadı</span>
-          <input type="text" id="userSurname" placeholder="Soyadınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:120px;font-size:12px" onchange="saveUserName()">
+          <input type="text" id="userSurname" placeholder="Soyadınız" style="padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);width:120px;font-size:12px" onchange="saveUserName()">
+        </label>
+        <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px">
+          <span style="font-weight:600">Görünüm</span>
+          <div id="temaSecici" style="display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)">
+            <button type="button" data-tema="klasik" onclick="temaSec('klasik')" title="Krem zemin, kiremit vurgu — özgün tasarım">Klasik</button>
+            <button type="button" data-tema="akamedika" onclick="temaSec('akamedika')" title="Beyaz zemin, mavi vurgu — Akamedika sitesiyle uyumlu">Akamedika</button>
+            <button type="button" data-tema="koyu" onclick="temaSec('koyu')" title="Klasik paletin karanlık dünyası">Koyu</button>
+          </div>
+        </label>
+        <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px" title="Hedeflediğin başvuru dönemi. İsteğe bağlı — girersen uygulama süreçteki çalışmaların yetişip yetişmeyeceğini değerlendirir.">
+          <span style="font-weight:600">Hedef dönem</span>
+          <select id="userHedef" onchange="hedefSec(this.value)" style="padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);width:190px;font-size:12px;font-family:inherit">
+            <option value="">— belirtilmedi —</option>
+          </select>
         </label>
         <label style="font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px" title="Uzmanlık/doktora ünvanını aldığın tarih. Atıfların 'uzmanlık öncesi/sonrası' ayrımı buna göre yapılır.">
           <span style="font-weight:600">Uzmanlık tarihi</span>
-          <input type="text" id="userUzmYil" placeholder="YYYY veya YYYY-AA" style="padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:#fff;width:130px;font-size:12px" onchange="saveUserName()">
+          <input type="text" id="userUzmYil" placeholder="YYYY veya YYYY-AA" style="padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);width:130px;font-size:12px" onchange="saveUserName()">
         </label>
       </div>
     </div>
@@ -182,6 +274,13 @@
   </div>
 </header>
 
+<div id="karsilama"></div>
+
+<details class="ref" id="rehberBox">
+  <summary>📖 Rehber — aşamalar, göstergeler ve puanlama</summary>
+  <div class="body" id="rehberIcerik"></div>
+</details>
+
 <div class="gates" id="gates"></div>
 
 <details class="ref" id="dbsBox">
@@ -191,7 +290,7 @@
       2026 Mart: başvuru <b>20–31 Mart</b> (17.30) · ücret <b>7.910,86 TL</b> (yalnız DBS'den kartla) · geri çekme 1–10 Nisan.
       Adımları tamamladıkça işaretle; linkler resmi kaynaklara gider.
     </div>
-    <div style="height:8px;background:var(--line);border-radius:4px;margin-bottom:12px;overflow:hidden"><i id="dbsBar" style="display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0;transition:.3s"></i></div>
+    <div style="height:8px;background:var(--line);border-radius:6px;margin-bottom:12px;overflow:hidden"><i id="dbsBar" style="display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0;transition:.3s"></i></div>
     <div id="dbsList"></div>
     <div class="must" style="margin-top:12px"><b>⚠ Kritik uyarılar:</b> "Başvuruyu Sonlandır" sonrası hiçbir düzeltme yapılamaz · Ödeme ≠ bitiş — "Başvuru sonlandı" ibaresini görmelisin · DOI daima <code>10.</code> ile başlar · Temel Alan sonraki aşamada değiştirilemez · ÖSYM dil sonucu 72 saat sonra DBS'ye düşer.</div>
   </div>
@@ -200,7 +299,7 @@
 <details class="ref" id="citBox">
   <summary>📑 Atıf Defteri (M5) — <span id="citSummary"></span></summary>
   <div class="body">
-    <details style="margin-bottom:12px;border:1px solid var(--line);border-radius:7px;background:#fff">
+    <details style="margin-bottom:12px;border:1px solid var(--line);border-radius:8px;background:var(--card)">
       <summary style="cursor:pointer;padding:9px 11px;font-size:12px;font-weight:600">📐 Atıf puanı nasıl hesaplanır — kurallar ve örnek</summary>
       <div style="padding:4px 13px 13px;font-size:12px;line-height:1.75;color:var(--ink)">
 
@@ -235,7 +334,7 @@
         </ol>
 
         <p style="margin:14px 0 4px"><b>Nasıl sayılır</b> — şu soruyu sor: <i>"Hangi makalem, hangi yayın tarafından anıldı?"</i> Her farklı ikili = 1 atıf.</p>
-        <pre style="margin:4px 0;padding:9px 11px;background:#fafafa;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto">A × Nature   → 1 atıf
+        <pre style="margin:4px 0;padding:9px 11px;background:var(--surface);border-radius:8px;font-size:11.5px;line-height:1.6;overflow-x:auto">A × Nature   → 1 atıf
 A × Lancet   → 1 atıf   (5 kez anmış, yine 1)
 A × AJEM     → 1 atıf
 B × AJEM     → 1 atıf   ← aynı AJEM makalesi, farklı eser
@@ -259,7 +358,7 @@ B × Yerel    → 1 atıf</pre>
     <div id="wosBox" style="margin-bottom:10px"></div>
     <div id="citList"></div>
     <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-      <button class="add" onclick="wosPick()" style="background:var(--accent2);color:#fff;border-color:var(--accent2)">📄 WoS atıf listesi yükle</button>
+      <button class="add" onclick="wosPick()" style="background:var(--accent2);color:var(--chip-ink);border-color:var(--accent2)">📄 WoS atıf listesi yükle</button>
       <input type="file" id="wosFile" accept=".html,.htm" style="display:none" onchange="wosLoad(this)">
       <button class="add" onclick="addCit('scie')">+ SCIE/Scopus (3p)</button>
       <button class="add" onclick="addCit('bkci')">+ BKCI kitap (2p)</button>
@@ -305,6 +404,7 @@ B × Yerel    → 1 atıf</pre>
     <button class="add" onclick="addThesis()" style="margin-top:8px">+ Tez ekle</button>
   </div>
 </details>
+<div id="elleMaddeler"></div>
 
 <details class="ref">
   <summary>Puanlama Kuralları & Kısaltmalar — ÜAK Tablo 10 (Mart 2026)</summary>
@@ -325,7 +425,7 @@ B × Yerel    → 1 atıf</pre>
       <tr><td>AHCI · ESCI/Scopus · diğer</td><td>20 · 10 · 5</td></tr>
       <tr><td>LTE/özet/not (a-d) · Vak'a (a bendi)</td><td>3 · 5</td></tr>
     </table>
-    <div class="must" style="border-left-color:var(--gold);background:#faf7ee">⚠ Vak'a takdimi yalnız SCIE/SSCI (a bendi) dergide 5 puan.</div>
+    <div class="must" style="border-left-color:var(--gold);background:var(--gold-soft)">⚠ Vak'a takdimi yalnız SCIE/SSCI (a bendi) dergide 5 puan.</div>
     <h4>2 · Ulusal · 5 · Atıf · 8 · Bildiri</h4>
     <table>
       <tr><td>TR Dizin / diğer hakemli / ulusal LTE</td><td>10 / 4 / 2</td></tr>
@@ -374,7 +474,7 @@ B × Yerel    → 1 atıf</pre>
       DOI'yi yapıştır veya Claude'a sohbette ver. <code>10.1016/...</code> formatında. Claude başlık, dergi, yıl, yazarları çeker ve sana hazır JSON gönderir → "Geri yükle"den içe aktar. Quartili sen WoS'tan teyit edersin.
     </div>
     <div class="linkrow" style="margin-bottom:8px">
-      <input type="text" id="doiInput" placeholder="DOI yapıştır (otomatik çekmeyi dene)" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:7px;background:#fff" onkeydown="if(event.key==='Enter')fetchDOI()">
+      <input type="text" id="doiInput" placeholder="DOI yapıştır (otomatik çekmeyi dene)" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--card)" onkeydown="if(event.key==='Enter')fetchDOI()">
       <button class="btn" onclick="fetchDOI()">DOI çek</button>
       <button class="btn ghost" onclick="addPub()">+ Elle ekle</button>
     </div>
@@ -385,8 +485,15 @@ B × Yerel    → 1 atıf</pre>
 
 <footer>
   <span>Süreçte: aşamaya tıkla · Yayınlanmış: madde gruplarına göre sıralı</span>
-  <span><a onclick="exportData()">Yedek al</a> · <a onclick="importData()">Geri yükle</a></span>
+  <span><a onclick="exportData()">Yedek al</a> · <a onclick="importData()">Geri yükle</a> ·
+    <a onclick="karsilamaGoster()">Bilgilendirme</a> ·
+    <a onclick="veriSifirla()" style="color:var(--red)">Verileri sıfırla</a></span>
 </footer>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:11.5px;line-height:1.6;color:var(--faint);text-align:center">
+  <b>Sorumluluk reddi:</b> Bu araç ÜAK Tablo 10 (Sağlık Bilimleri · Mart 2026) ölçütlerine göre <b>ön hesap</b> yapar.
+  Resmî kaynak ÜAK kılavuzu ve Doçentlik Bilgi Sistemi'dir; beyanın doğruluğu ve sorumluluğu adaya aittir.
+  Veriler yalnız kullanıcının tarayıcısında saklanır, hiçbir sunucuya gönderilmez.
+</div>
 
 <script>
 const WOS='https://www.webofscience.com/wos/alldb/smart-search';
@@ -434,7 +541,7 @@ async function akaLookup(id){
     if(!j){box.innerHTML='<span style="color:var(--warn)">Kayıt bulunamadı — ISSN/dergi adını düzelt ya da <a href="'+AKA_UI+'" target="_blank">siteden ara ↗</a>. Kayıt yoksa tür ELLE ve WoS\'tan doğrulanarak girilmeli.</span>';return;}
     const ops=akaKinds(j), ed=j.wos_editions||'—';
     const esciTuzak=!/SCIE|SSCI/.test(ed.toUpperCase()) && /Q[1-4]/i.test(j.jcr_q||'');
-    box.innerHTML=`<div style="border:1px solid var(--line);border-radius:6px;padding:8px;background:#fff;font-size:11px;line-height:1.7">
+    box.innerHTML=`<div style="border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--card);font-size:11px;line-height:1.7">
       <b>${esc(j.name||'')}</b> · ISSN ${esc(j.issn||'—')}<br>
       WoS ${esc(String(j.jcr_year||'—'))}: <b>${esc(j.jcr_q||'—')}</b> · JIF ${esc(String(j.jcr_value||'—'))} · indeks <b>${esc(ed)}</b>${j.trdizin?' · TR Dizin '+esc(j.trdizin):''}${j.cs_value?' · Scopus CiteScore '+esc(String(j.cs_value)):''}<br>
       ${ops.length?ops.map(o=>`<button class="add" style="margin:2px 4px 2px 0" onclick="akaApply(${id},'${o.k}')">${esc(KINDS[o.k].t)} (${KINDS[o.k].base}p) — ${esc(o.why)}</button>`).join('')
@@ -453,14 +560,20 @@ function akaApply(id,kind){
   it.kind=kind;it.kindSrc='aka';UI.pctls.add(id);save();render();
 }
 // Açık panel/grup durumları — render sonrası korunur
-const UI={edits:new Set(),pctls:new Set(),stages:new Set(),grps:new Set()};
+const UI={edits:new Set(),pctls:new Set(),stages:new Set(),grps:new Set(),elle:new Set()};
 function trackStage(el){if(el.open)UI.stages.add(el.dataset.stage);else UI.stages.delete(el.dataset.stage);}
 function trackGrp(el){if(el.open)UI.grps.add(el.dataset.grp);else UI.grps.delete(el.dataset.grp);}
 const STAGES=[
-  {k:'fikir',t:'Fikir',c:'var(--fikir)'},{k:'veri',t:'Veri',c:'var(--veri)'},
-  {k:'yazim',t:'Yazım',c:'var(--yazim)'},{k:'submit',t:'Submit',c:'var(--submit)'},
-  {k:'revizyon',t:'Revizyon',c:'var(--revizyon)'},{k:'red',t:'Red',c:'var(--red)'},
-  {k:'resubmit',t:'Resubmit',c:'var(--resubmit)'},{k:'kabul',t:'Kabul',c:'var(--kabul)'}
+  {k:'fikir',t:'Fikir',c:'var(--fikir)',d:'Araştırma sorusu belirlendi, protokol henüz yazılmadı.'},
+  {k:'etik',t:'Etik',c:'var(--etik)',d:'Etik kurul başvurusu yapıldı ya da onay bekleniyor. Veri toplamaya başlamadan önceki kapı.'},
+  {k:'veri',t:'Veri',c:'var(--veri)',d:'Etik onay alındı, veri toplanıyor.'},
+  {k:'analiz',t:'Analiz',c:'var(--analiz)',d:'Veri toplama bitti, istatistiksel analiz sürüyor.'},
+  {k:'yazim',t:'Yazım',c:'var(--yazim)',d:'Taslak yazılıyor; henüz dergiye gönderilmedi.'},
+  {k:'submit',t:'Submit',c:'var(--submit)',d:'Dergiye gönderildi, hakem sürecinde.'},
+  {k:'revizyon',t:'Revizyon',c:'var(--revizyon)',d:'Hakemler düzeltme istedi, revizyon hazırlanıyor.'},
+  {k:'red',t:'Red',c:'var(--red)',d:'Reddedildi. Bu aşamadaki çalışma ne kesin puana ne potansiyele girer.'},
+  {k:'resubmit',t:'Resubmit',c:'var(--resubmit)',d:'Reddedildi, başka dergiye gönderiliyor. Potansiyele geri döner.'},
+  {k:'kabul',t:'Kabul',c:'var(--kabul)',d:'Kabul edildi — kesin puana girer. Ancak henüz yayımlanmadıysa beyannamede kullanılamaz.'}
 ];
 const KINDS={
   q1:{t:'SCIE/SSCI Q1',base:30,intl_a:true,grp:'M1'},
@@ -477,9 +590,12 @@ const KINDS={
   nat_lte:{t:'Ulusal LTE/özet',base:2,intl_a:false,nat:true,grp:'M2'},
   // ÜAK Tablo 10'da karşılığı olmayan yayınlar (ör. TR Dizin dergide vak'a takdimi
   // veya derleme). Kayıt listede kalır, puana ve zorunlu şartlara sayılmaz.
-  nopts:{t:'Puan karşılığı yok (listede kalsın)',base:0,intl_a:false,grp:'X'}
+  nopts:{t:'Puan karşılığı yok (listede kalsın)',base:0,intl_a:false,grp:'X'},
+  /* Yeni kayıtlar buradan başlar: tür seçilene kadar 0 puan.
+     Seçilmemiş bir dergiye peşinen puan yazmamak için. */
+  secilmedi:{t:'— tür seçilmedi —',base:0,intl_a:false,grp:'S'}
 };
-const GROUPS={M1:'Madde 1 · Uluslararası Makale', M2:'Madde 2 · Ulusal Makale', X:'Puan karşılığı olmayan (kayıt için)'};
+const GROUPS={M1:'Madde 1 · Uluslararası Makale', M2:'Madde 2 · Ulusal Makale', S:'Türü seçilmemiş — puana girmiyor', X:'Puan karşılığı olmayan (kayıt için)'};
 
 function shareMult(n,rank){n=+n||1;rank=+rank||1;
   if(n<=1)return 1.0; if(n===2)return rank===1?0.8:0.5; return rank===1?0.5:0.5/(n-1);}
@@ -488,13 +604,88 @@ function calcPts(it){const k=KINDS[it.kind];if(!k)return 0;
 
 const SEED_SUREC=[];
 const SEED_YAYIN=[
-  {id:101,title:'Femoral nerve block vs IV fentanyl for hip fracture pain (RCT)',kind:'q2',venue:'Am J Emerg Med',year:2026,authors:11,authorNames:['Ünál Emir','Smith John','Johnson Mary'],rank:1,postUzm:true,doi:'10.1016/j.ajem.2025.10.044'}
+  {id:101,title:'Femoral nerve block vs IV fentanyl for hip fracture pain (RCT)',kind:'q2',venue:'Am J Emerg Med',year:2026,authors:11,authorNames:['Örnek Yazar A','Örnek Yazar B','Örnek Yazar C'],rank:1,postUzm:true,doi:'10.1016/j.ajem.2025.10.044'}
 ];
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='',USER_UZM='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();['projeler','patentler','oduller','editorlukler','tezYayinlari'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});if(!d.egitim||typeof d.egitim!=='object')d.egitim=null;if(!d.diger||typeof d.diger!=='object')d.diger={};return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
+/* Üç durumlu tema: açık / koyu / sistem. Seçim localStorage'da saklanır.
+   data-theme yokken sistem tercihi (prefers-color-scheme) geçerlidir. */
+/* ===== DAĞITIM AYARI =====
+   Akamedika'ya gömülecek sürüm : TEMA_SECICI=false · VARSAYILAN_TEMA='akamedika'
+   Bağımsız (GitHub Pages) sürüm: TEMA_SECICI=true  · VARSAYILAN_TEMA='klasik'   */
+const TEMA_SECICI=true;
+const VARSAYILAN_TEMA='klasik';
+const TEMALAR=['klasik','akamedika','koyu'];
+
+/* ===== Hedef başvuru dönemi =====
+   ÜAK yılda iki dönem açıyor: Mart ve Ekim (DBS SSS'de teyit edilmiştir).
+   2026 Mart penceresi resmî kılavuzdan: 20–31 Mart 2026, son gün 17.30.
+   Diğer dönemlerin tarihleri TAHMİNİDİR; resmî takvimi ÜAK duyurur. */
+const DONEMLER=[
+  {k:'2026-03-31', t:'2026 Mart · 20–31 Mart', kesin:true},
+  {k:'2026-10-31', t:'2026 Ekim',              kesin:false},
+  {k:'2027-03-31', t:'2027 Mart',              kesin:false},
+  {k:'2027-10-31', t:'2027 Ekim',              kesin:false},
+  {k:'2028-03-31', t:'2028 Mart',              kesin:false},
+  {k:'2028-10-31', t:'2028 Ekim',              kesin:false},
+];
+/* Geçmiş dönemler listede gösterilmez (seçili olan hariç, ki kullanıcı ne seçtiğini görsün) */
+function acikDonemler(){
+  const bugun=new Date().toISOString().slice(0,10);
+  return DONEMLER.filter(d=>d.k>=bugun||d.k===USER_HEDEF);
+}
+/* Aşamadan yayına kaba süre tahmini (ay). Yalnız uyarı üretir, PUANI DEĞİŞTİRMEZ. */
+const ASAMA_SURE={fikir:18,etik:15,veri:12,analiz:9,yazim:7,submit:5,revizyon:3,resubmit:5,kabul:2};
+let USER_HEDEF='';
+
+function hedefDoldur(){
+  const e=document.getElementById('userHedef'); if(!e)return;
+  const bugun=new Date().toISOString().slice(0,10);
+  e.innerHTML='<option value="">— belirtilmedi —</option>'+
+    acikDonemler().map(d=>`<option value="${d.k}">${d.t}${d.k<bugun?' · geçti':(d.kesin?'':' (tahmini)')}</option>`).join('');
+  e.value=USER_HEDEF||'';
+}
+function hedefSec(v){ USER_HEDEF=v||''; try{localStorage.setItem('docentlik_hedef',USER_HEDEF);}catch(e){} render(); }
+function hedefKalanGun(){
+  if(!USER_HEDEF)return null;
+  const h=new Date(USER_HEDEF+'T23:59:59'), bugun=new Date();
+  return Math.ceil((h-bugun)/86400000);
+}
+function hedefAy(){ const g=hedefKalanGun(); return g==null?null:g/30.44; }
+/* Hedef döneme yetişmesi zor görünen süreçteki çalışmalar */
+function yetismeyecekler(){
+  const ay=hedefAy(); if(ay==null)return [];
+  return (DB.items||[]).filter(i=>{
+    if(i.stage==='red')return false;
+    const gerek=ASAMA_SURE[i.stage]; if(gerek==null)return false;
+    if(i.stage==='kabul') return !yayimlanmisMi(i) && ay<ASAMA_SURE.kabul;
+    return ay<gerek;
+  });
+}
+function temaUygula(t){
+  if(!TEMALAR.includes(t)) t=VARSAYILAN_TEMA;
+  document.documentElement.setAttribute('data-theme',t);
+  const d=document.getElementById('temaSecici');
+  if(d) d.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tema===t)));
+}
+function temaSec(t){ try{localStorage.setItem('docentlik_tema',t);}catch(e){} temaUygula(t); }
+function hedefYukle(){
+  try{ USER_HEDEF=localStorage.getItem('docentlik_hedef')||''; }catch(e){ USER_HEDEF=''; }
+  hedefDoldur();
+}
+function temaYukle(){
+  if(!TEMA_SECICI){
+    const d=document.getElementById('temaSecici');
+    if(d&&d.parentElement) d.parentElement.style.display='none';
+    temaUygula(VARSAYILAN_TEMA); return;
+  }
+  let t=VARSAYILAN_TEMA;
+  try{ t=localStorage.getItem('docentlik_tema')||VARSAYILAN_TEMA; }catch(e){}
+  temaUygula(t);
+}
 function loadUserName(){const u=localStorage.getItem('docentlik_user_name')||'';const s=localStorage.getItem('docentlik_user_surname')||'';const z=localStorage.getItem('docentlik_uzm_tarih')||'';
   USER_NAME=u;USER_SURNAME=s;USER_UZM=z;
   document.getElementById('userName').value=u;document.getElementById('userSurname').value=s;
@@ -559,11 +750,11 @@ function renderDbs(){
   DB.dbs=DB.dbs||{};
   let total=0,done=0,html='';
   DBS_STEPS.forEach(g=>{
-    html+=`<div style="font:600 11px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);margin:12px 0 6px">${g.ph}</div>`;
+    html+=`<div style="font:600 11px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent2);margin:12px 0 6px">${g.ph}</div>`;
     g.items.forEach(it=>{
       total++;const ok=!!DB.dbs[it.id];if(ok)done++;
       const links=(it.l||[]).map(x=>` <a href="${x[1]}" target="_blank" style="font-size:11px;color:var(--resubmit);text-decoration:underline;text-decoration-style:dotted">${x[0]} ↗</a>`).join('');
-      html+=`<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:6px;margin-bottom:3px;background:${ok?'#f0faf5':'#fff8f2'};border-left:3px solid ${ok?'var(--ok)':'#ff9966'}">
+      html+=`<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border-radius:8px;margin-bottom:3px;background:${ok?'var(--ok-soft)':'var(--warn-soft)'};border-left:3px solid ${ok?'var(--ok)':'var(--red)'}">
         <input type="checkbox" ${ok?'checked':''} onchange="toggleDbs('${it.id}')" style="margin-top:3px;cursor:pointer;accent-color:var(--accent2)">
         <div style="font-size:12.5px;line-height:1.45;${ok?'color:var(--muted);text-decoration:line-through':''}">${it.t}${links}</div>
       </div>`;
@@ -603,20 +794,20 @@ function renderCits(){
   if(sm)sm.innerHTML=`${cits.length} at\u0131f \u00b7 <b>${citTotal()}/5 p</b>${r.all>10?' (ham '+r.all+', tavan 10)':''}${r.pre>0?' \u00b7 uzm.sonras\u0131 '+citPost():''} ${citPost()>=5?'\u2713':'\u25cb'}`;
   if(!cits.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Hen\u00fcz at\u0131f yok. A\u015fa\u011f\u0131dan t\u00fcr se\u00e7erek ekle.</div>';return;}
   const opts=(DB.pubs||[]).map(pb=>`<option value="${pb.id}">${esc((pb.title||'').slice(0,60))}</option>`).join('');
-  list.innerHTML=cits.map((c,idx)=>`<div style="display:grid;grid-template-columns:auto 1.1fr 1.4fr auto auto auto;gap:6px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
-    <span class="tag" style="background:var(--accent2);color:#fff;border:none">${(CIT_TYPES[c.type]||{}).p}p</span>
-    <select onchange="patchCit(${idx},'citedWorkId',this.value)" title="At\u0131f alan eserin" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:11px">
+  list.innerHTML=cits.map((c,idx)=>`<div style="display:grid;grid-template-columns:auto 1.1fr 1.4fr auto auto auto;gap:6px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px">
+    <span class="tag" style="background:var(--accent2);color:var(--chip-ink);border:none">${(CIT_TYPES[c.type]||{}).p}p</span>
+    <select onchange="patchCit(${idx},'citedWorkId',this.value)" title="At\u0131f alan eserin" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:11px">
       <option value="">— at\u0131f alan eserim —</option>${opts.replace('value="'+c.citedWorkId+'"','value="'+c.citedWorkId+'" selected')}
     </select>
     <input type="text" value="${esc(c.citingRef||'')}" placeholder="at\u0131f yapan yay\u0131n\u0131n k\u00fcnyesi" onchange="patchCit(${idx},'citingRef',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-    <select onchange="patchCit(${idx},'preUzm',this.value==='1')" style="padding:5px 7px;border:1px solid ${c.preUzm?'var(--gold)':'var(--line)'};border-radius:5px;background:#fff;font-size:11px;${c.preUzm?'color:var(--gold);font-weight:600':''}">
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
+    <select onchange="patchCit(${idx},'preUzm',this.value==='1')" style="padding:5px 7px;border:1px solid ${c.preUzm?'var(--gold)':'var(--line)'};border-radius:8px;background:var(--card);font-size:11px;${c.preUzm?'color:var(--gold);font-weight:600':''}">
       <option value="0" ${!c.preUzm?'selected':''}>Uzm. sonras\u0131</option>
       <option value="1" ${c.preUzm?'selected':''}>Uzm. \u00d6NCES\u0130</option>
     </select>
     <label style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px;white-space:nowrap" title="PDF haz\u0131rland\u0131 m\u0131">
       <input type="checkbox" ${c.belgeHazir?'checked':''} onchange="patchCit(${idx},'belgeHazir',this.checked)">belge</label>
-    <span class="x" onclick="delCit(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+    <span class="x" onclick="delCit(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
   </div>`).join('');
 }
 /* ================= WoS "Printable HTML" atif listesi okuyucu =================
@@ -691,10 +882,10 @@ function wosRender(dosyaAdi,beyan,hamSayi){
   if(!WOS_RECS.length){box.innerHTML='<span style="color:var(--warn)">Kayıt bulunamadı. Dosyanın WoS <b>Printable HTML File</b> çıktısı olduğundan emin ol.</span>';return;}
   const kendi=WOS_RECS.filter(r=>r.kendi).length, muk=hamSayi-WOS_RECS.length;
   const opts=(DB.pubs||[]).map(pb=>`<option value="${pb.id}">${esc((pb.title||'').slice(0,58))}</option>`).join('');
-  box.innerHTML=`<div style="border:1px solid var(--accent2);border-radius:7px;padding:10px;background:#fff;font-size:12px;line-height:1.6">
+  box.innerHTML=`<div style="border:1px solid var(--accent2);border-radius:8px;padding:10px;background:var(--card);font-size:12px;line-height:1.6">
     <b>${esc(dosyaAdi)}</b> — dosyada <b>${hamSayi}</b> kayıt${beyan?` (başlıkta ${esc(beyan)} yazıyor)`:''}${muk>0?` · ${muk} mükerrer elendi`:''}${kendi>0?` · <span style="color:var(--warn)">${kendi} kendi atıfın işaretlendi</span>`:''}
     <div style="margin:8px 0"><label>Bu atıflar hangi eserine ait?
-      <select id="wosPub" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;font-size:12px;max-width:100%">
+      <select id="wosPub" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;font-size:12px;max-width:100%">
         <option value="">— eser seç —</option>${opts}</select></label></div>
     <div style="max-height:290px;overflow:auto;border-top:1px solid var(--line);padding-top:6px">
     ${WOS_RECS.map((r,i)=>`<div style="display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:5px 0;border-bottom:1px solid #f0ece6">
@@ -706,7 +897,7 @@ function wosRender(dosyaAdi,beyan,hamSayi){
         ${oncesiMi(r.yil)===true?'<div style="color:var(--gold);font-size:11px">uzmanlık ÖNCESİ (zorunlu 5 puana sayılmaz)</div>':''}
         ${r.dogrulama?`<div style="font-size:11px;color:${/kayıt yok|erişilemedi/.test(r.dogrulama)?'var(--warn)':'var(--ok)'}">indeks: ${esc(r.dogrulama)}</div>`:''}
       </div>
-      <select onchange="WOS_RECS[${i}].tur=this.value;wosOzet()" style="padding:4px 6px;border:1px solid var(--line);border-radius:5px;font-size:11px">
+      <select onchange="WOS_RECS[${i}].tur=this.value;wosOzet()" style="padding:4px 6px;border:1px solid var(--line);border-radius:8px;font-size:11px">
         ${Object.keys(CIT_TYPES).map(k=>`<option value="${k}" ${k===r.tur?'selected':''}>${CIT_TYPES[k].p}p ${CIT_TYPES[k].t.slice(0,18)}</option>`).join('')}
       </select></div>`).join('')}
     </div>
@@ -780,20 +971,36 @@ function wosEkle(){
   WOS_RECS=[];
   save();render();
   const box=document.getElementById('wosBox');
-  if(box)box.innerHTML='<div style="border:1px solid var(--ok);border-radius:7px;padding:9px 11px;background:#fff;font-size:12px">'
+  if(box)box.innerHTML='<div style="border:1px solid var(--ok);border-radius:8px;padding:9px 11px;background:var(--card);font-size:12px">'
     +'<b>'+eklendi+' atıf eklendi.</b> Defter: ham '+citRaw().all+'p → sayılan <b>'+citTotal()+'/10</b> · uzm. sonrası '+citPost()
     +' '+(citPost()>=5?'✓':'○ (5 gerekli)')+'<br><span style="color:var(--muted)">Aşağıdaki listeden künyeleri kontrol edip belge kutularını işaretle.</span></div>';
   const e=document.getElementById('citBox');if(e)setTimeout(()=>{e.open=true;},200);
 }
 function presTotal(){
-  // ÜAK md.8: a) CPCI'da yayımlanan uluslararası bildiri 5p · b) diğer toplantı 3p
-  // Tavan 10p (madde toplamı). Uzm. sonrası öncelikli tahsis edilir.
-  const pres=DB.presentations||[];let post=0,pre=0;
-  pres.forEach(p=>{const a=+p.authors||0;if(a>0){const v=(p.cpci?5:3)/a;if(p.pre)pre+=v;else post+=v;}});
-  post=Math.round(post*100)/100;pre=Math.round(pre*100)/100;
-  const m8=Math.min(10,post);
-  const m8pre=Math.min(Math.max(0,10-m8),pre);
-  return {count:pres.length,m8,m8pre,raw:Math.round((post+pre)*100)/100,warn:(post+pre)>10};}
+  /* ÜAK md.8: a) CPCI'da yayımlanan uluslararası bildiri 5p · b) diğer toplantı 3p
+     "Aynı bilimsel toplantıda sunulan en fazla bir çalışma puanlanabilir."
+     -> aynı kongre adına sahip kayıtlardan yalnız EN YÜKSEK puanlı olan sayılır.
+     Tavan 10p (madde toplamı); uzm. sonrası öncelikli tahsis edilir. */
+  const pres=DB.presentations||[];
+  const puanla=p=>{const a=+p.authors||0; return a>0 ? (p.cpci?5:3)/a : 0;};
+  const grup={}, elenen=[];
+  pres.forEach((p,i)=>{
+    const anahtar=norm(p.kongre||'')||('__tekil'+i);   // kongresi yazılmamış kayıt kendi başına
+    (grup[anahtar]=grup[anahtar]||[]).push({p,i,v:puanla(p)});
+  });
+  let post=0,pre=0;
+  Object.values(grup).forEach(g=>{
+    g.sort((a,b)=>b.v-a.v);
+    const kazanan=g[0];
+    g.slice(1).forEach(x=>elenen.push(x.i));
+    if(kazanan.p.pre)pre+=kazanan.v; else post+=kazanan.v;
+  });
+  post=Math.round(post*100)/100; pre=Math.round(pre*100)/100;
+  const m8=Math.min(10,post), m8pre=Math.min(Math.max(0,10-m8),pre);
+  const kongresiz=pres.filter(p=>!norm(p.kongre||'')).length;
+  return {count:pres.length,m8,m8pre,raw:Math.round((post+pre)*100)/100,
+          warn:(post+pre)>10,elenen,kongresiz};
+}
 function addPres(){DB.presentations=DB.presentations||[];DB.presentations.push({id:Date.now(),title:'Yeni bildiri',authors:0});save();render();
   const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='authors')val=+val;DB.presentations[idx][key]=val;save();render();
@@ -801,39 +1008,66 @@ function patchPres(idx,key,val){if(!DB.presentations[idx])return;if(key==='autho
 function delPres(idx){DB.presentations.splice(idx,1);save();render();const e=document.getElementById('presBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderPresentations(){
   const list=document.getElementById('presList');if(!list)return;
-  const pres=DB.presentations||[];const {count,m8,m8pre,raw,warn}=presTotal();
+  const pres=DB.presentations||[];const {count,m8,m8pre,raw,warn,elenen:eleB,kongresiz}=presTotal();
   const sm=document.getElementById('presSummary');
-  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b>${m8pre>0?` + ${m8pre}p öncesi`:''}${warn?` ⚠ (ham ${raw}, tavan 10)`:''} ${m8>=5?'✓':'○'}`;
-  if(!pres.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz bildiri yok. Aşağıdan ekle.</div>';return;}
+  if(sm)sm.innerHTML=`${count} bildiri · <b>${m8}/5 p</b>${m8pre>0?` + ${m8pre}p öncesi`:''}${warn?` ⚠ (ham ${raw}, tavan 10)`:''}${eleB.length?` · <span style="color:var(--warn)">${eleB.length} aynı kongreden elendi</span>`:''}${kongresiz?` · <span style="color:var(--warn)">${kongresiz} kongre adı yok</span>`:''} ${m8>=5?'✓':'○'}`;
+  const H8=hatirlatmaHTML('bildiri','Madde 8 · Bilimsel Toplantı');
+  if(!pres.length){list.innerHTML=H8+'<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz bildiri yok. Aşağıdan ekle.</div>';return;}
   list.innerHTML=pres.map((p,idx)=>{
     const a=+p.authors||0;const pts=a>0?Math.round((p.cpci?5:3)/a*100)/100:0;
-    return `<div style="display:grid;grid-template-columns:1fr auto auto auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    const elendi=eleB.includes(idx);
+    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px${elendi?';opacity:.5;box-shadow:inset 3px 0 0 var(--warn)':''}"${elendi?' title="Aynı kongreden başka bir çalışma daha var — ÜAK md.8 yalnız birini puanlar."':''}>
     <input type="text" value="${esc(p.title||'')}" placeholder="bildiri başlığı" onchange="patchPres(${idx},'title',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+    <input type="text" value="${esc(p.kongre||'')}" placeholder="kongre adı" title="ÜAK md.8: aynı toplantıdan yalnız bir çalışma puanlanır. Kongre adı yazılmazsa bu kural uygulanamaz."
+      onchange="patchPres(${idx},'kongre',this.value)"
+      style="padding:5px 7px;border:1px solid ${p.kongre?'var(--line)':'var(--warn)'};border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
     <div style="display:flex;gap:4px;align-items:center">
       <input type="number" min="0" value="${p.authors||''}" placeholder="yazar" onchange="patchPres(${idx},'authors',this.value)"
-        style="width:60px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+        style="width:60px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
     </div>
-    <select onchange="patchPres(${idx},'cpci',this.value==='1')" title="ÜAK md.8 a bendi: CPCI'da yayımlanmış uluslararası bildiri 5p" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:11px">
+    <select onchange="patchPres(${idx},'cpci',this.value==='1')" title="ÜAK md.8 a bendi: CPCI'da yayımlanmış uluslararası bildiri 5p" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:11px">
       <option value="0" ${!p.cpci?'selected':''}>Diğer toplantı (3p)</option>
       <option value="1" ${p.cpci?'selected':''}>CPCI uluslararası (5p)</option>
     </select>
-    <select onchange="patchPres(${idx},'pre',this.value==='1')" style="padding:5px 7px;border:1px solid ${p.pre?'var(--gold)':'var(--line)'};border-radius:5px;background:#fff;font-size:11px;${p.pre?'color:var(--gold);font-weight:600':''}">
+    <select onchange="patchPres(${idx},'pre',this.value==='1')" style="padding:5px 7px;border:1px solid ${p.pre?'var(--gold)':'var(--line)'};border-radius:8px;background:var(--card);font-size:11px;${p.pre?'color:var(--gold);font-weight:600':''}">
       <option value="0" ${!p.pre?'selected':''}>Uzm. sonrası</option>
       <option value="1" ${p.pre?'selected':''}>Uzm. ÖNCESİ</option>
     </select>
     <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${a?pts+'p':'—'}</div>
-    <span class="x" onclick="delPres(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+    <span class="x" onclick="delPres(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
   </div>`;
   }).join('');
+  list.innerHTML=H8+list.innerHTML;
 }
 function bookTotal(){
-  const books=DB.books||[];let bkciPts=0,otherPts=0;
-  books.forEach(b=>{const a=+b.authors||0;const base=b.kind==='bkci'?10:3;const pts=a>0?base/a:0;
-    if(b.kind==='bkci')bkciPts+=pts;else otherPts+=pts;});
-  bkciPts=Math.round(bkciPts*100)/100;otherPts=Math.round(otherPts*100)/100;
-  const bkciCapped=Math.min(20,bkciPts);const otherCapped=Math.min(5,otherPts);const m4=bkciCapped+otherCapped;
-  return {count:books.length,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn:(bkciPts>20||otherPts>5)};
+  /* ÜAK md.4: a) BKCI kitap 20 · b) BKCI bölüm 10 · c) diğer kitap 5 · d) diğer bölüm 3
+     "aynı kitaptaki bölümlerden sadece biri puanlanabilir" -> aynı kitap adına sahip
+     BÖLÜM kayıtlarından yalnız biri sayılır (kitabın tamamı bu kurala girmez).
+     Tavan 20 · c+d bentlerinden toplamda en fazla 5. Puan yazar sayısına bölünür. */
+  const books=DB.books||[];
+  const TABAN={bkci_kitap:20,bkci:10,diger_kitap:5,other:3};
+  const bolumMu=k=>(k==='bkci'||k==='other');
+  const puanla=b=>{const a=+b.authors||0, t=TABAN[b.kind]??3; return a>0?t/a:0;};
+  const grup={}, elenen=[];
+  books.forEach((b,i)=>{
+    if(!bolumMu(b.kind)){ (grup['__kitap'+i]=[]).push({b,i,v:puanla(b)}); return; }
+    const anahtar='kitap:'+(norm(b.book||'')||('__tekil'+i));
+    (grup[anahtar]=grup[anahtar]||[]).push({b,i,v:puanla(b)});
+  });
+  let bkciPts=0,otherPts=0;
+  Object.values(grup).forEach(g=>{
+    g.sort((x,y)=>y.v-x.v);
+    const kazanan=g[0];
+    g.slice(1).forEach(x=>elenen.push(x.i));
+    if(kazanan.b.kind==='bkci'||kazanan.b.kind==='bkci_kitap') bkciPts+=kazanan.v; else otherPts+=kazanan.v;
+  });
+  bkciPts=Math.round(bkciPts*100)/100; otherPts=Math.round(otherPts*100)/100;
+  const bkciCapped=Math.min(20,bkciPts), otherCapped=Math.min(5,otherPts);
+  const m4=Math.min(20,bkciCapped+otherCapped);
+  const adsiz=books.filter(b=>bolumMu(b.kind)&&!norm(b.book||'')).length;
+  return {count:books.length,bkciPts,otherPts,bkciCapped,otherCapped,m4,
+          warn:(bkciPts>20||otherPts>5),elenen,adsiz};
 }
 function addBook(){DB.books=DB.books||[];DB.books.push({id:Date.now(),chapter:'Yeni bölüm',book:'Kitap',kind:'bkci',authors:0});save();render();
   const e=document.getElementById('bookBox');if(e)setTimeout(()=>{e.open=true;},250);}
@@ -842,65 +1076,505 @@ function patchBook(idx,key,val){if(!DB.books[idx])return;if(key==='authors')val=
 function delBook(idx){DB.books.splice(idx,1);save();render();const e=document.getElementById('bookBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderBooks(){
   const list=document.getElementById('bookList');if(!list)return;
-  const books=DB.books||[];const {count,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn}=bookTotal();
+  const books=DB.books||[];const {count,bkciPts,otherPts,bkciCapped,otherCapped,m4,warn,elenen:eleK,adsiz}=bookTotal();
   const sm=document.getElementById('bookSummary');
-  if(sm)sm.innerHTML=`${count} bölüm · <b>${m4} p</b>${warn?` ⚠ (BKCI: ${bkciPts}→${bkciCapped}p, Diğer: ${otherPts}→${otherCapped}p)`:''} ✓`;
-  if(!books.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz kitap bölümü yok. Aşağıdan ekle.</div>';return;}
+  if(sm)sm.innerHTML=`${count} kayıt · <b>${m4}/20 p</b>${warn?` ⚠ (BKCI: ${bkciPts}→${bkciCapped}p, Diğer: ${otherPts}→${otherCapped}p)`:''}${eleK.length?` · <span style="color:var(--warn)">${eleK.length} aynı kitaptan elendi</span>`:''}${adsiz?` · <span style="color:var(--warn)">${adsiz} kitap adı yok</span>`:''} ✓`;
+  const H4=hatirlatmaHTML('kitap','Madde 4 · Kitap');
+  if(!books.length){list.innerHTML=H4+'<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz kitap bölümü yok. Aşağıdan ekle.</div>';return;}
   list.innerHTML=books.map((b,idx)=>{
-    const a=+b.authors||0;const base=b.kind==='bkci'?10:3;const pts=a>0?Math.round(base/a*100)/100:0;
-    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
-    <input type="text" value="${esc(b.chapter||'')}" placeholder="bölüm başlığı" onchange="patchBook(${idx},'chapter',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-    <input type="text" value="${esc(b.book||'')}" placeholder="kitap adı" onchange="patchBook(${idx},'book',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-    <select onchange="patchBook(${idx},'kind',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-      <option value="bkci" ${b.kind==='bkci'?'selected':''}>BKCI (10p)</option>
-      <option value="other" ${b.kind==='other'?'selected':''}>Diğer (3p)</option>
+    const TB={bkci_kitap:20,bkci:10,diger_kitap:5,other:3};
+    const a=+b.authors||0;const base=TB[b.kind]??3;const pts=a>0?Math.round(base/a*100)/100:0;
+    const bolum=(b.kind==='bkci'||b.kind==='other');
+    const elendi=eleK.includes(idx);
+    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px${elendi?';opacity:.5;box-shadow:inset 3px 0 0 var(--warn)':''}"${elendi?' title="Aynı kitaptan başka bir bölüm daha var — ÜAK md.4 yalnız birini puanlar."':''}>
+    <input type="text" value="${esc(b.chapter||'')}" placeholder="${bolum?'bölüm başlığı':'kitap başlığı'}" onchange="patchBook(${idx},'chapter',this.value)"
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+    <input type="text" value="${esc(b.book||'')}" placeholder="${bolum?'kitap adı':'yayınevi'}" title="${bolum?'ÜAK md.4: aynı kitaptaki bölümlerden yalnız biri puanlanır. Kitap adı yazılmazsa bu kural uygulanamaz.':'Yayınevi'}"
+      onchange="patchBook(${idx},'book',this.value)"
+      style="padding:5px 7px;border:1px solid ${(bolum&&!b.book)?'var(--warn)':'var(--line)'};border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+    <select onchange="patchBook(${idx},'kind',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
+      <option value="bkci_kitap" ${b.kind==='bkci_kitap'?'selected':''}>a) BKCI kitap — tamamı (20p)</option>
+      <option value="bkci" ${b.kind==='bkci'?'selected':''}>b) BKCI kitapta bölüm (10p)</option>
+      <option value="diger_kitap" ${b.kind==='diger_kitap'?'selected':''}>c) Diğer kitap — tamamı (5p)</option>
+      <option value="other" ${b.kind==='other'?'selected':''}>d) Diğer kitapta bölüm (3p)</option>
     </select>
     <div style="display:flex;gap:4px;align-items:center">
       <input type="number" min="0" value="${a||''}" placeholder="yazar" onchange="patchBook(${idx},'authors',this.value)"
-        style="width:50px;padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+        style="width:50px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
     </div>
     <div style="display:flex;gap:8px;align-items:center;min-width:80px">
       <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${a?pts+'p':'—'}</div>
-      <span class="x" onclick="delBook(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+      <span class="x" onclick="delBook(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
     </div>
   </div>`;
   }).join('');
+  list.innerHTML=H4+list.innerHTML;
+}
+/* ÜAK md.6: a) Doktora tezi 5 · b) Yüksek lisans tezi 3
+   "İkinci/eş danışman olması durumunda; asıl danışman ... tamamını, ikinci danışman ise yarısını alır."
+   -> doktora asıl 5 / ikinci 2,5 · yüksek lisans asıl 3 / ikinci 1,5 */
+function tezPuan(t){
+  const taban = (t.tur==='yl') ? 3 : 5;
+  return (t.role==='secondary') ? taban/2 : taban;
 }
 function thesisTotal(){
   const theses=DB.theses||[];let m6=0;
-  theses.forEach(t=>{const base=t.role==='primary'?5:2.5;m6+=base;});
-  m6=Math.round(m6*100)/100;return {count:theses.length,m6:Math.min(10,m6),m6_raw:m6,warn:(m6>10)};
+  theses.forEach(t=>{m6+=tezPuan(t);});
+  m6=Math.round(m6*100)/100;
+  const turSiz=theses.filter(t=>!t.tur).length;
+  return {count:theses.length,m6:Math.min(10,m6),m6_raw:m6,warn:(m6>10),turSiz};
 }
-function addThesis(){DB.theses=DB.theses||[];DB.theses.push({id:Date.now(),student:'Öğrenci adı',topic:'Tez konusu',role:'primary'});save();render();
+function addThesis(){DB.theses=DB.theses||[];DB.theses.push({id:Date.now(),student:'Öğrenci adı',topic:'Tez konusu',role:'primary',tur:''});save();render();
   const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function patchThesis(idx,key,val){if(!DB.theses[idx])return;DB.theses[idx][key]=val;save();render();
   const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function delThesis(idx){DB.theses.splice(idx,1);save();render();const e=document.getElementById('thesisBox');if(e)setTimeout(()=>{e.open=true;},250);}
 function renderTheses(){
   const list=document.getElementById('thesisList');if(!list)return;
-  const theses=DB.theses||[];const {count,m6,m6_raw,warn}=thesisTotal();
+  const theses=DB.theses||[];const {count,m6,m6_raw,warn,turSiz}=thesisTotal();
   const sm=document.getElementById('thesisSummary');
-  if(sm)sm.innerHTML=`${count} tez · <b>${m6}/10 p</b>${warn?` ⚠ (ham ${m6_raw}p)`:''} ✓`;
-  if(!theses.length){list.innerHTML='<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz tez yok. Aşağıdan ekle.</div>';return;}
+  if(sm)sm.innerHTML=`${count} tez · <b>${m6}/10 p</b>${warn?` ⚠ (ham ${m6_raw}p)`:''}${turSiz?` · <span style="color:var(--warn)">${turSiz} tezin türü seçilmedi</span>`:''} ✓`;
+  const H6=hatirlatmaHTML('tez','Madde 6 · Tez Danışmanlığı');
+  if(!theses.length){list.innerHTML=H6+'<div style="font-size:12px;color:var(--muted);font-style:italic">Henüz tez yok. Aşağıdan ekle.</div>';return;}
   list.innerHTML=theses.map((t,idx)=>{
-    const pts=t.role==='primary'?5:2.5;
-    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:#fafafa;border-radius:6px">
+    const pts=tezPuan(t);
+    return `<div style="display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px${!t.tur?';box-shadow:inset 3px 0 0 var(--warn)':''}">
     <input type="text" value="${esc(t.student||'')}" placeholder="öğrenci adı" onchange="patchThesis(${idx},'student',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
     <input type="text" value="${esc(t.topic||'')}" placeholder="tez konusu" onchange="patchThesis(${idx},'topic',this.value)"
-      style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-    <select onchange="patchThesis(${idx},'role',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;font-size:12px">
-      <option value="primary" ${t.role==='primary'?'selected':''}>Başlıca (5p)</option>
-      <option value="secondary" ${t.role==='secondary'?'selected':''}>İkinci (2.5p)</option>
+      style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
+    <select onchange="patchThesis(${idx},'tur',this.value)" title="ÜAK md.6 yalnız doktora ve yüksek lisans tezi tanır" style="padding:5px 7px;border:1px solid ${t.tur?'var(--line)':'var(--warn)'};border-radius:8px;background:var(--card);font-size:12px">
+      <option value="" ${!t.tur?'selected':''}>— tez türü —</option>
+      <option value="doktora" ${t.tur==='doktora'?'selected':''}>Doktora (5p)</option>
+      <option value="yl" ${t.tur==='yl'?'selected':''}>Yüksek lisans (3p)</option>
+    </select>
+    <select onchange="patchThesis(${idx},'role',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-size:12px">
+      <option value="primary" ${t.role==='primary'?'selected':''}>Asıl danışman</option>
+      <option value="secondary" ${t.role==='secondary'?'selected':''}>İkinci danışman (½)</option>
     </select>
     <div style="display:flex;gap:8px;align-items:center;min-width:80px">
       <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:40px">${pts}p</div>
-      <span class="x" onclick="delThesis(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:5px;padding:4px 8px;font-size:12px">sil</span>
+      <span class="x" onclick="delThesis(${idx})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
     </div>
   </div>`;
   }).join('');
+  list.innerHTML=H6+list.innerHTML;
+}
+/* ÜAK Tanımlar: "Yayımlanmış Makale: Başvuru tarihi ile basılı veya elektronik
+   olarak yayımlanmış özgün makale." DBS SSS md.17-18: DOI almış olmak yeterli
+   değil, yayım süreçleri tamamlanmış olmalı; erken görünüm sayılmaz. */
+function yayimlanmisMi(it){ return !!((it.year&&String(it.year).trim()) || (it.doi&&String(it.doi).trim())); }
+function yayimlanmamisRiski(){
+  const hepsi=[...(DB.items||[]).filter(i=>i.stage==='kabul'),...(DB.pubs||[])];
+  const eksik=hepsi.filter(i=>!yayimlanmisMi(i));
+  return {adet:eksik.length, puan:Math.round(eksik.reduce((a,i)=>a+calcPts(i),0)*100)/100, kayitlar:eksik};
+}
+/* Giriş panellerinde gösterilen ÜAK hatırlatmaları. Her madde için, o maddede
+   en sık yapılan hatalar. Kaynak: Tablo 10 + DBS SSS. */
+const HATIRLATMA={
+ yayin:['<b>Quartil, makalenin YAYIMLANDIĞI yıla ait olmalı.</b> Dergilerin dilimi yıllara göre değişir (SSS md.23). Bugünkü Q değerini geçmiş bir yayına yazma.',
+        'ESCI veya Scopus dergide <b>quartil görünse bile puan sabit 10</b>’dur (md.1c). Q1 yazıp 30 puan alma.',
+        'Vak’a takdimi <b>yalnız a bendi</b> (SCIE/SSCI) dergide 5 puandır; ESCI, Scopus veya TR Dizin dergide karşılığı yoktur (md.1f).',
+        'Editöre mektup / araştırma notu / özet, dergi <b>a–d bentlerinden birinde</b> ise 3 puandır (md.1e); yalnız TR Dizin ise md.2c (2p).',
+        '<b>Tezinden üretilmiş yayın</b> madde 1 veya 2’de puanlanamaz — madde 3’e girer.',
+        'Yağmacı/şaibeli dergide yayımlanan makale özgeçmişe eklenir ama <b>beyannamede kullanılamaz</b> (SSS md.20).'],
+ bildiri:['<b>Aynı bilimsel toplantıda sunulan en fazla BİR çalışma</b> puanlanabilir. Aynı kongreden iki bildirin varsa yalnız birini gir.',
+          'CPCI’da yayımlanan uluslararası bildiri <b>5 puan</b>, diğer toplantılar <b>3 puan</b>.',
+          'Diğer toplantılarda, düzenleme komitesinde <b>resmî görevlendirilmiş akademisyen temsilcisi</b> bulunması zorunludur.',
+          'Tezinden üretilmiş bildiri bu maddede değil, madde 3’te puanlanır.'],
+ kitap:['<b>Aynı kitaptaki bölümlerden yalnız biri</b> puanlanabilir. Kitap adını mutlaka yaz, aksi halde bu kontrol yapılamaz.',
+        '“Diğer kitap / diğer kitap bölümü” bentlerinden <b>toplamda en fazla 5 puan</b> alınabilir.',
+        '<b>Ders kitabı sayılmaz</b> — yalnız özgün bilimsel kitaplar.',
+        'Diğer kitapta bölüm için, kitabın editörü <b>YÖKSİS’e kayıtlı bir öğretim üyesi</b> olmalıdır.'],
+ tez:['ÜAK yalnız <b>doktora</b> ve <b>yüksek lisans</b> tezi tanır. Tıpta uzmanlık tezinin bu maddede karşılığı belirsizdir — kurumuna danış.',
+      '<b>İkinci/eş danışman puanın yarısını alır:</b> doktorada 2,5 · yüksek lisansta 1,5.',
+      'Tez <b>tamamlanmış</b> olmalıdır. Devam eden tez beyan edilemez.'],
+ atif:['Puanı <b>atıf YAPAN yayının</b> indeksi belirler; senin makalenin indeksi değil.',
+       '<b>Kendi eserlerine yaptığın atıflar sayılmaz.</b>',
+       'Bir eserine <b>aynı yayında</b> yapılan birden fazla atıf <b>tek atıf</b> sayılır. Farklı eserini anan aynı yayın ise ayrı atıftır.',
+       'Zorunlu <b>5 puan yalnız uzmanlık sonrası</b> atıflardan sayılır · madde tavanı 10.'],
+ md3:['Bu puanın <b>hangi eserden</b> geldiğini not et. O eser madde 1 veya 2’de <b>ayrıca puanlanamaz</b> — her çalışma tek bölümde sayılır.',
+      'Madde tavanı <b>20 puan</b>; “diğer kitap/bölüm” bentlerinden toplamda en fazla 5.',
+      'Bu maddeden alınan puan, <b>“en az 90 puan uzmanlık sonrası” şartına sayılmaz.</b>'],
+ md9:['Puan üç bileşenden gelir: dört farklı yarıyıl ders <b>2p</b> · iki farklı yıl ders <b>2p</b> · uzmanlık sonrası en az iki yıl kadrolu öğretim elemanı <b>2p</b>.',
+      'Madde tavanı <b>6 puan</b>, en az <b>2 puan</b> zorunludur.',
+      'Dersler için üniversiteden <b>onaylı</b> ders yazısı gerekir.'],
+};
+function hatirlatmaHTML(anahtar,baslik){
+  const m=HATIRLATMA[anahtar]||[];
+  return `<details class="uyari" style="margin:0 0 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--accent-soft)">
+    <summary style="cursor:pointer;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--accent)">⚠ ${baslik} — girmeden önce oku (${m.length} madde)</summary>
+    <ul style="margin:0;padding:2px 14px 12px 30px;font-size:12.5px;line-height:1.65;color:var(--muted)">
+      ${m.map(x=>`<li style="margin:5px 0">${x}</li>`).join('')}
+    </ul></details>`;
+}
+/* ===== ÜAK Tablo 10 · elle girilen maddeler =====
+   Makale dışı kalemler. Puanlar Tablo 10'dan birebir alınmıştır. */
+const ELLE_MADDELER={
+ projeler:{no:7,ad:'Bilimsel Araştırma Projesi',simge:'🔬',tavan:20,tekil:'proje',
+   bentler:[{k:'ab_yur',t:'AB Çerçeve / TÜBİTAK — koordinatör/yürütücü',p:15},
+            {k:'ab_ars',t:'AB Çerçeve / TÜBİTAK — araştırmacı',p:10},
+            {k:'ab_dan',t:'AB Çerçeve / TÜBİTAK — danışman',p:5},
+            {k:'uluslararasi',t:'Uluslararası destekli proje (yürütücü/araştırmacı/danışman)',p:10},
+            {k:'arge',t:'Kamu kurumu / özel kuruluşla Ar-Ge · Ür-Ge projesi',p:5},
+            {k:'bap',t:'Üniversite BAP projesi — yürütücü',p:3}],
+   hatirlatma:['Proje <b>başarı ile tamamlanmış</b> olmalı; devam eden proje beyan edilemez.',
+               'AB/TÜBİTAK bendinde <b>öğrenci projeleri hariçtir</b>.',
+               'Uluslararası destekli projede <b>derleme ve rapor hazırlama çalışmaları hariçtir</b>.',
+               'BAP bendinde <b>tez ve uzmanlık projeleri hariçtir</b>, yalnız yürütücülük sayılır.',
+               'Bu maddeden en fazla <b>20 puan</b> alınabilir.']},
+ patentler:{no:10,ad:'Patent / Faydalı Model',simge:'⚙️',tavan:null,tekil:'patent',boluKisi:true,
+   bentler:[{k:'ulus_patent',t:'Tescil edilmiş uluslararası patent',p:20},
+            {k:'ulusal_patent',t:'Tescil edilmiş ulusal patent',p:10},
+            {k:'faydali',t:'Tescil edilmiş faydalı model',p:5},
+            {k:'basvuru',t:'Kişisel patent başvurusunda bulunmuş olmak',p:2}],
+   hatirlatma:['<b>Patentlerde puan kişi sayısına bölünür.</b> Buluş sahibi sayısını gir.',
+               'Uluslararası patent: PCT, EPC, EAPO, ARIPO, OAPI ya da doğrudan ülkesel ofise yapılan başvuruya verilen <b>tescil belgesi</b>.',
+               'Ulusal patent/faydalı model <b>Türk Patent ve Marka Kurumu</b> tarafından verilir.',
+               'Bu maddede <b>tavan yoktur</b>.']},
+ oduller:{no:11,ad:'Ödül',simge:'🏅',tavan:25,tekil:'ödül',
+   bentler:[{k:'yok_tez',t:'YÖK Yılın Doktora Tezi Ödülü',p:25},
+            {k:'yok_ustun',t:'YÖK Üstün Başarı Ödülü',p:25},
+            {k:'tubitak_bilim',t:'TÜBİTAK Bilim Ödülü',p:25},
+            {k:'tubitak_tesvik',t:'TÜBİTAK Teşvik Ödülü (UBYT hariç)',p:25},
+            {k:'gebip',t:'TÜBA GEBİP Ödülü',p:25},
+            {k:'tesep',t:'TÜBA TESEP Ödülü',p:25}],
+   hatirlatma:['Yalnız yukarıdaki <b>altı ödül</b> sayılır; başka ödüller bu maddeye girmez.',
+               '<b>TÜBİTAK UBYT (yayın teşvik) ödülü sayılmaz.</b>',
+               'Bu maddeden en fazla <b>25 puan</b> alınabilir — yani bir ödül tavanı doldurur.']},
+ editorlukler:{no:12,ad:'Editörlük',simge:'✒️',tavan:4,tekil:'editörlük',
+   bentler:[{k:'dergi_scie',t:'SCIE / SSCI / AHCI / ESCI / Scopus dergide editörlük',p:2},
+            {k:'kitap',t:'BKCI veya Scopus kapsamındaki kitapta editörlük',p:1},
+            {k:'dergi_trdizin',t:'TR Dizin kapsamındaki dergide editörlük',p:1}],
+   hatirlatma:['Derginin/kitabın <b>ilgili indekste taranıyor olması</b> gerekir.',
+               'Bu maddeden en fazla <b>4 puan</b> alınabilir.']},
+};
+/* ===== Madde 3 · Lisansüstü Tezlerden Üretilmiş Yayın =====
+   Elle sayı yerine esere bağlı kayıt. Yazar payı makale bentlerinde uygulanır. */
+const MD3={no:3,ad:'Lisansüstü Tezlerden Üretilmiş Yayın',simge:'🎓',tavan:20,
+  bentler:[{k:'a',t:'SCIE / SSCI / AHCI dergide makale',p:20,pay:true},
+           {k:'b',t:'ESCI / Scopus dergide makale',p:10,pay:true},
+           {k:'c',t:'Diğer uluslararası indeksli dergide makale',p:5,pay:true},
+           {k:'d',t:'TR Dizin dergide makale',p:8,pay:true},
+           {k:'e',t:'BKCI kapsamındaki kitap',p:20,pay:false},
+           {k:'f',t:'BKCI kapsamındaki kitapta bölüm',p:10,pay:false},
+           {k:'g',t:'Diğer uluslararası/ulusal kitap',p:5,pay:false,altTavan:true},
+           {k:'h',t:'Diğer uluslararası/ulusal kitapta bölüm',p:3,pay:false,altTavan:true},
+           {k:'i1',t:"CPCI'da yayımlanmış uluslararası bildiri",p:3,pay:false},
+           {k:'i2',t:'Diğer toplantıda sunulan bildiri',p:2,pay:false}],
+  hatirlatma:['Bu maddedeki eserler <b>adayın kendi lisansüstü tezinden üretilmiş</b> olmalıdır.',
+              '<b>Bu eserler madde 1, 2, 4 veya 8’de ayrıca puanlanamaz</b> — her çalışma yalnız bir bölümde sayılır.',
+              'Bu maddeden alınan puan <b>“en az 90 puan uzmanlık sonrası” şartına sayılmaz</b>.',
+              'a–h bentleri kapsamında <b>en az bir yayın zorunludur</b>.',
+              '<b>g ve h bentlerinden toplamda en fazla 5 puan</b> alınabilir · madde tavanı <b>20 puan</b>.',
+              'h bendinde kitabın editörü <b>YÖKSİS’e kayıtlı öğretim üyesi</b> olmalıdır.']};
+function md3Toplam(){
+  const kayitlar=DB.tezYayinlari||[];
+  if(!kayitlar.length){
+    const eski=Math.min(20,+((DB.manual||{}).tezYayin)||0);
+    return {puan:eski,ham:eski,adet:0,eski:eski>0,ghHam:0,ahVar:false};
+  }
+  let ham=0,gh=0,ahVar=false;
+  kayitlar.forEach(x=>{
+    const b=MD3.bentler.find(y=>y.k===x.bent); if(!b)return;
+    const v=b.pay ? b.p*shareMult(x.authors,x.rank) : b.p;
+    if(b.altTavan) gh+=v; else ham+=v;
+    if('abcdefgh'.includes(x.bent)||['g','h'].includes(x.bent)) ahVar=true;
+  });
+  const ghSayilan=Math.min(5,gh);
+  const toplam=Math.round((ham+ghSayilan)*100)/100;
+  return {puan:Math.min(20,toplam),ham:Math.round((ham+gh)*100)/100,adet:kayitlar.length,
+          eski:false,ghHam:Math.round(gh*100)/100,ahVar};
+}
+
+/* ===== Madde 9 · Eğitim-Öğretim — bileşen kaydı ===== */
+const MD9={no:9,ad:'Eğitim-Öğretim',simge:'👩‍🏫',tavan:6,altSinir:2,
+  hatirlatma:['Puan üç bileşenden gelir; hepsi <b>uzmanlık/doktora sonrası</b> olmalıdır.',
+              'a) <b>Dönemlik</b> programlarda <b>dört farklı yarıyılda</b> ders vermek → 2 puan.',
+              'b) <b>Yıllık</b> programlarda <b>iki farklı yılda</b> ders vermek → 2 puan.',
+              'Uzmanlık sonrası yükseköğretim kurumunda <b>en az 2 yıl kadrolu öğretim elemanı</b> olarak görev yapan <b>2 puan almış sayılır</b>.',
+              'Madde tavanı <b>6 puan</b>, en az <b>2 puan</b> zorunludur.',
+              'Dersler için üniversiteden <b>onaylı ders yazısı</b> gerekir.']};
+function md9Toplam(){
+  const e=DB.egitim;
+  if(!e||typeof e!=='object'){
+    const eski=Math.min(6,+((DB.manual||{}).egitim)||0);
+    return {puan:eski,ham:eski,eski:eski>0};
+  }
+  const ham=(Math.max(0,+e.yariyil4||0)*2)+(Math.max(0,+e.yil2||0)*2)+(e.kadro?2:0);
+  return {puan:Math.min(6,ham),ham,eski:false};
+}
+
+/* Madde 13 · Diğer — iki koşul, liste değil */
+const MADDE13={no:13,ad:'Diğer',simge:'📊',tavan:10,
+  kosullar:[{k:'hindeks',t:'Web of Science’a göre h-indeksi en az 5',p:5},
+            {k:'yurtdisi',t:'İlk 300 üniversitede kesintisiz en az 6 ay yurt dışı araştırma/öğretim',p:5}],
+  hatirlatma:['h-indeksi <b>Web of Science</b>’a göre hesaplanır; Google Scholar değeri kabul edilmez.',
+              'Sıralama kuruluşları: ARWU, CWTS Leiden, QS, THE, URAP.',
+              'Yurt dışı faaliyet <b>kesintisiz</b> en az altı ay olmalı.',
+              'Bu maddeden en fazla <b>10 puan</b> alınabilir.']};
+
+function elleMaddeToplam(anahtar){
+  const cfg=ELLE_MADDELER[anahtar], kayitlar=DB[anahtar]||[];
+  let ham=0;
+  kayitlar.forEach(x=>{
+    const b=cfg.bentler.find(y=>y.k===x.bent); if(!b)return;
+    ham += cfg.boluKisi ? b.p/Math.max(1,+x.kisi||1) : b.p;
+  });
+  ham=Math.round(ham*100)/100;
+  const puan = cfg.tavan==null ? ham : Math.min(cfg.tavan,ham);
+  return {ham,puan,adet:kayitlar.length,tavanAsildi:cfg.tavan!=null&&ham>cfg.tavan};
+}
+function madde13Toplam(){
+  const d=DB.diger||{};
+  let ham=0; MADDE13.kosullar.forEach(k=>{ if(d[k.k]) ham+=k.p; });
+  return {ham,puan:Math.min(MADDE13.tavan,ham)};
+}
+function elleMaddeGenelToplam(){
+  return Object.keys(ELLE_MADDELER).reduce((a,k)=>a+elleMaddeToplam(k).puan,0)+madde13Toplam().puan;
+}
+function elleAcikMi(k){ return UI.elle.has(k); }
+function elleAcTut(el,k){ if(el.open)UI.elle.add(k); else UI.elle.delete(k); }
+function elleEkle(anahtar){
+  const cfg=ELLE_MADDELER[anahtar];
+  DB[anahtar]=DB[anahtar]||[];
+  DB[anahtar].push({id:Date.now(),ad:'',bent:cfg.bentler[0].k,kisi:1,yil:''});
+  UI.elle.add(anahtar); save(); render();
+}
+function elleYama(anahtar,i,alan,deger){
+  const x=(DB[anahtar]||[])[i]; if(!x)return;
+  if(alan==='kisi')deger=Math.max(1,+deger||1);
+  x[alan]=deger; UI.elle.add(anahtar); save(); render();
+}
+function elleSil(anahtar,i){ (DB[anahtar]||[]).splice(i,1); UI.elle.add(anahtar); save(); render(); }
+function madde13Degistir(k,v){ DB.diger=DB.diger||{}; DB.diger[k]=!!v; UI.elle.add('diger'); save(); render(); }
+function hatirlatmaOzel(maddeler,baslik){
+  if(!maddeler||!maddeler.length)return '';
+  return `<details style="margin:0 0 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--accent-soft)">
+    <summary style="cursor:pointer;padding:9px 12px;font-size:12.5px;font-weight:600;color:var(--accent)">\u26a0 ${esc(baslik)} \u2014 girmeden \u00f6nce oku (${maddeler.length} madde)</summary>
+    <ul style="margin:0;padding:2px 14px 12px 30px;font-size:12.5px;line-height:1.65;color:var(--muted)">
+      ${maddeler.map(x=>`<li style="margin:5px 0">${x}</li>`).join('')}
+    </ul></details>`;
+}
+function md3Ekle(){ DB.tezYayinlari=DB.tezYayinlari||[];
+  DB.tezYayinlari.push({id:Date.now(),ad:'',bent:'a',authors:1,rank:1,yil:''});
+  UI.elle.add('md3'); save(); render(); }
+function md3Yama(i,alan,deger){ const x=(DB.tezYayinlari||[])[i]; if(!x)return;
+  if(alan==='authors'||alan==='rank')deger=Math.max(1,+deger||1);
+  x[alan]=deger; UI.elle.add('md3'); save(); render(); }
+function md3Sil(i){ (DB.tezYayinlari||[]).splice(i,1); UI.elle.add('md3'); save(); render(); }
+function md9Yama(alan,deger){ DB.egitim=DB.egitim||{yariyil4:0,yil2:0,kadro:false};
+  DB.egitim[alan]= alan==='kadro' ? !!deger : Math.max(0,+deger||0);
+  UI.elle.add('md9'); save(); render(); }
+function md9Baslat(){ DB.egitim={yariyil4:0,yil2:0,kadro:false}; UI.elle.add('md9'); save(); render(); }
+
+function renderMd3(){
+  const t=md3Toplam(), kayitlar=DB.tezYayinlari||[];
+  const satirlar = kayitlar.length ? kayitlar.map((x,i)=>{
+    const b=MD3.bentler.find(y=>y.k===x.bent)||MD3.bentler[0];
+    const puan = b.pay ? Math.round(b.p*shareMult(x.authors,x.rank)*100)/100 : b.p;
+    return `<div style="display:grid;grid-template-columns:1fr 1.5fr ${b.pay?'auto auto ':''}auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px">
+      <input type="text" value="${esc(x.ad||'')}" placeholder="eser adı" onchange="md3Yama(${i},'ad',this.value)"
+        style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+      <select onchange="md3Yama(${i},'bent',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:11.5px">
+        ${MD3.bentler.map(y=>`<option value="${y.k}" ${y.k===x.bent?'selected':''}>${esc(y.t)} · ${y.p}p</option>`).join('')}
+      </select>
+      ${b.pay?`<input type="number" min="1" value="${x.authors||1}" title="Toplam yazar" onchange="md3Yama(${i},'authors',this.value)" style="width:56px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+      <input type="number" min="1" value="${x.rank||1}" title="Senin sıran" onchange="md3Yama(${i},'rank',this.value)" style="width:56px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">`:''}
+      <input type="text" value="${esc(x.yil||'')}" placeholder="yıl" onchange="md3Yama(${i},'yil',this.value)" style="width:62px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+      <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:42px">${puan}p</div>
+      <span class="x" onclick="md3Sil(${i})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
+    </div>`;}).join('') : '';
+  const eskiUyari = t.eski
+    ? `<div style="padding:10px 12px;background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:8px;font-size:12.5px;color:var(--muted);margin-bottom:10px">
+        ⚠ Bu maddeye <b>${t.puan} puan elle</b> girilmiş ama hangi esere ait olduğu kayıtlı değil.
+        Aşağıdan eseri ekleyince puan otomatik hesaplanır ve <b>çifte sayım kontrolü</b> yapılabilir hale gelir.</div>`
+    : '';
+  const ghUyari = t.ghHam>5 ? `<div style="font-size:12px;color:var(--warn);margin-bottom:8px">⚠ g ve h bentleri toplamı ${t.ghHam}p — tavan 5p uygulandı.</div>` : '';
+  const ahUyari = (kayitlar.length&&!t.ahVar) ? `<div style="font-size:12px;color:var(--warn);margin-bottom:8px">⚠ a–h bentleri kapsamında <b>en az bir yayın zorunludur</b>; şu an yalnız bildiri kaydı var.</div>` : '';
+  return `<details class="ref" data-elle="md3" ${elleAcikMi('md3')?'open':''} ontoggle="elleAcTut(this,'md3')">
+    <summary>${MD3.simge} ${MD3.ad} (M${MD3.no}) — <span>${t.adet} eser · <b>${t.puan}/${MD3.tavan} p</b>${t.eski?' <span style="color:var(--warn)">(elle girilmiş)</span>':''}</span></summary>
+    <div class="body">${hatirlatmaOzel(MD3.hatirlatma,'Madde '+MD3.no+' · '+MD3.ad)}${eskiUyari}${ghUyari}${ahUyari}${satirlar}
+      <button class="add" onclick="md3Ekle()" style="margin-top:8px">+ Eser ekle</button>
+    </div></details>`;
+}
+function renderMd9(){
+  const t=md9Toplam(), e=DB.egitim;
+  const govde = !e ? `<div style="padding:10px 12px;background:var(--warn-soft);border:1px solid var(--warn-line);border-radius:8px;font-size:12.5px;color:var(--muted)">
+      ⚠ Bu maddeye <b>${t.puan} puan elle</b> girilmiş ama hangi bileşenden geldiği kayıtlı değil.
+      <button class="add" onclick="md9Baslat()" style="margin-left:8px">Bileşenleri gir</button></div>`
+    : `<div style="display:grid;gap:8px">
+      <label style="display:flex;gap:10px;align-items:center;padding:9px 11px;background:var(--surface);border-radius:8px;font-size:12.5px">
+        <input type="number" min="0" value="${e.yariyil4||0}" onchange="md9Yama('yariyil4',this.value)" style="width:56px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+        <span style="flex:1">a) Dönemlik programlarda <b>dört farklı yarıyılda</b> ders verme — kaç kez?</span>
+        <b style="color:var(--accent)">${(e.yariyil4||0)*2}p</b></label>
+      <label style="display:flex;gap:10px;align-items:center;padding:9px 11px;background:var(--surface);border-radius:8px;font-size:12.5px">
+        <input type="number" min="0" value="${e.yil2||0}" onchange="md9Yama('yil2',this.value)" style="width:56px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+        <span style="flex:1">b) Yıllık programlarda <b>iki farklı yılda</b> ders verme — kaç kez?</span>
+        <b style="color:var(--accent)">${(e.yil2||0)*2}p</b></label>
+      <label style="display:flex;gap:10px;align-items:center;padding:9px 11px;background:var(--surface);border-radius:8px;font-size:12.5px;cursor:pointer">
+        <input type="checkbox" ${e.kadro?'checked':''} onchange="md9Yama('kadro',this.checked)">
+        <span style="flex:1">Uzmanlık sonrası <b>en az 2 yıl kadrolu öğretim elemanı</b> olarak görev yapmış olmak</span>
+        <b style="color:var(--accent)">${e.kadro?2:0}p</b></label>
+      ${t.ham>6?`<div style="font-size:12px;color:var(--warn)">⚠ Ham toplam ${t.ham}p — tavan 6p uygulandı.</div>`:''}
+      ${t.puan<2?`<div style="font-size:12px;color:var(--red)">⛔ Bu maddeden <b>en az 2 puan zorunludur</b>.</div>`:''}
+    </div>`;
+  return `<details class="ref" data-elle="md9" ${elleAcikMi('md9')?'open':''} ontoggle="elleAcTut(this,'md9')">
+    <summary>${MD9.simge} ${MD9.ad} (M${MD9.no}) — <span><b>${t.puan}/${MD9.tavan} p</b>${t.eski?' <span style="color:var(--warn)">(elle girilmiş)</span>':''}</span></summary>
+    <div class="body">${hatirlatmaOzel(MD9.hatirlatma,'Madde '+MD9.no+' · '+MD9.ad)}${govde}</div></details>`;
+}
+/* ===== Rehber =====
+   İçerik kodun kendi yapılandırmasından üretilir (STAGES, KINDS, MD3, MD9, ELLE_MADDELER),
+   böylece bir kural değişirse rehber kendiliğinden güncellenir. */
+/* ===== İlk kullanım karşılaması ve sorumluluk reddi ===== */
+function karsilamaKapat(){ try{localStorage.setItem('docentlik_karsilama','kapali');}catch(e){}
+  const k=document.getElementById('karsilama'); if(k)k.innerHTML=''; }
+function karsilamaGoster(){ try{localStorage.removeItem('docentlik_karsilama');}catch(e){} renderKarsilama(); }
+function veriSifirla(){
+  if(!confirm('TÜM veriler silinecek: yayınlar, süreçteki çalışmalar, atıflar, bildiriler ve elle girdiğin bütün maddeler.\n\nBu işlem geri alınamaz. Önce "Yedek al" ile bir kopya almanı öneririz.\n\nDevam edilsin mi?'))return;
+  if(!confirm('Emin misin? Yedeğin yoksa veriler kalıcı olarak kaybolur.'))return;
+  try{ localStorage.removeItem('docentlik_v4'); }catch(e){}
+  location.reload();
+}
+function renderKarsilama(){
+  const k=document.getElementById('karsilama'); if(!k)return;
+  let kapali=false; try{ kapali=localStorage.getItem('docentlik_karsilama')==='kapali'; }catch(e){}
+  if(kapali){ k.innerHTML=''; return; }
+  k.innerHTML=`<div style="border:1px solid var(--accent-line);border-left:4px solid var(--accent);border-radius:var(--radius);
+      background:var(--accent-soft);padding:16px 18px;margin-bottom:18px;font-size:13px;line-height:1.65;color:var(--muted)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+      <b style="color:var(--ink);font-size:14px">Başlamadan önce üç şey</b>
+      <span onclick="karsilamaKapat()" style="cursor:pointer;color:var(--faint);font-size:12px;white-space:nowrap;border:1px solid var(--line);border-radius:8px;padding:3px 9px">kapat</span>
+    </div>
+    <ol style="margin:10px 0 0;padding-left:20px">
+      <li style="margin:6px 0"><b style="color:var(--ink)">Bu araç yalnız Sağlık Bilimleri içindir.</b>
+        Hesaplama ÜAK <b>Tablo 10</b>'a göre yapılır. Fen, Mühendislik, Sosyal ve diğer temel alanların ölçütleri farklıdır —
+        bu araçla hesaplarsan <b>yanlış puan</b> alırsın.</li>
+      <li style="margin:6px 0"><b style="color:var(--ink)">Verilerin yalnız bu tarayıcıda saklanır.</b>
+        Sunucuya gitmez, kimse göremez — ama tarayıcı verisini temizlersen ya da başka cihaza geçersen <b>kaybolur</b>.
+        Alt bilgideki <b>“Yedek al”</b> düğmesini düzenli kullan.</li>
+      <li style="margin:6px 0"><b style="color:var(--ink)">Bu bir ön hesap aracıdır.</b>
+        Resmî kaynak ÜAK kılavuzu ve DBS'dir; beyanın sorumluluğu adaya aittir.
+        Araç bazı kuralları (yağmacı dergi listesi, jüri yorumu, belge geçerliliği) <b>denetleyemez</b>.</li>
+    </ol>
+  </div>`;
+}
+function renderRehber(){
+  const kap=document.getElementById('rehberIcerik'); if(!kap)return;
+  const S=(b,i)=>`<h4 style="margin:20px 0 6px;font-size:14px;color:var(--accent)">${i}. ${b}</h4>`;
+  const T=(basliklar,satirlar)=>`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:6px 0">
+    <tr>${basliklar.map(h=>`<th style="text-align:left;padding:5px 10px 5px 0;border-bottom:1px solid var(--line);color:var(--faint);font-size:11px;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">${h}</th>`).join('')}</tr>
+    ${satirlar.map(r=>`<tr>${r.map((c,i)=>`<td style="padding:5px 10px 5px 0;border-bottom:1px solid var(--line);${i>0?'':'font-weight:600'}">${c}</td>`).join('')}</tr>`).join('')}
+  </table></div>`;
+
+  // 2 · aşamalar
+  const asamaSatir=STAGES.map(x=>{
+    const kesin = x.k==='kabul' ? '<b style="color:var(--kabul)">✓ evet</b>' : '—';
+    const pot   = (x.k==='kabul'||x.k==='red') ? '—' : '✓';
+    return [`<span style="color:${x.c}">●</span> ${x.t}`, kesin, pot, x.d];
+  });
+
+  // 3 · yayın türleri
+  const grupAd={M1:'Madde 1 · Uluslararası',M2:'Madde 2 · Ulusal',S:'Türü seçilmemiş',X:'Puan karşılığı yok'};
+  const turSatir=Object.keys(KINDS).map(k=>[KINDS[k].t, KINDS[k].base+' p', grupAd[KINDS[k].grp]||KINDS[k].grp]);
+
+  // 5 · elle maddeler özeti
+  const elleSatir=[[`M${MD3.no} · ${MD3.ad}`,'tavan '+MD3.tavan+' p','10 bent, yazar payı uygulanır'],
+    ...Object.keys(ELLE_MADDELER).map(k=>{const c=ELLE_MADDELER[k];
+      return [`M${c.no} · ${c.ad}`, c.tavan!=null?('tavan '+c.tavan+' p'):'tavan yok',
+              c.bentler.length+' bent'+(c.boluKisi?', puan kişi sayısına bölünür':'')];}),
+    [`M${MD9.no} · ${MD9.ad}`,'tavan '+MD9.tavan+' p','3 bileşen, en az '+MD9.altSinir+' p zorunlu'],
+    [`M${MADDE13.no} · ${MADDE13.ad}`,'tavan '+MADDE13.tavan+' p','2 koşul']];
+
+  kap.innerHTML=`
+  <p style="font-size:13px;color:var(--muted);margin-bottom:4px">Bu araç ÜAK <b>Tablo 10 · Sağlık Bilimleri</b> (Mart 2026) ölçütlerine göre hesap yapar. Ön hesap aracıdır; resmî kaynak ÜAK kılavuzudur.</p>
+
+  ${S('Puanı okumak',1)}
+  <p style="font-size:13px;color:var(--muted)">Başlıktaki iki sayı farklı şeyler söyler:</p>
+  ${T(['Gösterge','Anlamı'],[
+    ['<b style="color:var(--accent)">Soldaki</b> — kesin puan','Yayımlanmış eserler + kabul aşamasındaki çalışmalar. Beyan edebileceğin puan.'],
+    ['<b style="color:var(--warn)">Parantez içi</b> — potansiyel','Süreçteki çalışmalar da kabul edilirse ulaşacağın puan. <b>Red aşamasındakiler sayılmaz.</b>'],
+    ['Uzm. öncesi havuz','Uzmanlık öncesi çalışmalar ayrı havuzda toplanır; en fazla <b>10 puanı</b> sayılır.']])}
+  <p style="font-size:12.5px;color:var(--muted)">Potansiyel puan, süreçteki çalışmaların <b>dergi türüne göre otomatik</b> hesaplanır. Tür seçilmeyen çalışma 0 puan görünür — bu bilinçli bir tercihtir, seçilmemiş bir dergiye peşinen puan yazılmaz.</p>
+
+  ${S('Süreçte — on aşama',2)}
+  ${T(['Aşama','Kesin puan','Potansiyel','Ne demek'],asamaSatir)}
+  <div style="padding:11px 13px;background:var(--red-soft);border:1px solid var(--red-line);border-radius:8px;font-size:12.5px;color:var(--muted);margin-top:10px">
+    <b style="color:var(--red)">Kabul ≠ yayımlanmış.</b> ÜAK yalnız <i>“başvuru tarihi ile basılı veya elektronik olarak yayımlanmış”</i> eseri kabul eder.
+    DOI almış olmak bile yetmez (SSS md.17); erken görünüm sayılmaz (md.18). Kabul yazısı aldığın çalışma panoda puan gösterir ama
+    <b>yayımlanmadan beyannameye giremez</b> — bu yüzden ⛔ rozeti çıkar.</div>
+
+  ${S('Yayınlanmış — türler ve yazar payı',3)}
+  ${T(['Tür','Taban puan','Grup'],turSatir)}
+  <p style="font-size:12.5px;color:var(--muted);margin-top:8px"><b>Yazar payı:</b> tek yazar tam puan · iki yazarda başlıca yazar 0,8 diğeri 0,5 · üç ve daha fazla yazarda başlıca yazar yarısını, diğerleri kalan yarıyı eşit paylaşır. <b>Atıflarda yazar payı uygulanmaz.</b></p>
+  <p style="font-size:12.5px;color:var(--warn)">⚠ Quartil, makalenin <b>yayımlandığı yıla</b> ait olmalıdır — dergilerin dilimi yıllara göre değişir. ESCI/Scopus dergide quartil görünse de puan sabit 10'dur.</p>
+
+  ${S('Göstergeler',4)}
+  ${T(['Gösterge','Anlamı'],[
+    ['⛔ yayımlanmamış','Yıl ve DOI yok — beyan edilemez'],
+    ['⚠ WoS doğrulanmadı','Tür ön taramadan geldi, WoS\'tan teyit et'],
+    ['⚠ dergi SCIE/SSCI mi?','Vak\'a takdimi yalnız a bendi dergide 5p'],
+    ['❗ doğrulanacak','Sen işaretledin, açık soru var'],
+    ['⏳ yetişmeyebilir','Hedef döneme kalan süre bu aşama için kısa görünüyor'],
+    ['✓ / ○','Zorunlu şart sağlandı / sağlanmadı'],
+    ['⚠ ham … tavan','Madde tavanı devreye girdi, fazlası sayılmıyor'],
+    ['Soluk satır','Aynı kongreden ya da aynı kitaptan başka kayıt var; ÜAK yalnız birini puanlar']])}
+
+  ${S('Elle girilen maddeler',5)}
+  <p style="font-size:13px;color:var(--muted)">Makale dışı kalemler elle girilir. Her panelin başında o maddenin ÜAK kuralları yazılıdır.</p>
+  ${T(['Madde','Tavan','Not'],elleSatir)}
+
+  ${S('Sık yapılan hatalar',6)}
+  <ul style="margin:6px 0;padding-left:20px;font-size:12.5px;line-height:1.7;color:var(--muted)">
+    <li><b>Kabul ile yayımlanmışı karıştırmak</b> — en sık ve en pahalı hata.</li>
+    <li><b>Bugünkü quartil'i geçmiş bir yayına yazmak</b> — yayın yılındaki dilim geçerlidir.</li>
+    <li><b>DOI ile eklenen yayının türünü düzeltmeyi unutmak</b> — tür seçilene kadar 0 puandır.</li>
+    <li><b>Aynı eseri iki maddede saymak</b> — her çalışma yalnız bir bölümde puanlanır.</li>
+    <li><b>Tezden üretilmiş yayını madde 1/2'ye koymak</b> — madde 3'e girer.</li>
+    <li><b>Yedek almamak</b> — veriler yalnız bu tarayıcıda saklanır. Alt bilgideki <b>“Yedek al”</b> düzenli kullanılmalı.</li>
+  </ul>`;
+}
+function renderElleMaddeler(){
+  const kap=document.getElementById('elleMaddeler'); if(!kap)return;
+  let html=renderMd3()+renderMd9();
+  Object.keys(ELLE_MADDELER).forEach(anahtar=>{
+    const cfg=ELLE_MADDELER[anahtar], kayitlar=DB[anahtar]||[], t=elleMaddeToplam(anahtar);
+    const satirlar = kayitlar.length ? kayitlar.map((x,i)=>{
+      const b=cfg.bentler.find(y=>y.k===x.bent)||cfg.bentler[0];
+      const puan = cfg.boluKisi ? Math.round(b.p/Math.max(1,+x.kisi||1)*100)/100 : b.p;
+      return `<div style="display:grid;grid-template-columns:1fr 1.4fr ${cfg.boluKisi?'auto ':''}auto auto auto;gap:8px;align-items:center;margin-bottom:6px;padding:8px;background:var(--surface);border-radius:8px">
+        <input type="text" value="${esc(x.ad||'')}" placeholder="${esc(cfg.tekil)} ad\u0131" onchange="elleYama('${anahtar}',${i},'ad',this.value)"
+          style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+        <select onchange="elleYama('${anahtar}',${i},'bent',this.value)" style="padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:11.5px">
+          ${cfg.bentler.map(y=>`<option value="${y.k}" ${y.k===x.bent?'selected':''}>${esc(y.t)} \u00b7 ${y.p}p</option>`).join('')}
+        </select>
+        ${cfg.boluKisi?`<input type="number" min="1" value="${x.kisi||1}" title="Bulu\u015f sahibi say\u0131s\u0131 \u2014 puan bu say\u0131ya b\u00f6l\u00fcn\u00fcr" onchange="elleYama('${anahtar}',${i},'kisi',this.value)"
+          style="width:58px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">`:''}
+        <input type="text" value="${esc(x.yil||'')}" placeholder="y\u0131l" onchange="elleYama('${anahtar}',${i},'yil',this.value)"
+          style="width:64px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:12px">
+        <div style="font-size:11px;color:var(--accent);font-weight:600;text-align:right;min-width:42px">${puan}p</div>
+        <span class="x" onclick="elleSil('${anahtar}',${i})" style="cursor:pointer;color:var(--muted);border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-size:12px">sil</span>
+      </div>`;}).join('')
+      : `<div style="font-size:12px;color:var(--muted);font-style:italic">Hen\u00fcz ${esc(cfg.tekil)} yok. A\u015fa\u011f\u0131dan ekle.</div>`;
+    html+=`<details class="ref" data-elle="${anahtar}" ${elleAcikMi(anahtar)?'open':''} ontoggle="elleAcTut(this,'${anahtar}')">
+      <summary>${cfg.simge} ${esc(cfg.ad)} (M${cfg.no}) \u2014 <span>${t.adet} ${esc(cfg.tekil)} \u00b7 <b>${t.puan}${cfg.tavan!=null?'/'+cfg.tavan:''} p</b>${t.tavanAsildi?` \u26a0 (ham ${t.ham}p, tavan ${cfg.tavan})`:''}</span></summary>
+      <div class="body">
+        ${hatirlatmaOzel(cfg.hatirlatma,'Madde '+cfg.no+' \u00b7 '+cfg.ad)}
+        ${satirlar}
+        <button class="add" onclick="elleEkle('${anahtar}')" style="margin-top:8px">+ ${esc(cfg.tekil)} ekle</button>
+      </div></details>`;
+  });
+  const d=DB.diger||{}, t13=madde13Toplam();
+  html+=`<details class="ref" data-elle="diger" ${elleAcikMi('diger')?'open':''} ontoggle="elleAcTut(this,'diger')">
+    <summary>${MADDE13.simge} ${MADDE13.ad} (M${MADDE13.no}) \u2014 <span><b>${t13.puan}/${MADDE13.tavan} p</b></span></summary>
+    <div class="body">
+      ${hatirlatmaOzel(MADDE13.hatirlatma,'Madde 13 \u00b7 Di\u011fer')}
+      ${MADDE13.kosullar.map(k=>`<label style="display:flex;gap:9px;align-items:flex-start;padding:9px 11px;margin-bottom:6px;background:var(--surface);border-radius:8px;cursor:pointer;font-size:12.5px;line-height:1.5">
+        <input type="checkbox" ${d[k.k]?'checked':''} onchange="madde13Degistir('${k.k}',this.checked)" style="margin-top:2px">
+        <span style="flex:1">${esc(k.t)}</span>
+        <b style="color:var(--accent);white-space:nowrap">${k.p}p</b></label>`).join('')}
+    </div></details>`;
+  kap.innerHTML=html;
 }
 function stageIdx(k){return STAGES.findIndex(s=>s.k===k)}
 
@@ -911,7 +1585,7 @@ function setTab(el){document.querySelectorAll('.tab').forEach(t=>t.classList.rem
 function setFilter(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));el.classList.add('on');DB.filter=el.dataset.f;save();render();}
 
 /* ---- SÜREÇTE ---- */
-function addItem(){const id=Date.now();DB.items.unshift({id,title:'Yeni makale',kind:'q2',venue:'',authors:3,rank:1,stage:'fikir',postUzm:true,track:'',rejections:[]});UI.edits.add(id);UI.stages.add('fikir');save();render();}
+function addItem(){const id=Date.now();DB.items.unshift({id,title:'Yeni makale',kind:'secilmedi',venue:'',authors:3,rank:1,stage:'fikir',postUzm:true,track:'',rejections:[]});UI.edits.add(id);UI.stages.add('fikir');save();render();}
 function setStage(id,k){const it=DB.items.find(x=>x.id===id);if(!it)return;
   if(k==='red'&&it.venue){it.rejections=it.rejections||[];if(!it.rejections.some(r=>r.journal===it.venue))it.rejections.push({journal:it.venue,reason:''});}
   it.stage=k;UI.edits.add(id);UI.stages.add(k);save();render();}
@@ -951,7 +1625,7 @@ function norm(s){return (s||'').toLowerCase().replace(/ı/g,'i').replace(/İ/g,'
 function guessKind(type,title){
   type=(type||'').toLowerCase(); title=(title||'').toLowerCase();
   if(/letter|comment|editorial/.test(type)||/expanding perspectives|in reply|comment on|letter to|response to/.test(title)) return 'lte';
-  return 'q2';
+  return 'secilmedi';   // dergi indeksi bilinmeden puan atanmaz
 }
 function findRank(authors){
   let rank=0;
@@ -974,7 +1648,7 @@ function pushPub(o){
     title:o.title||o.doi||'(başlıksız)',
     venue:o.venue||'', year:o.year||'',
     authors:o.authors||authNames.length||1, rank:o.rank||1,
-    postUzm:true, kind:o.kind||'q2', doi:o.doi||'', issn:o.issn||'',
+    postUzm:true, kind:o.kind||'secilmedi', doi:o.doi||'', issn:o.issn||'',
     authorNames:authNames
   });
 }
@@ -1007,7 +1681,7 @@ async function fetchDOI(){
         authorNames:authors
       });
       save();render();inp.value='';
-      dstat('CrossRef\'ten eklendi. Quartil + yazar/sıra WoS\'tan doğrula.','var(--ok)');
+      dstat('CrossRef\'ten eklendi. Bu yayının kaç puan getireceğini görmek için dergi türünü seçin; yazar sırasını da WoS\'tan doğrulayın.','var(--accent)');
       return;
     }
     throw new Error('crossref '+res.status);
@@ -1015,7 +1689,7 @@ async function fetchDOI(){
     dstat('Çekilemedi. DOI\'yi Claude\'a sohbette ver (10.1016/... 11/3 formatında) — o tüm bilgiler + JSON göndersin.','var(--warn)');
   }
 }
-function addPub(){const id=Date.now();DB.pubs.unshift({id,title:'Yeni yayın (elle)',kind:'q2',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});UI.pctls.add(id);save();render();}
+function addPub(){const id=Date.now();DB.pubs.unshift({id,title:'Yeni yayın (elle)',kind:'secilmedi',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});UI.pctls.add(id);save();render();}
 function patchPub(id,key,val){const it=DB.pubs.find(x=>x.id===id);if(!it)return;
   if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val;
   if(key==='doi')val=String(val||'').replace(/^\s*doi:?\s*/i,'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').trim();
@@ -1027,7 +1701,7 @@ function togglePub(id){if(UI.pctls.has(id))UI.pctls.delete(id);else UI.pctls.add
 function openPub(id){UI.pctls.add(id);const e=document.getElementById('pctl-'+id);if(e)e.classList.add('show');}
 
 function render(){
-  let total=0, prePts=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0;
+  let total=0, prePts=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0, nat_yayimsiz=0;
   function tally(it){
     const k=KINDS[it.kind]; if(!k)return; const p=calcPts(it);
     if(it.postUzm) total+=p; else prePts+=p; // uzm. öncesi ayrı havuzda birikir
@@ -1036,7 +1710,7 @@ function render(){
     // ise yalnız a bendinden (SCIE/SSCI = intl_a). İkisi de uzmanlık SONRASI olmalı.
     if(k.grp==='M1' && it.postUzm){intlA_pts+=p; if(k.intl_a && (+it.rank||1)===1)intlA_lead++;}
     // ÜAK md.2 de uzmanlık sonrasını şart koşar
-    if(k.nat && it.postUzm){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++;}
+    if(k.nat && it.postUzm){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++; if(!yayimlanmisMi(it))nat_yayimsiz++;}
   }
   DB.items.forEach(it=>{ if(it.stage==='kabul') tally(it); });
   DB.pubs.forEach(it=> tally(it));
@@ -1055,7 +1729,7 @@ function render(){
   const {m4}=bookTotal();
   const {m6}=thesisTotal();
   // ÜAK tavanları: md.3 en fazla 20p · md.9 en fazla 6p
-  const manualTotal=Math.min(20,+m.tezYayin||0)+atifPts+m8+m4+m6+Math.min(6,+m.egitim||0);
+  const manualTotal=md3Toplam().puan+atifPts+m8+m4+m6+md9Toplam().puan+elleMaddeGenelToplam();
   // Uzm. ÖNCESİ havuzu (makale + bildiri): ÜAK kuralı gereği max 10p sayılır
   const preRaw=Math.round((prePts+m8pre)*100)/100;
   const preAllow=Math.min(10,preRaw);
@@ -1067,8 +1741,26 @@ function render(){
   const potNote=document.getElementById('potentialNote');
   if(potNote){
     let notes=[];
-    if(potentialAdd>0)notes.push(`Potansiyel: +${potentialAdd}p (süreçte kabul beklediğin makaleler)`);
+    const turSuz=(DB.items||[]).filter(i=>i.stage!=='kabul'&&i.stage!=='red'&&i.kind==='secilmedi').length;
+    if(potentialAdd>0)notes.push(`Potansiyel: +${potentialAdd}p — süreçteki çalışmaların <b>dergi türüne göre otomatik</b> hesaplanır`);
+    if(turSuz>0)notes.push(`<span style="color:var(--accent)">${turSuz} çalışmanın dergi türü henüz seçilmedi; getirisini görmek için tür seçmeniz yeterli</span>`);
     if(preRaw>0)notes.push(`Uzm. öncesi: ${preRaw}p → sayılan ${preAllow}p${preRaw>10?' (tavan 10)':''}`);
+    const kalan=hedefKalanGun();
+    const donem=DONEMLER.find(d=>d.k===USER_HEDEF);
+    if(kalan!=null){
+      notes.push(kalan>0
+        ? `<b>${donem?esc(donem.t.split(' ·')[0]):'Hedef dönem'}</b>'e <b>${kalan} gün</b>${donem&&!donem.kesin?' <span style="color:var(--faint)">(tarih tahmini)</span>':''}`
+        : `<span style="color:var(--red)">Hedef dönem geçti</span>`);
+    }
+    const yr=yayimlanmamisRiski();
+    if(yr.adet>0){
+      const ek = kalan!=null && kalan>0
+        ? ` — başvuruya ${kalan} gün var, yayımlanmazsa <b>${yr.puan}p</b> beyan edilemez`
+        : ` — ${yr.puan}p beyan edilemez`;
+      notes.push(`<span style="color:var(--red)">⛔ ${yr.adet} çalışma kabul edildi ama henüz yayımlanmadı${ek}</span>`);
+    }
+    const ye=yetismeyecekler();
+    if(ye.length) notes.push(`<span style="color:var(--warn)">⏳ ${ye.length} süreçteki çalışmanın hedef döneme yetişmesi zor görünüyor</span>`);
     potNote.innerHTML=notes.join(' · ');
   }
 
@@ -1076,18 +1768,18 @@ function render(){
     {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true, mandatory:true},
     {t:'M1 · uluslararası puan (a-f)', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true, mandatory:true},
     {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true, mandatory:true},
-    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), auto:true, mandatory:true},
+    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD'+(nat_yayimsiz?' ⛔'+nat_yayimsiz+' yayımlanmamış':''), ok:(nat_count>=3&&nat_a_count>=2&&nat_yayimsiz===0), auto:true, mandatory:true},
     {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true, mandatory:true},
-    {t:'M3 · tez yayını', v:m.tezYayin+' p', ok:m.tezYayin>0, auto:false, key:'tezYayin', mandatory:true},
+    {t:'M3 · tez yayını', v:md3Toplam().puan+' / 20 p', ok:md3Toplam().puan>0, auto:true, mandatory:true},
     {t:'M5 · atıf', v:atifPts+' / 5 p'+(citRaw().pre>0?' (uzm.sonrası '+citPost()+')':''), ok:citPost()>=5, auto:true, key:'atif', mandatory:true},
     {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true, mandatory:true},
-    {t:'M9 · eğitim', v:m.egitim+' / 2 p', ok:m.egitim>=2, auto:false, key:'egitim', mandatory:true}
+    {t:'M9 · eğitim', v:md9Toplam().puan+' / 2 p', ok:md9Toplam().puan>=2, auto:true, mandatory:true}
   ];
   document.getElementById('gates').innerHTML=gates.map(g=>{
     const ctrl=g.auto?'':`<span style="display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle;align-items:center">
       <span class="gbtn" onclick="bumpManual('${g.key}',-0.5)">−</span>
       <input type="number" step="0.1" min="0" value="${DB.manual[g.key]}" onchange="setManual('${g.key}',this.value)"
-        style="width:48px;padding:3px 5px;border:1px solid var(--line);border-radius:5px;font:600 12px ui-monospace,monospace;text-align:center">
+        style="width:48px;padding:3px 5px;border:1px solid var(--line);border-radius:8px;font:600 12px Jost,ui-monospace,monospace;text-align:center">
       <span class="gbtn" onclick="bumpManual('${g.key}',0.5)">+</span></span>`;
     const mandClass=g.mandatory?'mandatory':'';
     return `<div class="gate ${g.ok?'ok':'no'} ${mandClass}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
@@ -1101,6 +1793,9 @@ function render(){
   renderPresentations();
   renderBooks();
   renderTheses();
+  renderElleMaddeler();
+  renderRehber();
+  renderKarsilama();
 
   renderSurec(); renderYayin();
 }
@@ -1123,11 +1818,11 @@ function renderSurec(){
   STAGES.forEach(s=>{
     const arr=byStage[s.k];if(!arr||!arr.length)return;
     const isOpen=UI.stages.has(s.k)||arr.some(it=>UI.edits.has(it.id));
-    html+=`<details class="ref" data-stage="${s.k}" ${isOpen?'open':''} ontoggle="trackStage(this)" style="margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:10px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:${s.c}15;border-radius:10px"><span style="color:var(--ink)">${s.t}</span> <span class="gp" style="color:var(--muted)">${arr.length} makale</span></summary><div style="padding:0">`;
+    html+=`<details class="ref" data-stage="${s.k}" ${isOpen?'open':''} ontoggle="trackStage(this)" style="margin-bottom:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:${s.c}15;border-radius:var(--radius)"><span style="color:var(--ink)">${s.t}</span> <span class="gp" style="color:var(--muted)">${arr.length} makale</span></summary><div style="padding:0">`;
     html+=arr.map(it=>{
     const k=KINDS[it.kind];const ci=stageIdx(it.stage);const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
     const funnel=STAGES.map((s,i)=>{const done=i<=ci;const style=done?`background:${s.c};`:'';
-      return `<div class="step${done?' done':''}${i===ci?' cur':''}" style="${style}" onclick="setStage(${it.id},'${s.k}')">${s.t}</div>`;}).join('');
+      return `<div class="step${done?' done':''}${i===ci?' cur':''}" style="${style}" title="${esc(s.d||'')}" onclick="setStage(${it.id},'${s.k}')">${s.t}</div>`;}).join('');
     const rejs=it.rejections||[];const showRed=rejs.length>0;
     const showTrack=['submit','revizyon','resubmit'].includes(it.stage);
     const trackBtn=showTrack?`<span class="trackbtn ${it.track?'':'empty'}" onclick="track(${it.id})">${it.track?'Track ↗':'+ track'}</span>`:'';
@@ -1138,6 +1833,10 @@ function renderSurec(){
       </div>
       <div class="meta">
         <span class="tag q">${k.t}</span>
+        ${it.kind==='secilmedi'?`<span class="tag" style="color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)" title="Puan, derginin indeksine ve quartiline göre hesaplanır. Tür seçilene kadar bu çalışma 0 puan görünür.">Bu çalışmanın getirisini merak ediyorsanız dergi türünü seçin ✎</span>`:''}
+        ${(function(){const ay=hedefAy();if(ay==null||it.stage==='red')return '';const g=ASAMA_SURE[it.stage];
+          if(g==null||ay>=g)return '';
+          return `<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="Bu aşamadan yayına genellikle ~${g} ay gerekiyor; hedef döneme ~${Math.max(0,Math.round(ay))} ay kaldı. Kaba tahmindir, puanı etkilemez.">⏳ hedef döneme yetişmeyebilir</span>`;})()}
         <span class="tag author">${it.authors} yazar · ${it.rank}. sıra</span>
         ${it.venue?`<span class="venue">${esc(it.venue)}</span>`:''}
         ${trackBtn}
@@ -1162,7 +1861,7 @@ function renderSurec(){
         <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center">
           <a class="wos" href="${WOS}" target="_blank" title="Web of Science">WoS ↗</a>
         </div>
-        ${it.stage==='kabul'?`<div style="grid-column:1/-1;display:flex;gap:8px;align-items:flex-end;background:#eef3ee;border:1px solid var(--kabul);border-radius:7px;padding:10px">
+        ${it.stage==='kabul'?`<div style="grid-column:1/-1;display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--kabul);border-radius:8px;padding:10px">
           <label style="flex:1;font-size:11px;color:var(--accent2)">✓ Kabul edildi — DOI gir, Yayınlanmışlar'a taşı
             <input type="text" id="promoteDoi-${it.id}" placeholder="10.1016/... (opsiyonel)" style="margin-top:3px"></label>
           <button class="btn" style="background:var(--kabul)" onclick="promote(${it.id})">Yayınlanmışlar'a taşı →</button>
@@ -1194,7 +1893,7 @@ function renderYayin(){
     const arr=byGrp[g]; if(!arr||!arr.length)return;
     let gsum=0; arr.forEach(it=>{if(it.postUzm)gsum+=calcPts(it);});
     const isOpen=UI.grps.has(g)||arr.some(it=>UI.pctls.has(it.id));
-    html+=`<details class="ref" data-grp="${g}" ${isOpen?'open':''} ontoggle="trackGrp(this)" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
+    html+=`<details class="ref" data-grp="${g}" ${isOpen?'open':''} ontoggle="trackGrp(this)" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
     html+=arr.map(it=>{
       const k=KINDS[it.kind];const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
       const noRank=(!it.rank||!it.authors);
@@ -1206,10 +1905,12 @@ function renderYayin(){
         </div>
         <div class="pmeta">
           <span class="tag q">${k.t}</span>
+          ${it.kind==='secilmedi'?`<span class="tag" style="color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)" title="Puan, derginin indeksine ve quartiline göre hesaplanır.">Dergi türünü seçin, puanı hesaplayalım ✎</span>`:''}
           ${it.kindSrc==='aka'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="Tür Akamedika ön taramasından geldi; WoS ile doğrula">⚠ WoS doğrulanmadı</span>`:''}
+          ${!yayimlanmisMi(it)?`<span class="tag" style="color:var(--chip-ink);background:var(--red);border-color:var(--red)" title="ÜAK: yalnız başvuru tarihi itibarıyla YAYIMLANMIŞ eser beyan edilebilir. DBS SSS md.17-18: DOI almış olmak yeterli değil, yayım süreçleri tamamlanmış olmalı; erken görünüm sayılmaz.">⛔ yayımlanmamış</span>`:''}
           ${it.kind==='case'?`<span class="tag" style="color:var(--warn);border-color:var(--warn)" title="ÜAK md.1f: vak'a takdimi YALNIZ a bendi (SCIE/SSCI) dergilerde 5p alır. ESCI, Scopus veya TR Dizin dergide karşılığı yoktur.">⚠ dergi SCIE/SSCI mi?</span>`:''}
           ${it.kind==='lte'?`<span class="tag" style="color:var(--muted)" title="ÜAK md.1e: editöre mektup/araştırma notu/özet/kitap kritiği, YALNIZ a-d bentleri kapsamındaki (SCIE/SSCI, AHCI, ESCI/Scopus, diğer uluslararası indeks) dergilerde 3p alır. Yalnız TR Dizin ise md.2c (2p).">md.1e · dergi a-d bendinde mi?</span>`:''}
-          ${it.sor?`<span class="tag" style="color:#fff;background:var(--warn);border-color:var(--warn)" title="${esc(it.sorNot||'Doğrulanacak — yazara sorulacak')}">❗ ${esc(it.sorNot||'yazara sorulacak')}</span>`:''}
+          ${it.sor?`<span class="tag" style="color:var(--chip-ink);background:var(--warn);border-color:var(--warn)" title="${esc(it.sorNot||'Doğrulanacak — yazara sorulacak')}">❗ ${esc(it.sorNot||'yazara sorulacak')}</span>`:''}
           <span class="venue">${esc(it.venue||'dergi?')}</span>
           ${it.year?`<span>${it.year}</span>`:''}
           <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
@@ -1235,6 +1936,7 @@ function renderYayin(){
           <label>❗ Doğrulanacak<select onchange="patchPub(${it.id},'sor',this.value==='1')">
             <option value="0" ${!it.sor?'selected':''}>Hayır</option><option value="1" ${it.sor?'selected':''}>Evet</option></select></label>
           <label>Doğrulama notu<input type="text" value="${esc(it.sorNot||'')}" placeholder="ör. yazara sorulacak / endeks bekliyor" onchange="patchPub(${it.id},'sorNot',this.value)"></label>
+          <div style="grid-column:1/-1">${hatirlatmaHTML('yayin','Madde 1-2 · Makale')}</div>
           <div style="grid-column:1/-1">
             <button class="add" onclick="akaLookup(${it.id})">🔎 Quartil bul (Akamedika)</button>
             <div id="aka-${it.id}" style="margin-top:6px"></div>
@@ -1265,6 +1967,8 @@ function importData(){const i=document.createElement('input');i.type='file';i.ac
 
 if(DB.tab==='yayin'){document.querySelector('.tab[data-t=yayin]').classList.add('on');document.querySelector('.tab[data-t=surec]').classList.remove('on');
   document.getElementById('pane-yayin').classList.add('on');document.getElementById('pane-surec').classList.remove('on');}
+temaYukle();
+hedefYukle();
 loadUserName();
 render();
 </script>
