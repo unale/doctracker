@@ -161,6 +161,9 @@
   .tag.q{color:var(--chip-ink);border:none;background:var(--accent2)}
   .tag.author{background:var(--card)}
   .venue{font-size:12.5px;color:var(--ink);font-style:italic;font-weight:600}
+  .doilink{font-size:11px;color:var(--accent2);text-decoration:none;border-bottom:1px dotted var(--accent2)}
+  .doilink:hover{color:var(--accent);border-bottom-color:var(--accent)}
+  .doilink::after{content:" ↗";font-size:9px;opacity:.7;border:0}
   .redbtn{cursor:pointer;user-select:none;border:1px dashed var(--line);background:var(--card);color:var(--muted)}
   .redbtn:hover{border-style:solid;border-color:var(--ink)}
   .redbtn.red{background:var(--red);color:var(--chip-ink);border:1px solid var(--red)}
@@ -609,7 +612,7 @@ const SEED_YAYIN=[
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='',USER_UZM='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=pb.doi.replace(/^\s*doi:?\s*/i,'').trim();});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();['projeler','patentler','oduller','editorlukler','tezYayinlari'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});if(!d.egitim||typeof d.egitim!=='object')d.egitim=null;if(!d.diger||typeof d.diger!=='object')d.diger={};return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=temizDoi(pb.doi);});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();['projeler','patentler','oduller','editorlukler','tezYayinlari'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});if(!d.egitim||typeof d.egitim!=='object')d.egitim=null;if(!d.diger||typeof d.diger!=='object')d.diger={};return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
 /* Üç durumlu tema: açık / koyu / sistem. Seçim localStorage'da saklanır.
    data-theme yokken sistem tercihi (prefers-color-scheme) geçerlidir. */
@@ -1163,6 +1166,11 @@ function renderTheses(){
 /* ÜAK Tanımlar: "Yayımlanmış Makale: Başvuru tarihi ile basılı veya elektronik
    olarak yayımlanmış özgün makale." DBS SSS md.17-18: DOI almış olmak yeterli
    değil, yayım süreçleri tamamlanmış olmalı; erken görünüm sayılmaz. */
+function temizDoi(v){ return String(v||'')
+  .replace(/^\s*doi:?\s*/i,'')
+  .replace(/^https?:\/\/(dx\.)?doi\.org\//i,'')
+  .trim().split(/[\s<]/)[0]                       // 'External Link' gibi yapismis metni at
+  .replace(/[.,;)\]]+$/,''); }                     // sondaki noktalama
 function yayimlanmisMi(it){ return !!((it.year&&String(it.year).trim()) || (it.doi&&String(it.doi).trim())); }
 function yayimlanmamisRiski(){
   const hepsi=[...(DB.items||[]).filter(i=>i.stage==='kabul'),...(DB.pubs||[])];
@@ -1692,7 +1700,7 @@ async function fetchDOI(){
 function addPub(){const id=Date.now();DB.pubs.unshift({id,title:'Yeni yayın (elle)',kind:'secilmedi',venue:'',year:'',authors:3,rank:1,postUzm:true,doi:'',authorNames:[]});UI.pctls.add(id);save();render();}
 function patchPub(id,key,val){const it=DB.pubs.find(x=>x.id===id);if(!it)return;
   if(key==='authors'||key==='rank')val=+val; if(key==='postUzm')val=!!val;
-  if(key==='doi')val=String(val||'').replace(/^\s*doi:?\s*/i,'').replace(/^https?:\/\/(dx\.)?doi\.org\//i,'').trim();
+  if(key==='doi')val=temizDoi(val);
   if(key==='kind')it.kindSrc='manual';
   it[key]=val;UI.pctls.add(id);save();render();}
 function delPub(id){if(confirm('Bu yayını sil?')){DB.pubs=DB.pubs.filter(x=>x.id!==id);UI.pctls.delete(id);save();render();}}
@@ -1914,7 +1922,7 @@ function renderYayin(){
           <span class="venue">${esc(it.venue||'dergi?')}</span>
           ${it.year?`<span>${it.year}</span>`:''}
           <span class="${noRank?'tag':''}" ${noRank?'style="color:var(--warn);border-color:var(--warn)"':''}>${it.authors||'?'} yazar · ${it.rank||'?'}. sıra</span>
-          ${it.doi?`<span style="font-size:11px">${esc(it.doi)}</span>`:''}
+          ${it.doi?`<a class="doilink" href="https://doi.org/${encodeURIComponent(it.doi).replace(/%2F/g,'/')}" target="_blank" rel="noopener noreferrer" title="Makaleyi yeni sekmede aç — doi.org üzerinden yayıncıya yönlendirir">${esc(it.doi)}</a>`:''}
         </div>
         ${authorsStr?`<div class="authors">Yazarlar: ${esc(authorsStr)}</div>`:''}
         <div class="pmeta" style="margin-top:4px;font-size:11px">
