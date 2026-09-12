@@ -10,6 +10,7 @@
 <style>
   :root{
     /* ---------- KLASİK (varsayılan) — özgün krem/kiremit palet ---------- */
+    --pub-m1:#f8efea; --pub-m2:#f0f2ec;   /* yayın kartı zemini — M1 uluslararası / M2 ulusal */
     --paper:#f3efe6; --card:#fffdf8; --surface:#ece6da; --surface2:#e2dacb;
     --line:#d8d0c0; --line-strong:#bfb49e;
     --ink:#16202b; --muted:#6f6857; --faint:#726b5d;
@@ -28,6 +29,7 @@
   }
   :root[data-theme="klasik"]{
 
+    --pub-m1:#f8efea; --pub-m2:#f0f2ec;   /* yayın kartı zemini — M1 uluslararası / M2 ulusal */
     /* ---------- KLASİK (varsayılan) — özgün krem/kiremit palet ---------- */
     --paper:#f3efe6; --card:#fffdf8; --surface:#ece6da; --surface2:#e2dacb;
     --line:#d8d0c0; --line-strong:#bfb49e;
@@ -48,6 +50,7 @@
   }
   :root[data-theme="akamedika"]{
     /* ---------- AKAMEDİKA — sitenin beyaz/mavi sistemi ---------- */
+    --pub-m1:#f1f4fd; --pub-m2:#f1f7f8;   /* yayın kartı zemini — M1 uluslararası / M2 ulusal */
     --paper:#ffffff; --card:#ffffff; --surface:#f6f8fb; --surface2:#eef2f7;
     --line:#e2e8f0; --line-strong:#cbd5e1;
     --ink:#0f172a; --muted:#475569; --faint:#64748b;
@@ -66,6 +69,7 @@
   }
   :root[data-theme="koyu"]{
     /* ---------- KOYU — nötr kömür zemin, Klasik'in sıcak vurguları ---------- */
+    --pub-m1:#433b3e; --pub-m2:#363f41;   /* yayın kartı zemini — M1 uluslararası / M2 ulusal */
     --paper:#26262a; --card:#303035; --surface:#3a3a40; --surface2:#45454c;
     --line:#4d4d54; --line-strong:#6a6a73;
     --ink:#f2f1ee; --muted:#cfcdc8; --faint:#b0aea9;
@@ -161,6 +165,18 @@
   .tag.q{color:var(--chip-ink);border:none;background:var(--accent2)}
   .tag.author{background:var(--card)}
   .venue{font-size:12.5px;color:var(--ink);font-style:italic;font-weight:600}
+  .fbar{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px}
+  .fbar .frow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:9px}
+  .fbar .frow:last-child{margin-bottom:0}
+  .flab{font:600 10px/1 Jost,ui-monospace,monospace;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);min-width:52px}
+  .fchip{cursor:pointer;user-select:none;font-size:11.5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--muted);white-space:nowrap}
+  .fchip:hover{border-color:var(--accent);color:var(--accent)}
+  .fchip.on{background:var(--accent);border-color:var(--accent);color:var(--chip-ink);font-weight:600}
+  .fchip .n{opacity:.65;font-size:10px;margin-left:3px}
+  .fara{flex:1;min-width:170px;font-size:12.5px;padding:6px 10px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+  .fsel{font-size:12px;padding:5px 8px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--ink)}
+  .fnote{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;background:var(--warn-soft,var(--surface2));border:1px solid var(--warn);border-radius:var(--radius);padding:8px 12px;margin-bottom:12px;font-size:12px;color:var(--ink)}
+  .fnote b{color:var(--warn)}
   .doilink{font-size:11px;color:var(--accent2);text-decoration:none;border-bottom:1px dotted var(--accent2)}
   .doilink:hover{color:var(--accent);border-bottom-color:var(--accent)}
   .doilink::after{content:" ↗";font-size:9px;opacity:.7;border:0}
@@ -215,6 +231,10 @@
     padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:10px;display:flex;justify-content:space-between}
   .grp h2 .gp{color:var(--muted)}
   .pub{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:11px 13px;margin-bottom:8px}
+  .pub[data-g="M1"]{background:var(--pub-m1);border-left:4px solid var(--accent)}
+  .pub[data-g="M2"]{background:var(--pub-m2);border-left:4px solid var(--accent2)}
+  .pub[data-g="S"]{border-left:4px solid var(--warn)}
+  .pub[data-g="X"]{border-left:4px solid var(--faint)}
   .pub .ptop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
   .pub .ptitle{font-size:14px;font-weight:600;flex:1}
   .pub .pp{font:700 13px Jost,ui-monospace,monospace;color:var(--accent);white-space:nowrap;text-align:right}
@@ -483,6 +503,7 @@ B × Yerel    → 1 atıf</pre>
     </div>
     <div id="doiStatus" style="font-size:12px;min-height:16px;color:var(--muted)"></div>
   </div>
+  <div id="fbarWrap"></div>
   <div id="listYayin"></div>
 </div>
 
@@ -535,12 +556,17 @@ function akaKinds(it){
   if(it.trdizin)out.push({k:'trdizin',why:'md.2a · TR Dizin '+it.trdizin});
   return out;
 }
+// Kayit hem yayimlanmislarda hem surectekilerde aranir
+function kaydiBul(id){ return (DB.pubs||[]).find(x=>x.id===id) || (DB.items||[]).find(x=>x.id===id) || null; }
+function surecteMi(id){ return !!(DB.items||[]).find(x=>x.id===id); }
+
 async function akaLookup(id){
-  const it=(DB.pubs||[]).find(x=>x.id===id), box=document.getElementById('aka-'+id);
+  const it=kaydiBul(id), box=document.getElementById('aka-'+id);
   if(!it||!box)return;
   box.innerHTML='<span style="color:var(--muted)">Akamedika\'da aranıyor…</span>';
   try{
     const j=await akaFetch(it.issn||it.venue||'', it.year||'');
+    const surecte=surecteMi(id);
     if(!j){box.innerHTML='<span style="color:var(--warn)">Kayıt bulunamadı — ISSN/dergi adını düzelt ya da <a href="'+AKA_UI+'" target="_blank">siteden ara ↗</a>. Kayıt yoksa tür ELLE ve WoS\'tan doğrulanarak girilmeli.</span>';return;}
     const ops=akaKinds(j), ed=j.wos_editions||'—';
     const esciTuzak=!/SCIE|SSCI/.test(ed.toUpperCase()) && /Q[1-4]/i.test(j.jcr_q||'');
@@ -551,12 +577,13 @@ async function akaLookup(id){
         :'<span style="color:var(--warn)">Otomatik eşleme yapılamadı — türü elle seç.</span>'}
       ${ops.length>1?'<br><span style="color:var(--warn)">⚠ Bu dergi birden fazla maddeye uyuyor. ÜAK: <b>her çalışma yalnız BİR bölümde puanlanır.</b> Taban puan aynı olsa bile seçim farklı zorunlu şartı besler — md.1 uluslararası 40 puana, md.2 ise "3 ulusal yayın / 2 TR Dizin" şartına sayılır.</span>':''}
       ${esciTuzak?'<br><span style="color:var(--warn)">⚠ Bu dergi SCIE/SSCI değil; görünen Q değeri ÜAK\'ta puan getirmez.</span>':''}
+      ${surecte?`<br><span style="color:var(--warn)">⚠ Bu, derginin <b>bugünkü</b> dilimi. ÜAK <b>yayımlandığı yılın</b> dilimini esas alır — dergi o güne kadar dilim değiştirebilir. Yayımlandığında yeniden kontrol edin.</span>`:''}
       <br><span style="color:var(--muted)">Ön tarama · resmî kaynak WoS/JCR — <a href="${WOS}" target="_blank">WoS\'ta doğrula ↗</a></span>
     </div>`;
   }catch(e){box.innerHTML='<span style="color:var(--warn)">Erişilemedi ('+esc(e.message)+'). <a href="'+AKA_UI+'" target="_blank">Siteden ara ↗</a></span>';}
 }
 function akaApply(id,kind){
-  const it=(DB.pubs||[]).find(x=>x.id===id);if(!it)return;
+  const it=kaydiBul(id);if(!it)return;
   if(it.kind==='lte'||it.kind==='case'){
     if(!confirm('Bu kayıt "'+KINDS[it.kind].t+'" olarak işaretli. ÜAK\'ta yayın TÜRÜ dergi quartilinden önce gelir (editöre mektup 3p, vak\'a takdimi 5p). Yine de değiştirilsin mi?'))return;
   }
@@ -564,6 +591,7 @@ function akaApply(id,kind){
 }
 // Açık panel/grup durumları — render sonrası korunur
 const UI={edits:new Set(),pctls:new Set(),stages:new Set(),grps:new Set(),elle:new Set()};
+const FLT={tur:new Set(),durum:new Set(),ara:'',sirala:'elle',duz:false};
 function trackStage(el){if(el.open)UI.stages.add(el.dataset.stage);else UI.stages.delete(el.dataset.stage);}
 function trackGrp(el){if(el.open)UI.grps.add(el.dataset.grp);else UI.grps.delete(el.dataset.grp);}
 const STAGES=[
@@ -612,7 +640,7 @@ const SEED_YAYIN=[
 
 let DB=load();
 let USER_NAME='',USER_SURNAME='',USER_UZM='';
-function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=temizDoi(pb.doi);});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();['projeler','patentler','oduller','editorlukler','tezYayinlari'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});if(!d.egitim||typeof d.egitim!=='object')d.egitim=null;if(!d.diger||typeof d.diger!=='object')d.diger={};return d;}}catch(e){}
+function load(){try{const r=localStorage.getItem('docentlik_v4');if(r){const d=JSON.parse(r);if(!d.manual)d.manual=defManual();if(d.manual.atif!==undefined)delete d.manual.atif;if(d.manual.bildiri!==undefined)delete d.manual.bildiri;if(!d.pubs)d.pubs=SEED_YAYIN.slice();if(Array.isArray(d.items))d.items.forEach(t=>{if(t.issn===undefined)t.issn='';});d.pubs.forEach(pb=>{if(pb.issn===undefined)pb.issn='';if(pb.sor===undefined)pb.sor=false;if(pb.sorNot===undefined)pb.sorNot='';if(typeof pb.doi==='string')pb.doi=temizDoi(pb.doi);});if(!d.citations)d.citations=defCitations();d.citations.forEach(c=>{if(c.citingRef===undefined)c.citingRef=c.note||'';if(c.citedWorkId===undefined)c.citedWorkId='';if(c.preUzm===undefined)c.preUzm=false;if(c.belgeHazir===undefined)c.belgeHazir=false;delete c.note;});if(!d.presentations)d.presentations=defPresentations();if(!d.books)d.books=defBooks();if(!d.theses)d.theses=defTheses();['projeler','patentler','oduller','editorlukler','tezYayinlari'].forEach(k=>{if(!Array.isArray(d[k]))d[k]=[];});if(!d.egitim||typeof d.egitim!=='object')d.egitim=null;if(!d.diger||typeof d.diger!=='object')d.diger={};return d;}}catch(e){}
   return {items:SEED_SUREC.slice(),pubs:SEED_YAYIN.slice(),filter:'all',tab:'surec',manual:defManual(),citations:defCitations(),presentations:defPresentations(),books:defBooks(),theses:defTheses()};}
 /* Üç durumlu tema: açık / koyu / sistem. Seçim localStorage'da saklanır.
    data-theme yokken sistem tercihi (prefers-color-scheme) geçerlidir. */
@@ -1865,10 +1893,13 @@ function renderSurec(){
         <label>Senin sıran<input type="number" min="1" value="${it.rank}" onchange="patch(${it.id},'rank',this.value,true)"></label>
         <label>Uzm. sonrası?<select onchange="patch(${it.id},'postUzm',this.value==='1',true)">
           <option value="1" ${it.postUzm?'selected':''}>Evet</option><option value="0" ${!it.postUzm?'selected':''}>Hayır</option></select></label>
+        <label>ISSN<input type="text" placeholder="1234-5678 — daha isabetli arama" value="${esc(it.issn||'')}" onchange="patch(${it.id},'issn',this.value,true)"></label>
         <label>Track linki<input type="text" value="${esc(it.track||'')}" onchange="patch(${it.id},'track',this.value,true)"></label>
-        <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center">
+        <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="add" onclick="akaLookup(${it.id})">🔎 Quartil bul (Akamedika)</button>
           <a class="wos" href="${WOS}" target="_blank" title="Web of Science">WoS ↗</a>
         </div>
+        <div style="grid-column:1/-1" id="aka-${it.id}"></div>
         ${it.stage==='kabul'?`<div style="grid-column:1/-1;display:flex;gap:8px;align-items:flex-end;background:var(--surface);border:1px solid var(--kabul);border-radius:8px;padding:10px">
           <label style="flex:1;font-size:11px;color:var(--accent2)">✓ Kabul edildi — DOI gir, Yayınlanmışlar'a taşı
             <input type="text" id="promoteDoi-${it.id}" placeholder="10.1016/... (opsiyonel)" style="margin-top:3px"></label>
@@ -1891,22 +1922,108 @@ function renderSurec(){
   list.innerHTML=html;
 }
 
+/* ===================== FİLTRE / SIRALAMA ===================== */
+const DURUMLAR={
+  basl:{t:'★ başlıca yazar', f:p=>(+p.rank||1)===1},
+  yayimsiz:{t:'⛔ yayımlanmamış', f:p=>!yayimlanmisMi(p)},
+  wos:{t:'⚠ WoS doğrulanmadı', f:p=>p.kindSrc==='aka'},
+  sor:{t:'❗ doğrulanacak', f:p=>!!p.sor},
+  preuzm:{t:'uzm. öncesi', f:p=>!p.postUzm}
+};
+const SIRALAR={
+  elle:{t:'Elle sıra (varsayılan)', f:null},
+  puanD:{t:'Puan ↓', f:(a,b)=>calcPts(b)-calcPts(a)},
+  puanA:{t:'Puan ↑', f:(a,b)=>calcPts(a)-calcPts(b)},
+  yilD:{t:'Yıl ↓ (yeni önce)', f:(a,b)=>(+b.year||0)-(+a.year||0)},
+  yilA:{t:'Yıl ↑ (eski önce)', f:(a,b)=>(+a.year||9999)-(+b.year||9999)},
+  tur:{t:'Tür / Quartil', f:(a,b)=>KIND_SIRA[a.kind]-KIND_SIRA[b.kind]},
+  yazar:{t:'Yazar sırası', f:(a,b)=>(+a.rank||99)-(+b.rank||99)}
+};
+const KIND_SIRA={}; Object.keys(KINDS).forEach((k,i)=>KIND_SIRA[k]=i);
+
+function fAktif(){ return FLT.tur.size||FLT.durum.size||FLT.ara.trim(); }
+
+function filtrele(arr){
+  const q=FLT.ara.trim().toLocaleLowerCase('tr');
+  return arr.filter(p=>{
+    if(FLT.tur.size && !FLT.tur.has(p.kind)) return false;
+    for(const d of FLT.durum) if(!DURUMLAR[d].f(p)) return false;   // VE mantığı
+    if(q){
+      const h=[p.title,p.venue,p.doi,(p.authorNames||[]).join(' ')].join(' ').toLocaleLowerCase('tr');
+      if(h.indexOf(q)<0) return false;
+    }
+    return true;
+  });
+}
+function sirala(arr){ const f=SIRALAR[FLT.sirala].f; return f?arr.slice().sort(f):arr; }
+
+function fSet(tip,key){
+  const S=FLT[tip]; S.has(key)?S.delete(key):S.add(key); renderYayin();
+}
+function fAra(v){ FLT.ara=v; renderYayin(); }
+function fSirala(v){ FLT.sirala=v; renderYayin(); }
+function fDuz(){ FLT.duz=!FLT.duz; renderYayin(); }
+function fTemizle(){ FLT.tur.clear(); FLT.durum.clear(); FLT.ara=''; renderYayin(); }
+
+function renderFbar(){
+  const w=document.getElementById('fbarWrap'); if(!w) return;
+  // arama kutusu yeniden kurulunca odak ve imlec kaybolmasin
+  const ak=document.activeElement, odakta=!!(ak&&ak.classList&&ak.classList.contains('fara'));
+  const imlec=odakta?ak.selectionStart:null;
+  if(!DB.pubs.length){ w.innerHTML=''; return; }
+  const say={}; DB.pubs.forEach(p=>say[p.kind]=(say[p.kind]||0)+1);
+  const turler=Object.keys(KINDS).filter(k=>say[k]);
+  const turChips=turler.map(k=>`<span class="fchip ${FLT.tur.has(k)?'on':''}" onclick="fSet('tur','${k}')">${esc(KINDS[k].t)}<span class="n">${say[k]}</span></span>`).join('');
+  const durChips=Object.keys(DURUMLAR).map(d=>{
+    const n=DB.pubs.filter(DURUMLAR[d].f).length; if(!n) return '';
+    return `<span class="fchip ${FLT.durum.has(d)?'on':''}" onclick="fSet('durum','${d}')">${DURUMLAR[d].t}<span class="n">${n}</span></span>`;
+  }).join('');
+  const sirOpt=Object.keys(SIRALAR).map(k=>`<option value="${k}" ${FLT.sirala===k?'selected':''}>${SIRALAR[k].t}</option>`).join('');
+
+  const gorunen=sirala(filtrele(DB.pubs));
+  const fpuan=gorunen.reduce((s,p)=>s+(p.postUzm?calcPts(p):0),0);
+
+  w.innerHTML=`
+  <div class="fbar">
+    <div class="frow">
+      <input class="fara" placeholder="🔍 Ara — başlık, dergi, DOI, yazar…" value="${esc(FLT.ara)}" oninput="fAra(this.value)">
+      <span class="flab">Sırala</span>
+      <select class="fsel" onchange="fSirala(this.value)">${sirOpt}</select>
+      <span class="fchip ${FLT.duz?'on':''}" onclick="fDuz()" title="Madde 1 / Madde 2 başlıklarını kaldırıp tek liste yapar">${FLT.duz?'☰ Düz liste':'▦ Gruplu'}</span>
+    </div>
+    <div class="frow"><span class="flab">Tür</span>${turChips}</div>
+    ${durChips?`<div class="frow"><span class="flab">Durum</span>${durChips}</div>`:''}
+  </div>
+  ${fAktif()?`<div class="fnote">
+      <span><b>Filtre açık</b> — ${DB.pubs.length} yayından <b>${gorunen.length}</b>'i görünüyor · filtredeki puan <b>${Math.round(fpuan*10)/10} p</b>
+      <i style="color:var(--muted)"> (toplam puanın değişmedi)</i></span>
+      <span class="fchip" onclick="fTemizle()">✕ Filtreyi temizle</span>
+    </div>`:''}`;
+  if(odakta){ const n=w.querySelector('.fara'); if(n){ n.focus(); try{n.setSelectionRange(imlec,imlec);}catch(e){} } }
+}
+/* =================== /FİLTRE =================== */
+
 function renderYayin(){
   const list=document.getElementById('listYayin');
+  renderFbar();
   if(!DB.pubs.length){list.innerHTML='<div class="empty">Henüz yayın yok. Claude\'a DOI ver ya da elle ekle.</div>';return;}
+  const gorunen=sirala(filtrele(DB.pubs));
+  if(!gorunen.length){list.innerHTML='<div class="empty">Bu filtreye uyan yayın yok. <span class="fchip" onclick="fTemizle()">✕ Filtreyi temizle</span></div>';return;}
   const byGrp={};
-  DB.pubs.forEach(it=>{const g=KINDS[it.kind].grp;(byGrp[g]=byGrp[g]||[]).push(it);});
+  if(FLT.duz){ byGrp.TUM=gorunen; }
+  else gorunen.forEach(it=>{const g=KINDS[it.kind].grp;(byGrp[g]=byGrp[g]||[]).push(it);});
+  const BASLIK=FLT.duz?{TUM:'Tüm yayınlar — tek liste'}:GROUPS;
   let html='';
-  Object.keys(GROUPS).forEach(g=>{
+  Object.keys(BASLIK).forEach(g=>{
     const arr=byGrp[g]; if(!arr||!arr.length)return;
     let gsum=0; arr.forEach(it=>{if(it.postUzm)gsum+=calcPts(it);});
     const isOpen=UI.grps.has(g)||arr.some(it=>UI.pctls.has(it.id));
-    html+=`<details class="ref" data-grp="${g}" ${isOpen?'open':''} ontoggle="trackGrp(this)" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)">${GROUPS[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p</span></summary><div style="padding:0">`;
+    html+=`<details class="ref" data-grp="${g}" ${(isOpen||fAktif()||FLT.duz)?'open':''} ontoggle="trackGrp(this)" style="margin-bottom:18px"><summary style="cursor:pointer;padding:11px 15px;font:600 12px/1 Jost,ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);list-style:none;display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:var(--radius)">${BASLIK[g]} <span class="gp" style="color:var(--muted)">${arr.length} yayın · ${Math.round(gsum*10)/10} p${fAktif()?' <i>(filtrede)</i>':''}</span></summary><div style="padding:0">`;
     html+=arr.map(it=>{
       const k=KINDS[it.kind];const p=calcPts(it);const mult=shareMult(it.authors,it.rank);
       const noRank=(!it.rank||!it.authors);
       const authorsStr=(it.authorNames||[]).join(', ');
-      return `<div class="pub">
+      return `<div class="pub" data-g="${k.grp}">
         <div class="ptop">
           <div class="ptitle" contenteditable="true" onclick="openPub(${it.id})" onblur="patchPub(${it.id},'title',this.textContent.trim())">${esc(it.title)}</div>
           <div class="pp">${p} p<small>${k.base} × ${mult}</small></div>
