@@ -117,6 +117,9 @@
   .gate .g-v{font-size:14px;font-weight:600;margin-top:2px}
   .gate .g-v b{color:var(--accent)}
   .gate.ok .mark{color:var(--ok)} .gate.no .mark{color:var(--warn)}
+  /* Ana şart sağlandı ama içinde yayımlanmamış eser var: yeşil kalır, uyarı görünür */
+  .gate.ok.uyari{border-left-color:var(--warn)}
+  .gate .g-uyari{display:block;margin-top:3px;font:600 10.5px/1.35 Jost,ui-monospace,monospace;color:var(--warn);text-transform:none;letter-spacing:0}
   .gbtn{cursor:pointer;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;
     border:1px solid var(--line);border-radius:6px;background:var(--card);font:600 13px Jost,ui-monospace,monospace;color:var(--muted);user-select:none}
   .gbtn:hover{border-color:var(--ink);color:var(--ink)}
@@ -1199,6 +1202,9 @@ function temizDoi(v){ return String(v||'')
   .replace(/^https?:\/\/(dx\.)?doi\.org\//i,'')
   .trim().split(/[\s<]/)[0]                       // 'External Link' gibi yapismis metni at
   .replace(/[.,;)\]]+$/,''); }                     // sondaki noktalama
+// Kutularda görünen uyarı: ana şartı bozmaz, yalnız hatırlatır
+function uyariMetni(n){ return n?('⛔ '+n+' eser kabul edildi ama henüz yayımlanmadı — beyan anında sayılmaz'):''; }
+
 function yayimlanmisMi(it){ return !!((it.year&&String(it.year).trim()) || (it.doi&&String(it.doi).trim())); }
 function yayimlanmamisRiski(){
   const hepsi=[...(DB.items||[]).filter(i=>i.stage==='kabul'),...(DB.pubs||[])];
@@ -1738,15 +1744,21 @@ function openPub(id){UI.pctls.add(id);const e=document.getElementById('pctl-'+id
 
 function render(){
   let total=0, prePts=0, intlA_pts=0, intlA_lead=0, nat_count=0, nat_a_count=0, nat_lead=0, nat_yayimsiz=0;
+  // Yayımlanmamış (kabul edilmiş ama basılmamış) eserler: ana şartı bozmaz, UYARI olarak gösterilir
+  let yayimsizTop=0, intlA_yayimsiz=0, intlA_lead_yayimsiz=0, nat_lead_yayimsiz=0;
   function tally(it){
     const k=KINDS[it.kind]; if(!k)return; const p=calcPts(it);
     if(it.postUzm) total+=p; else prePts+=p; // uzm. öncesi ayrı havuzda birikir
     // ÜAK md.1: 40 puan madde 1'in TAMAMINDAN sayılır (a-f: SCIE, AHCI, ESCI/Scopus,
     // diğer indeks, editöre mektup, vak'a takdimi). "3 makalede başlıca yazar" şartı
     // ise yalnız a bendinden (SCIE/SSCI = intl_a). İkisi de uzmanlık SONRASI olmalı.
-    if(k.grp==='M1' && it.postUzm){intlA_pts+=p; if(k.intl_a && (+it.rank||1)===1)intlA_lead++;}
+    const basilmadi=!yayimlanmisMi(it);
+    if(basilmadi && it.postUzm)yayimsizTop++;
+    if(k.grp==='M1' && it.postUzm){intlA_pts+=p; if(basilmadi)intlA_yayimsiz++;
+      if(k.intl_a && (+it.rank||1)===1){intlA_lead++; if(basilmadi)intlA_lead_yayimsiz++;}}
     // ÜAK md.2 de uzmanlık sonrasını şart koşar
-    if(k.nat && it.postUzm){nat_count++; if((+it.rank||1)===1)nat_lead++; if(k.nat_a)nat_a_count++; if(!yayimlanmisMi(it))nat_yayimsiz++;}
+    if(k.nat && it.postUzm){nat_count++; if(k.nat_a)nat_a_count++; if(basilmadi)nat_yayimsiz++;
+      if((+it.rank||1)===1){nat_lead++; if(basilmadi)nat_lead_yayimsiz++;}}
   }
   DB.items.forEach(it=>{ if(it.stage==='kabul') tally(it); });
   DB.pubs.forEach(it=> tally(it));
@@ -1801,11 +1813,13 @@ function render(){
   }
 
   const gates=[
-    {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, auto:true, mandatory:true},
-    {t:'M1 · uluslararası puan (a-f)', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, auto:true, mandatory:true},
-    {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, auto:true, mandatory:true},
-    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD'+(nat_yayimsiz?' ⛔'+nat_yayimsiz+' yayımlanmamış':''), ok:(nat_count>=3&&nat_a_count>=2&&nat_yayimsiz===0), auto:true, mandatory:true},
-    {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, auto:true, mandatory:true},
+    // RENK KURALI: yalnız ÜAK'ın ana sayısal şartına bakar. Yayımlanmamış eser
+    // varsa kutu yeşil kalır, ayrıca uyarı satırı çıkar (uyari alanı).
+    {t:'Toplam puan', v:grand+' / 100', ok:grand>=100, uyari:uyariMetni(yayimsizTop), auto:true, mandatory:true},
+    {t:'M1 · uluslararası puan (a-f)', v:Math.round(intlA_pts*10)/10+' / 40', ok:intlA_pts>=40, uyari:uyariMetni(intlA_yayimsiz), auto:true, mandatory:true},
+    {t:'M1a · başlıca yazar', v:intlA_lead+' / 3', ok:intlA_lead>=3, uyari:uyariMetni(intlA_lead_yayimsiz), auto:true, mandatory:true},
+    {t:'M2 · ulusal yayın (2 TR Dizin)', v:nat_count+' yay · '+nat_a_count+' TRD', ok:(nat_count>=3&&nat_a_count>=2), uyari:uyariMetni(nat_yayimsiz), auto:true, mandatory:true},
+    {t:'M2 · ulusal başlıca yazar', v:nat_lead+' / 2', ok:nat_lead>=2, uyari:uyariMetni(nat_lead_yayimsiz), auto:true, mandatory:true},
     {t:'M3 · tez yayını', v:md3Toplam().puan+' / 20 p', ok:md3Toplam().puan>0, auto:true, mandatory:true},
     {t:'M5 · atıf', v:atifPts+' / 5 p'+(citRaw().pre>0?' (uzm.sonrası '+citPost()+')':''), ok:citPost()>=5, auto:true, key:'atif', mandatory:true},
     {t:'M8 · bildiri', v:m8+' / 5 p', ok:m8>=5, auto:true, mandatory:true},
@@ -1818,8 +1832,8 @@ function render(){
         style="width:48px;padding:3px 5px;border:1px solid var(--line);border-radius:8px;font:600 12px Jost,ui-monospace,monospace;text-align:center">
       <span class="gbtn" onclick="bumpManual('${g.key}',0.5)">+</span></span>`;
     const mandClass=g.mandatory?'mandatory':'';
-    return `<div class="gate ${g.ok?'ok':'no'} ${mandClass}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
-      <div class="g-v"><span class="mark">${g.ok?'✓':'○'}</span> <b>${g.v}</b>${ctrl}</div></div>`;
+    return `<div class="gate ${g.ok?'ok':'no'} ${mandClass} ${(g.ok&&g.uyari)?'uyari':''}"><div class="g-t">${g.t}${g.auto?'':' · elle'}</div>
+      <div class="g-v"><span class="mark">${g.ok?'✓':'○'}</span> <b>${g.v}</b>${ctrl}</div>${g.uyari?`<span class="g-uyari" title="ÜAK: yalnız başvuru tarihi itibarıyla yayımlanmış eser beyan edilebilir (DBS SSS md.17-18).">${g.uyari}</span>`:''}</div>`;
   }).join('');
 
   document.getElementById('cntSurec').textContent='('+DB.items.length+')';
